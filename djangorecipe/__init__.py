@@ -98,6 +98,8 @@ class Recipe(object):
         options.setdefault('urlconf', 'urls')
         options.setdefault('media_root', 'media')
         options.setdefault('secret', self.generate_secret())
+        # set this so the rest of the recipe can expect it to be there
+        options.setdefault('pythonpath', '')
 
         # Usefull when using archived versions
         buildout['buildout'].setdefault(
@@ -122,6 +124,9 @@ class Recipe(object):
                     "Please check your internet connection.")
         else:
             download_dir = self.buildout['buildout']['download-directory']
+            if not os.path.exists(download_dir):
+                os.mkdir(download_dir)
+
             tarball = os.path.join(
                 download_dir, 'django-%s.tar.gz' % version)
             extraction_dir = os.path.join(download_dir, 'django-archive')

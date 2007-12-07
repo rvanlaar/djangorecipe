@@ -19,7 +19,7 @@ A buildout recipe which can be used to create Django installation""",
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          # -*- Extra requirements: -*-
+        'zc.buildout',
         'zc.recipe.egg',
       ],
       entry_points="""
