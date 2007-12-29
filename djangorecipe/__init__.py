@@ -14,7 +14,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = 'sqlite3'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+DATABASE_ENGINE = 'sqlite3'    # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
 DATABASE_NAME = ''
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
@@ -114,19 +114,28 @@ class Recipe(object):
 
         project_dir = os.path.join(base_dir, self.options['project'])
 
+        download_dir = self.buildout['buildout']['download-directory']
+        if not os.path.exists(download_dir):
+            os.mkdir(download_dir)
+
         version = self.options['version']
         if version == 'trunk':
-            if self.command(
-                'svn co http://code.djangoproject.com/svn/django/trunk/ %s' % 
-                location):
-                raise UserError(
-                    "Failed to checkout Django. "
-                    "Please check your internet connection.")
+            download_location = os.path.join(download_dir, 'django-svn')
+            if os.path.exists(download_location):
+                if self.command('svn up %s' % download_location):
+                    raise UserError(
+                        "Failed to update Django; %s. "
+                        "Please check your internet connection." % (
+                            download_location))
+                shutil.copytree(download_location, location)
+            else:
+                if self.command(
+                    'svn co http://code.djangoproject.com/svn/django/trunk/ %s' % 
+                    download_location):
+                    raise UserError(
+                        "Failed to checkout Django. "
+                        "Please check your internet connection.")
         else:
-            download_dir = self.buildout['buildout']['download-directory']
-            if not os.path.exists(download_dir):
-                os.mkdir(download_dir)
-
             tarball = os.path.join(
                 download_dir, 'django-%s.tar.gz' % version)
             extraction_dir = os.path.join(download_dir, 'django-archive')
@@ -151,6 +160,7 @@ class Recipe(object):
 
         extra_paths = [os.path.join(location), base_dir]
         extra_paths.extend(ws_locations)
+        extra_paths.append(project_dir)
 
         pythonpath = [p.replace('/', os.path.sep) for p in
                       self.options['pythonpath'].splitlines() if p.strip()]
@@ -163,9 +173,7 @@ class Recipe(object):
                 'djangorecipe.manage', 'main')],
             ws, self.options['executable'], self.options['bin-directory'],
             extra_paths = extra_paths,
-            arguments= "'%s.%s'" % (self.options['project'],
-                                    self.options['settings']),
-            )
+            arguments= "'settings'")
 
         # Create default settings
         if not os.path.exists(project_dir):

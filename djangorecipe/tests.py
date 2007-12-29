@@ -15,10 +15,6 @@ class TestRecipe(unittest.TestCase):
         # ==================================
         self.prefer_final = zc.buildout.easy_install.prefer_final()
 
-
-        self.old_home = os.environ.get('HOME')
-        os.environ['HOME'] = 'bbbBadHome'
-
         self.tmp = tempfile.mkdtemp('buildouttests')
         zc.buildout.easy_install.default_index_url = 'file://'+self.tmp
         os.environ['buildout-testing-index-url'] = (
@@ -77,7 +73,6 @@ class TestRecipe(unittest.TestCase):
 
     def tearDown(self):
         os.chdir(self.old_dir)
-        os.environ['HOME'] = self.old_home
         shutil.rmtree(self.tmp)
 
     def buildout(self, env=None):
@@ -93,38 +88,22 @@ class TestRecipe(unittest.TestCase):
         if 'Error:' in output:
             raise IOError('Problem during buildout run, output:\n\n' + output)
 
-#     def testTrunk(self):
-#         # Test a download from the Subversion repository
-#         open('buildout.cfg', 'w').write('''
-# [buildout]
-# parts = django
+    def testTrunk(self):
+        # Test a download from the Subversion repository
+        open('buildout.cfg', 'w').write('''
+[buildout]
+parts = django
 
-# [django]
-# recipe = djangorecipe
-# version = trunk
-# settings = development
-# project = dummyshop
-# ''')
-#         self.buildout()
+[django]
+recipe = djangorecipe
+version = trunk
+settings = development
+project = dummyshop
+''')
+        self.buildout()
 
-#     def testRelease(self):
-#         # Test a release download
-#         open('buildout.cfg', 'w').write('''
-# [buildout]
-# parts = django
-
-# [django]
-# recipe = djangorecipe
-# version = 0.96.1
-# settings = development
-# project = dummyshop
-# ''')
-#         self.buildout()
-#         self.failUnlessManage('django')
-
-    def testDownloadDir(self):
+    def testRelease(self):
         # Test a release download
-        os.environ['HOME'] = self.old_home
         open('buildout.cfg', 'w').write('''
 [buildout]
 parts = django
@@ -135,8 +114,27 @@ version = 0.96.1
 settings = development
 project = dummyshop
 ''')
-        self.buildout(env=os.environ)
+        self.buildout()
         self.failUnlessManage('django', '0.96.1')
+
+#     def testDownloadDir(self):
+#         # Test a release download
+#         self.old_home = os.environ.get('HOME')
+#         os.environ['HOME'] = 'bbbBadHome'
+
+#         os.environ['HOME'] = self.old_home
+#         open('buildout.cfg', 'w').write('''
+# [buildout]
+# parts = django
+
+# [django]
+# recipe = djangorecipe
+# version = 0.96.1
+# settings = development
+# project = dummyshop
+# ''')
+#         self.buildout(env=os.environ)
+#         self.failUnlessManage('django', '0.96.1')
 
 
     def failUnlessManage(self, script_name, version):
@@ -149,6 +147,24 @@ project = dummyshop
         # Check output of the Django script
         self.failUnlessEqual(command.stdout.read().strip(), version)
         
+    def testTestCommand(self):
+        # run the Django test command, this makes sure that the
+        # settings file is properly configured
+        open('buildout.cfg', 'w').write('''
+[buildout]
+parts = django
+
+[django]
+recipe = djangorecipe
+version = trunk
+settings = development
+project = dummyshop
+''')
+        self.buildout()
+        script = os.path.join(self.buildout_dir, 'bin', 'django')
+        self.failUnlessEqual(subprocess.call([script, 'test'], 
+                                             stdout=subprocess.PIPE,
+                                             stderr=subprocess.PIPE), 0)
 
 
 def test_suite():
