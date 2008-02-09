@@ -17,7 +17,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'sqlite3'    # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = ''
+DATABASE_NAME = '%(project)s.db'
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
@@ -69,9 +69,12 @@ TEMPLATE_LOADERS = (
 TEMPLATE_DIRS = (
     os.path.join(os.path.dirname(__file__), "templates"),
 )
+
+
+from %(project)s.%(settings)s import *
 '''
 
-development_settings = settings_template + '''
+development_settings = '''
 DEBUG=True
 TEMPLATE_DEBUG=DEBUG
 '''
@@ -106,7 +109,6 @@ class Recipe(object):
 
         options.setdefault('project', 'project')
         options.setdefault('settings', 'development')
-
 
         options.setdefault('urlconf', 'urls')
         options.setdefault(
@@ -183,12 +185,24 @@ class Recipe(object):
         
         requirements, ws = self.egg.working_set(['djangorecipe'])
 
+        # Create the Django management script
         zc.buildout.easy_install.scripts(
             [(self.options.get('control-script', self.name),
                 'djangorecipe.manage', 'main')],
             ws, self.options['executable'], self.options['bin-directory'],
             extra_paths = extra_paths,
             arguments= "'settings'")
+
+        # Create the test runner
+        apps = self.options.get('test', '').split()
+        zc.buildout.easy_install.scripts(
+            [(self.options.get('testrunner', 'test'),
+                'djangorecipe.test', 'main')],
+            ws, self.options['executable'], self.options['bin-directory'],
+            extra_paths = extra_paths,
+            arguments= "'settings', %s" % ', '.join(
+                ["'%s'" % app for app in apps]))
+
 
         # Create default settings
         if not os.path.exists(project_dir):
@@ -200,7 +214,7 @@ class Recipe(object):
 
         self.create_file(
             os.path.join(project_dir, 'production.py'),
-            settings_template, self.options)
+            '', self.options)
 
         self.create_file(
             os.path.join(project_dir, 'urls.py'),
@@ -208,7 +222,7 @@ class Recipe(object):
 
         self.create_file(
             os.path.join(project_dir, 'settings.py'),
-            'from %(project)s.%(settings)s import *', self.options)
+            settings_template, self.options)
 
         # Create the media and templates directories for our project
         os.mkdir(os.path.join(project_dir, 'media'))

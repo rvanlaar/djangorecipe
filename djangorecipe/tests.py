@@ -6,7 +6,7 @@ import zc.buildout.testing
 from zope.testing import doctest, renormalizing
 
 
-def test_command(test):
+def djang_test_command(test):
     '''
     Make sure the test command works.
 
@@ -34,6 +34,7 @@ def test_command(test):
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
     Generated script '/sample-buildout/bin/django'.
+    Generated script '/sample-buildout/bin/test'.
 
     Run the test command.
 
@@ -74,6 +75,7 @@ def download_release(test):
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
     Generated script '/sample-buildout/bin/django'.
+    Generated script '/sample-buildout/bin/test'.
 
     Make sure the version number matches the requested version.
 
@@ -110,6 +112,7 @@ def use_trunk(test):
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
     Generated script '/sample-buildout/bin/django'.
+    Generated script '/sample-buildout/bin/test'.
 
     Make sure the version number matches the requested version.
 
@@ -117,6 +120,98 @@ def use_trunk(test):
     0.96.1
     '''
 
+def test_runner(test):
+    ''' 
+    The test options can be used to specify a number of apps to test.
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... eggs-directory = /home/jvloothuis/Projects/eggs
+    ... parts = django
+    ... 
+    ... [django]
+    ... recipe = djangorecipe
+    ... version = 0.96.1
+    ... settings = development
+    ... test = someapp
+    ... project = dummy
+    ... """)
+
+    >>> print system(buildout),
+    Upgraded:
+      zc.buildout version 1.0.0,
+      setuptools version 0.6c7;
+    restarting.
+    Generated script '/sample-buildout/bin/buildout'.
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Installing django.
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Generated script '/sample-buildout/bin/django'.
+    Generated script '/sample-buildout/bin/test'.
+
+    The apps are not installed so running the tests will break it.
+
+    >>> print system('bin/test'), # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    django.core.exceptions.ImproperlyConfigured: App with label someapp could not be found
+
+
+    Now we will create an app so that the test will run.
+
+    >>> mkdir('dummy/someapp')
+    >>> write('dummy/someapp/__init__.py', '')
+    >>> write('dummy/someapp/urls.py', '')
+    >>> write('dummy/someapp/views.py', '')
+    >>> write('dummy/someapp/models.py', '')
+    >>> write('dummy/someapp/tests.py',
+    ... """
+    ... def simple_test(test):
+    ...     \'\'\'
+    ...     >>> 1 == 2
+    ...     False
+    ...     \'\'\'
+    ...
+    ... def suite():
+    ...     return doctest.DocTestSuite()
+    ... """)
+
+    We need to add the app to the installed apps.
+
+    >>> write('dummy/development.py',
+    ... """
+    ... INSTALLED_APPS = (
+    ...     'django.contrib.auth',
+    ...     'django.contrib.contenttypes',
+    ...     'django.contrib.sessions',
+    ...     'django.contrib.admin',
+    ...     'dummy.someapp',
+    ... )
+    ... """)
+
+    >>> print system('bin/test'), # doctest: +ELLIPSIS
+    Creating test database...
+    Creating table auth_message
+    Creating table auth_group
+    Creating table auth_user
+    Creating table auth_permission
+    Creating table django_content_type
+    Creating table django_session
+    Creating table django_admin_log
+    Installing index for auth.Message model
+    Installing index for auth.Permission model
+    Installing index for admin.LogEntry model
+    Loading 'initial_data' fixtures...
+    No fixtures found.
+    Destroying test database...
+    .
+    ----------------------------------------------------------------------
+    Ran 1 test in ...
+    <BLANKLINE>
+    OK
+    '''
 
 def setUp(test):
     zc.buildout.testing.buildoutSetUp(test)
