@@ -8,6 +8,8 @@ import setuptools
 import shutil
 
 settings_template = '''
+import os
+
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
@@ -59,6 +61,14 @@ INSTALLED_APPS = (
     'django.contrib.admin',
 )
 
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.load_template_source',
+    'django.template.loaders.app_directories.load_template_source',
+)
+
+TEMPLATE_DIRS = (
+    os.path.join(os.path.dirname(__file__), "templates"),
+)
 '''
 
 development_settings = settings_template + '''
@@ -67,17 +77,20 @@ TEMPLATE_DEBUG=DEBUG
 '''
 
 urls_template = '''
-from django.conf.urls.defaults import patterns, include
+from django.conf.urls.defaults import patterns, include, handler500
 from django.conf import settings
+
+handler500 # Pyflakes
 
 urlpatterns = patterns(
     '',
     (r'^admin/', include('django.contrib.admin.urls')),
+    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
 )
 
 if settings.DEBUG:
     urlpatterns += patterns('',
-        (r'^data/(?P<path>.*)$', 'django.views.static.serve', 
+        (r'^media/(?P<path>.*)$', 'django.views.static.serve', 
          {'document_root': settings.MEDIA_ROOT}),
     )
 '''
@@ -96,7 +109,9 @@ class Recipe(object):
 
 
         options.setdefault('urlconf', 'urls')
-        options.setdefault('media_root', 'media')
+        options.setdefault(
+            'media_root', os.path.abspath(os.path.join(
+                    os.path.dirname(__file__), 'media')))
         options.setdefault('secret', self.generate_secret())
         # set this so the rest of the recipe can expect it to be there
         options.setdefault('pythonpath', '')
@@ -194,6 +209,10 @@ class Recipe(object):
         self.create_file(
             os.path.join(project_dir, 'settings.py'),
             'from %(project)s.%(settings)s import *', self.options)
+
+        # Create the media and templates directories for our project
+        os.mkdir(os.path.join(project_dir, 'media'))
+        os.mkdir(os.path.join(project_dir, 'templates'))
 
         # Make the settings dir a Python package so that Django can
         # load the settings from it. It will act like the project dir.
