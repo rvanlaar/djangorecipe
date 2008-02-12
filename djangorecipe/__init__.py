@@ -195,13 +195,15 @@ class Recipe(object):
 
         # Create the test runner
         apps = self.options.get('test', '').split()
-        zc.buildout.easy_install.scripts(
-            [(self.options.get('testrunner', 'test'),
-                'djangorecipe.test', 'main')],
-            ws, self.options['executable'], self.options['bin-directory'],
-            extra_paths = extra_paths,
-            arguments= "'settings', %s" % ', '.join(
-                ["'%s'" % app for app in apps]))
+        # Only create the testrunner if the user requests it
+        if apps:
+            zc.buildout.easy_install.scripts(
+                [(self.options.get('testrunner', 'test'),
+                  'djangorecipe.test', 'main')],
+                ws, self.options['executable'], self.options['bin-directory'],
+                extra_paths = extra_paths,
+                arguments= "'settings', %s" % ', '.join(
+                    ["'%s'" % app for app in apps]))
 
 
         # Create default settings

@@ -34,7 +34,6 @@ def djang_test_command(test):
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
     Generated script '/sample-buildout/bin/django'.
-    Generated script '/sample-buildout/bin/test'.
 
     Run the test command.
 
@@ -75,7 +74,6 @@ def download_release(test):
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
     Generated script '/sample-buildout/bin/django'.
-    Generated script '/sample-buildout/bin/test'.
 
     Make sure the version number matches the requested version.
 
@@ -112,7 +110,6 @@ def use_trunk(test):
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
     Generated script '/sample-buildout/bin/django'.
-    Generated script '/sample-buildout/bin/test'.
 
     Make sure the version number matches the requested version.
 
