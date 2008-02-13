@@ -210,29 +210,33 @@ class Recipe(object):
         if not os.path.exists(project_dir):
             os.makedirs(project_dir)
 
-        self.create_file(
-            os.path.join(project_dir, 'development.py'),
-            development_settings, self.options)
+            self.create_file(
+                os.path.join(project_dir, 'development.py'),
+                development_settings, self.options)
 
-        self.create_file(
-            os.path.join(project_dir, 'production.py'),
-            '', self.options)
+            self.create_file(
+                os.path.join(project_dir, 'production.py'),
+                '', self.options)
 
-        self.create_file(
-            os.path.join(project_dir, 'urls.py'),
-            urls_template, self.options)
+            self.create_file(
+                os.path.join(project_dir, 'urls.py'),
+                urls_template, self.options)
 
-        self.create_file(
-            os.path.join(project_dir, 'settings.py'),
-            settings_template, self.options)
+            self.create_file(
+                os.path.join(project_dir, 'settings.py'),
+                settings_template, self.options)
 
-        # Create the media and templates directories for our project
-        os.mkdir(os.path.join(project_dir, 'media'))
-        os.mkdir(os.path.join(project_dir, 'templates'))
+            # Create the media and templates directories for our
+            # project
+            os.mkdir(os.path.join(project_dir, 'media'))
+            os.mkdir(os.path.join(project_dir, 'templates'))
 
-        # Make the settings dir a Python package so that Django can
-        # load the settings from it. It will act like the project dir.
-        open(os.path.join(project_dir, '__init__.py'), 'w').close()
+            # Make the settings dir a Python package so that Django
+            # can load the settings from it. It will act like the
+            # project dir.
+            open(os.path.join(project_dir, '__init__.py'), 'w').close()
+        else:
+            print 'Skipping creating of project: %(project)s since it exists' % self.options
 
         return location
 

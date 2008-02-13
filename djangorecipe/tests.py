@@ -210,6 +210,50 @@ def test_runner(test):
     OK
     '''
 
+def test_existing_project(test):
+    ''' 
+    An existing project should not be overwritten when doing a new
+    buildout.
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... eggs-directory = /home/jvloothuis/Projects/eggs
+    ... parts = django
+    ... 
+    ... [django]
+    ... recipe = djangorecipe
+    ... version = 0.96.1
+    ... settings = development
+    ... test = someapp
+    ... project = dummy
+    ... """)
+
+    >>> mkdir('dummy')
+    >>> mkdir('dummy/media')
+    >>> mkdir('dummy/templates')
+    >>> write('dummy/settings.py', 'TESTING')
+
+    >>> print system(buildout),
+    Upgraded:
+      zc.buildout version 1.0.0,
+      setuptools version 0.6c7;
+    restarting.
+    Generated script '/sample-buildout/bin/buildout'.
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Installing django.
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Generated script '/sample-buildout/bin/django'.
+    Generated script '/sample-buildout/bin/test'.
+    Skipping creating of project: dummy since it exists
+
+    The settings should still be filled with our test content.
+
+    >>> cat('dummy/settings.py')
+    TESTING
+    '''
+
 def setUp(test):
     zc.buildout.testing.buildoutSetUp(test)
 
