@@ -33,6 +33,7 @@ You can see an example of how to use the recipe below::
 """,
       classifiers=[
         'Framework :: Buildout',
+        'Framework :: Django',
         'Topic :: Software Development :: Build Tools',
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: BSD License',
@@ -52,6 +53,5 @@ You can see an example of how to use the recipe below::
       # -*- Entry points: -*-
       [zc.buildout]
       default = djangorecipe:Recipe
-
       """,
       )
