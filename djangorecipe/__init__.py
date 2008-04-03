@@ -1,11 +1,13 @@
 from random import choice
 import os
+import stat
 import subprocess
+import urllib
+import shutil
+
 from zc.buildout import UserError
 import zc.recipe.egg
-import urllib
 import setuptools
-import shutil
 
 settings_template = '''
 import os
@@ -29,7 +31,7 @@ LANGUAGE_CODE = 'en-us'
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = '%(media_root)s'
+MEDIA_ROOT = %(media_root)s
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -71,10 +73,14 @@ TEMPLATE_DIRS = (
 )
 
 
-from %(project)s.%(settings)s import *
+'''
+
+production_settings = '''
+from %(project)s.settings import *
 '''
 
 development_settings = '''
+from %(project)s.settings import *
 DEBUG=True
 TEMPLATE_DEBUG=DEBUG
 '''
@@ -98,6 +104,23 @@ if settings.DEBUG:
     )
 '''
 
+wsgi_template = '''
+import os, sys
+ 
+# Add the project to the python path
+sys.path.extend(
+  %(extra_paths)s
+)
+ 
+# Set our settings module
+os.environ['DJANGO_SETTINGS_MODULE']='%(project)s.settings'
+ 
+import django.core.handlers.wsgi
+ 
+# Run WSGI handler for the application
+application = django.core.handlers.wsgi.WSGIHandler()
+'''
+
 class Recipe(object):
     def __init__(self, buildout, name, options):
         self.egg = zc.recipe.egg.Egg(buildout, options['recipe'], options)
@@ -112,8 +135,8 @@ class Recipe(object):
 
         options.setdefault('urlconf', 'urls')
         options.setdefault(
-            'media_root', os.path.abspath(os.path.join(
-                    os.path.dirname(__file__), 'media')))
+            'media_root', 
+            "os.path.join(os.path.dirname(__file__), 'media')")
         options.setdefault('secret', self.generate_secret())
         # set this so the rest of the recipe can expect it to be there
         options.setdefault('pythonpath', '')
@@ -123,6 +146,9 @@ class Recipe(object):
             'download-directory',
             os.path.join(buildout['buildout']['directory'], 
                          'downloads'))
+
+        # mod_wsgi support script
+        options.setdefault('wsgi', 'false')
 
 
     def install(self):
@@ -136,6 +162,10 @@ class Recipe(object):
             os.mkdir(download_dir)
 
         version = self.options['version']
+        # Remove a pre-existing installation if it is there
+        if os.path.exists(location):
+            shutil.rmtree(location)
+            
         if version == 'trunk':
             download_location = os.path.join(download_dir, 'django-svn')
             if os.path.exists(download_location):
@@ -162,10 +192,6 @@ class Recipe(object):
                 download_url = 'http://www.djangoproject.com/download/%s/tarball/'
                 urllib.urlretrieve(download_url % version, tarball)
 
-            # Remove a pre-existing installation if it is there
-            if os.path.exists(location):
-                shutil.rmtree(location)
-            
             # Extract and put the dir in its proper place
             untarred_dir = os.path.join(extraction_dir, 'Django-%s' % version)
             setuptools.archive_util.unpack_archive(tarball, extraction_dir)
@@ -177,7 +203,6 @@ class Recipe(object):
 
         extra_paths = [os.path.join(location), base_dir]
         extra_paths.extend(ws_locations)
-        extra_paths.append(project_dir)
 
         pythonpath = [p.replace('/', os.path.sep) for p in
                       self.options['pythonpath'].splitlines() if p.strip()]
@@ -191,7 +216,7 @@ class Recipe(object):
                 'djangorecipe.manage', 'main')],
             ws, self.options['executable'], self.options['bin-directory'],
             extra_paths = extra_paths,
-            arguments= "'settings'")
+            arguments= "'%s.settings'" % self.options['project'])
 
         # Create the test runner
         apps = self.options.get('test', '').split()
@@ -202,8 +227,20 @@ class Recipe(object):
                   'djangorecipe.test', 'main')],
                 ws, self.options['executable'], self.options['bin-directory'],
                 extra_paths = extra_paths,
-                arguments= "'settings', %s" % ', '.join(
-                    ["'%s'" % app for app in apps]))
+                arguments= "'%s.%s', %s" % (
+                    self.options['project'],
+                    self.options['settings'],
+                    ', '.join(["'%s'" % app for app in apps])))
+
+        # Make the wsgi script if enabled
+        if self.options.get('wsgi').lower() == 'true':
+            script_name = os.path.join(base_dir, 'bin', self.options.get('control-script', self.name) + '.wsgi')
+            f = open(script_name, 'w')
+            o = {'extra_paths': repr(extra_paths)}
+            o.update(self.options)
+            f.write(wsgi_template % o)
+            f.close()
+            os.chmod(script_name, stat.S_IRWXU|stat.S_IRGRP|stat.S_IXGRP)
 
 
         # Create default settings
@@ -216,7 +253,7 @@ class Recipe(object):
 
             self.create_file(
                 os.path.join(project_dir, 'production.py'),
-                '', self.options)
+                production_settings, self.options)
 
             self.create_file(
                 os.path.join(project_dir, 'urls.py'),

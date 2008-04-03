@@ -26,7 +26,7 @@ def djang_test_command(test):
     >>> print system(buildout),
     Upgraded:
       zc.buildout version 1.0.0,
-      setuptools version 0.6c7;
+      setuptools version ...;
     restarting.
     Generated script '/sample-buildout/bin/buildout'.
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
@@ -37,7 +37,7 @@ def djang_test_command(test):
 
     Run the test command.
 
-    >>> print system('bin/django test'), # doctest: +ELLIPSIS
+    >>> print system('bin/django test'),
     Creating test database...
     ...
     ----------------------------------------------------------------------
@@ -66,7 +66,7 @@ def download_release(test):
     >>> print system(buildout),
     Upgraded:
       zc.buildout version 1.0.0,
-      setuptools version 0.6c7;
+      setuptools version ...;
     restarting.
     Generated script '/sample-buildout/bin/buildout'.
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
@@ -77,7 +77,7 @@ def download_release(test):
 
     Make sure the version number matches the requested version.
 
-    >>> system('bin/django --version') # doctest: +ELLIPSIS
+    >>> system('bin/django --version')
     '...-pre-SVN-...'
 
     '''
@@ -102,7 +102,7 @@ def use_trunk(test):
     >>> print system(buildout),
     Upgraded:
       zc.buildout version 1.0.0,
-      setuptools version 0.6c7;
+      setuptools version ...;
     restarting.
     Generated script '/sample-buildout/bin/buildout'.
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
@@ -129,7 +129,7 @@ def test_runner(test):
     ... 
     ... [django]
     ... recipe = djangorecipe
-    ... version = 0.96.1
+    ... version = trunk
     ... settings = development
     ... test = someapp
     ... project = dummy
@@ -138,7 +138,7 @@ def test_runner(test):
     >>> print system(buildout),
     Upgraded:
       zc.buildout version 1.0.0,
-      setuptools version 0.6c7;
+      setuptools version ...;
     restarting.
     Generated script '/sample-buildout/bin/buildout'.
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
@@ -150,7 +150,7 @@ def test_runner(test):
 
     The apps are not installed so running the tests will break it.
 
-    >>> print system('bin/test'), # doctest: +ELLIPSIS
+    >>> print system('bin/test'),
     Traceback (most recent call last):
     ...
     django.core.exceptions.ImproperlyConfigured: App with label someapp could not be found
@@ -165,6 +165,8 @@ def test_runner(test):
     >>> write('dummy/someapp/models.py', '')
     >>> write('dummy/someapp/tests.py',
     ... """
+    ... import doctest
+    ...
     ... def simple_test(test):
     ...     \'\'\'
     ...     >>> 1 == 2
@@ -179,6 +181,7 @@ def test_runner(test):
 
     >>> write('dummy/development.py',
     ... """
+    ... from dummy.settings import *
     ... INSTALLED_APPS = (
     ...     'django.contrib.auth',
     ...     'django.contrib.contenttypes',
@@ -188,26 +191,16 @@ def test_runner(test):
     ... )
     ... """)
 
-    >>> print system('bin/test'), # doctest: +ELLIPSIS
+    >>> print system('bin/test'),
     Creating test database...
-    Creating table auth_message
-    Creating table auth_group
-    Creating table auth_user
-    Creating table auth_permission
-    Creating table django_content_type
-    Creating table django_session
-    Creating table django_admin_log
-    Installing index for auth.Message model
-    Installing index for auth.Permission model
-    Installing index for admin.LogEntry model
-    Loading 'initial_data' fixtures...
-    No fixtures found.
+    ...
     Destroying test database...
     .
     ----------------------------------------------------------------------
     Ran 1 test in ...
     <BLANKLINE>
     OK
+
     '''
 
 def test_existing_project(test):
@@ -237,7 +230,7 @@ def test_existing_project(test):
     >>> print system(buildout),
     Upgraded:
       zc.buildout version 1.0.0,
-      setuptools version 0.6c7;
+      setuptools version ...;
     restarting.
     Generated script '/sample-buildout/bin/buildout'.
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
@@ -252,6 +245,78 @@ def test_existing_project(test):
 
     >>> cat('dummy/settings.py')
     TESTING
+    '''
+
+def test_existing_django_dir(test):
+    '''
+    If there is an existing Django installation (from a previous
+    buildout) in the way the recipe should just remove it.
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... eggs-directory = /home/jvloothuis/Projects/eggs
+    ... parts = django
+    ... 
+    ... [django]
+    ... recipe = djangorecipe
+    ... version = 0.96.1
+    ... settings = development
+    ... project = dummy
+    ... """)
+
+    >>> mkdir('parts/django')
+
+    >>> print system(buildout),
+    Upgraded:
+      zc.buildout version 1.0.0,
+      setuptools version ...;
+    restarting.
+    Generated script '/sample-buildout/bin/buildout'.
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Installing django.
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Generated script '/sample-buildout/bin/django'.
+
+    '''
+
+def test_wsgi(test):
+    '''
+    The recipe has an option to generate a WSGI script which can be
+    used with mod_wsgi.
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... eggs-directory = /home/jvloothuis/Projects/eggs
+    ... parts = django
+    ... 
+    ... [django]
+    ... recipe = djangorecipe
+    ... version = 0.96.1
+    ... settings = development
+    ... project = dummy
+    ... wsgi = true
+    ... """)
+
+    >>> print system(buildout),
+    Upgraded:
+      zc.buildout version 1.0.0,
+      setuptools version ...;
+    restarting.
+    Generated script '/sample-buildout/bin/buildout'.
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Installing django.
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Generated script '/sample-buildout/bin/django'.
+
+    >>> cat('bin/django.wsgi')
+    <BLANKLINE>
+    ...
+    application = django.core.handlers.wsgi.WSGIHandler()
+
     '''
 
 def setUp(test):
@@ -282,6 +347,7 @@ def test_suite():
             doctest.DocTestSuite(
                 setUp=setUp,
                 tearDown=zc.buildout.testing.buildoutTearDown,
+                optionflags=doctest.ELLIPSIS,
                 checker=renormalizing.RENormalizing([
                         zc.buildout.testing.normalize_path,
                         zc.buildout.testing.normalize_script,
