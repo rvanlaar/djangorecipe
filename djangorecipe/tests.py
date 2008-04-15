@@ -25,7 +25,7 @@ def djang_test_command(test):
 
     >>> print system(buildout),
     Upgraded:
-      zc.buildout version 1.0.0,
+      zc.buildout version ...,
       setuptools version ...;
     restarting.
     Generated script '/sample-buildout/bin/buildout'.
@@ -65,7 +65,7 @@ def download_release(test):
 
     >>> print system(buildout),
     Upgraded:
-      zc.buildout version 1.0.0,
+      zc.buildout version ...,
       setuptools version ...;
     restarting.
     Generated script '/sample-buildout/bin/buildout'.
@@ -101,7 +101,7 @@ def use_trunk(test):
 
     >>> print system(buildout),
     Upgraded:
-      zc.buildout version 1.0.0,
+      zc.buildout version ...,
       setuptools version ...;
     restarting.
     Generated script '/sample-buildout/bin/buildout'.
@@ -137,7 +137,7 @@ def test_runner(test):
 
     >>> print system(buildout),
     Upgraded:
-      zc.buildout version 1.0.0,
+      zc.buildout version ...,
       setuptools version ...;
     restarting.
     Generated script '/sample-buildout/bin/buildout'.
@@ -229,7 +229,7 @@ def test_existing_project(test):
 
     >>> print system(buildout),
     Upgraded:
-      zc.buildout version 1.0.0,
+      zc.buildout version ...,
       setuptools version ...;
     restarting.
     Generated script '/sample-buildout/bin/buildout'.
@@ -269,7 +269,7 @@ def test_existing_django_dir(test):
 
     >>> print system(buildout),
     Upgraded:
-      zc.buildout version 1.0.0,
+      zc.buildout version ...,
       setuptools version ...;
     restarting.
     Generated script '/sample-buildout/bin/buildout'.
@@ -302,7 +302,7 @@ def test_wsgi(test):
 
     >>> print system(buildout),
     Upgraded:
-      zc.buildout version 1.0.0,
+      zc.buildout version ...,
       setuptools version ...;
     restarting.
     Generated script '/sample-buildout/bin/buildout'.
@@ -316,6 +316,68 @@ def test_wsgi(test):
     <BLANKLINE>
     ...
     application = django.core.handlers.wsgi.WSGIHandler()
+
+    '''
+
+def install_from_cache():
+    '''
+    The recipe does not need an internet connection if either the svn
+    or normal download is located in the cache dir (which is used when
+    downloading either).
+
+    If there is nothing in the cache the recipe will show an error.
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... eggs-directory = /home/jvloothuis/Projects/eggs
+    ... parts = django
+    ... download-cache = non-existing-folder
+    ... install-from-cache = true
+    ... 
+    ... [django]
+    ... recipe = djangorecipe
+    ... version = trunk
+    ... settings = development
+    ... project = dummy
+    ... wsgi = true
+    ... """)
+
+    >>> print system(buildout),
+    While:
+      Initializing.
+    Error: The specified download cache:
+    '/.../_TEST_/sample-buildout/non-existing-folder'
+    Doesn't exist.
+    <BLANKLINE>
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... eggs-directory = /home/jvloothuis/Projects/eggs
+    ... parts = django
+    ... install-from-cache = true
+    ... 
+    ... [django]
+    ... recipe = djangorecipe
+    ... version = trunk
+    ... settings = development
+    ... project = dummy
+    ... wsgi = true
+    ... """)
+
+    >>> print system(buildout),
+    Upgraded:
+      zc.buildout version 1.0.1,
+      setuptools version 0.6c8;
+    restarting.
+    Generated script '/.../_TEST_/sample-buildout/bin/buildout'.
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Installing django.
+    Installing Django from cache: .../djangorecipe-test-cache/django-svn
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Generated script '/.../_TEST_/sample-buildout/bin/django'.
 
     '''
 
@@ -334,7 +396,7 @@ def setUp(test):
     test.globs['write'](home, '.buildout', 'default.cfg',
     """
 [buildout]
-download-directory = %(cache_dir)s
+download-cache = %(cache_dir)s
     """ % dict(cache_dir=cache_dir))
     os.environ['HOME'] = home
 

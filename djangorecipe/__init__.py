@@ -157,7 +157,7 @@ class Recipe(object):
 
         project_dir = os.path.join(base_dir, self.options['project'])
 
-        download_dir = self.buildout['buildout']['download-directory']
+        download_dir = self.buildout['buildout']['download-cache']
         if not os.path.exists(download_dir):
             os.mkdir(download_dir)
 
@@ -166,22 +166,30 @@ class Recipe(object):
         if os.path.exists(location):
             shutil.rmtree(location)
             
+        # only try to download stuff if we aren't asked to install from cache
+        install_from_cache = self.buildout['buildout'].get(
+            'install-from-cache', '').strip() != 'true'
         if version == 'trunk':
             download_location = os.path.join(download_dir, 'django-svn')
-            if os.path.exists(download_location):
-                if self.command('svn up %s' % download_location):
-                    raise UserError(
-                        "Failed to update Django; %s. "
-                        "Please check your internet connection." % (
-                            download_location))
-                shutil.copytree(download_location, location)
+
+            if install_from_cache:
+                if os.path.exists(download_location):
+                    if self.command('svn up %s' % download_location):
+                        raise UserError(
+                            "Failed to update Django; %s. "
+                            "Please check your internet connection." % (
+                                download_location))
+                else:
+                    if self.command(
+                        'svn co http://code.djangoproject.com/svn/django/trunk/ %s' % 
+                        download_location):
+                        raise UserError(
+                            "Failed to checkout Django. "
+                            "Please check your internet connection.")
             else:
-                if self.command(
-                    'svn co http://code.djangoproject.com/svn/django/trunk/ %s' % 
-                    download_location):
-                    raise UserError(
-                        "Failed to checkout Django. "
-                        "Please check your internet connection.")
+                print "Installing Django from cache: " + download_location
+
+            shutil.copytree(download_location, location)
         else:
             tarball = os.path.join(
                 download_dir, 'django-%s.tar.gz' % version)
