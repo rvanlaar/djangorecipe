@@ -1,1 +1,6 @@
 dist
+develop-eggs
+parts
+bin
+.bzr.backup
+.installed.cfg

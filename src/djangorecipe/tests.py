@@ -18,7 +18,7 @@ def djang_test_command(test):
     ... 
     ... [django]
     ... recipe = djangorecipe
-    ... version = 0.96.1
+    ... version = 0.96.2
     ... settings = development
     ... project = dummyshop
     ... """)
@@ -46,9 +46,59 @@ def djang_test_command(test):
     OK
     '''
 
-def download_release(test):
+
+def djang_settings_option(test):
     '''
-    Downloading releases should work.
+    The settings option can be used to setup which settings file is
+    used.
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... eggs-directory = /home/jvloothuis/Projects/eggs
+    ... parts = django
+    ... 
+    ... [django]
+    ... recipe = djangorecipe
+    ... version = trunk
+    ... settings = development
+    ... project = dummyshop
+    ... """)
+
+    >>> print system(buildout),
+    Upgraded:
+      zc.buildout version ...,
+      setuptools version ...;
+    restarting.
+    Generated script '/sample-buildout/bin/buildout'.
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Installing django.
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Generated script '/sample-buildout/bin/django'.
+
+    If we make a syntax error in the development settings it should
+    crash the management command.
+
+
+    >>> write('dummyshop/development.py',
+    ... """
+    ... assert 0
+    ... """)
+
+    >>> print system('bin/django version')
+    Traceback (most recent call last):
+    ...
+        assert 0
+    AssertionError
+    <BLANKLINE>
+
+    '''
+
+
+def use_trunk(test):
+    '''
+    Downloading the trunk should work.
 
     >>> write('buildout.cfg',
     ... """
@@ -82,7 +132,7 @@ def download_release(test):
 
     '''
 
-def use_trunk(test):
+def download_release(test):
     '''
     Downloading releases should work.
 
@@ -94,7 +144,7 @@ def use_trunk(test):
     ... 
     ... [django]
     ... recipe = djangorecipe
-    ... version = 0.96.1
+    ... version = 0.96.2
     ... settings = development
     ... project = dummyshop
     ... """)
@@ -114,7 +164,7 @@ def use_trunk(test):
     Make sure the version number matches the requested version.
 
     >>> print system('bin/django --version'),
-    0.96.1
+    0.96.2
     '''
 
 def test_runner(test):
@@ -216,7 +266,7 @@ def test_existing_project(test):
     ... 
     ... [django]
     ... recipe = djangorecipe
-    ... version = 0.96.1
+    ... version = 0.96.2
     ... settings = development
     ... test = someapp
     ... project = dummy
@@ -260,7 +310,7 @@ def test_existing_django_dir(test):
     ... 
     ... [django]
     ... recipe = djangorecipe
-    ... version = 0.96.1
+    ... version = 0.96.2
     ... settings = development
     ... project = dummy
     ... """)
@@ -294,7 +344,7 @@ def test_wsgi(test):
     ... 
     ... [django]
     ... recipe = djangorecipe
-    ... version = 0.96.1
+    ... version = 0.96.2
     ... settings = development
     ... project = dummy
     ... wsgi = true
@@ -368,8 +418,8 @@ def install_from_cache():
 
     >>> print system(buildout),
     Upgraded:
-      zc.buildout version 1.0.1,
-      setuptools version 0.6c8;
+      zc.buildout version ...,
+      setuptools version ...;
     restarting.
     Generated script '/.../_TEST_/sample-buildout/bin/buildout'.
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
