@@ -133,7 +133,7 @@ class Recipe(object):
         options.setdefault('project', 'project')
         options.setdefault('settings', 'development')
 
-        options.setdefault('urlconf', 'urls')
+        options.setdefault('urlconf', options['project'] + '.urls')
         options.setdefault(
             'media_root', 
             "os.path.join(os.path.dirname(__file__), 'media')")
