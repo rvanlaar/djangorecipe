@@ -362,8 +362,13 @@ def test_wsgi(test):
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
     Generated script '/sample-buildout/bin/django'.
 
+    The script for use with WSGI creates a appliation object and sets
+    the sets the settings environment variable.
+
     >>> cat('bin/django.wsgi')
     <BLANKLINE>
+    ...
+    os.environ['DJANGO_SETTINGS_MODULE']='dummy.development'
     ...
     application = django.core.handlers.wsgi.WSGIHandler()
 
@@ -425,6 +430,46 @@ def install_from_cache():
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
     Installing django.
     Installing Django from cache: .../djangorecipe-test-cache/django-svn
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Generated script '/.../_TEST_/sample-buildout/bin/django'.
+
+    '''
+
+
+def no_download_cache():
+    '''
+    The recipe uses the download-cache option to speed things up. When
+    it is not present it can still be used.
+
+    Because the other tests use the download-cache for a speedup we
+    need to disable it first.
+
+    >>> old_home = os.environ['HOME']
+    >>> os.environ['HOME'] = tempfile.gettempdir()
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... eggs-directory = /home/jvloothuis/Projects/eggs
+    ... parts = django
+    ... 
+    ... [django]
+    ... recipe = djangorecipe
+    ... version = 0.96.2
+    ... settings = development
+    ... project = dummy
+    ... wsgi = true
+    ... """)
+
+    >>> print system(buildout),
+    Upgraded:
+      zc.buildout version ...,
+      setuptools version ...;
+    restarting.
+    Generated script '/.../_TEST_/sample-buildout/bin/buildout'.
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Installing django.
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
     Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
     Generated script '/.../_TEST_/sample-buildout/bin/django'.

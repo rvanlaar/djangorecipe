@@ -113,7 +113,7 @@ sys.path.extend(
 )
  
 # Set our settings module
-os.environ['DJANGO_SETTINGS_MODULE']='%(project)s.settings'
+os.environ['DJANGO_SETTINGS_MODULE']='%(project)s.%(settings)s'
  
 import django.core.handlers.wsgi
  
@@ -143,7 +143,7 @@ class Recipe(object):
 
         # Usefull when using archived versions
         buildout['buildout'].setdefault(
-            'download-directory',
+            'download-cache',
             os.path.join(buildout['buildout']['directory'], 
                          'downloads'))
 
