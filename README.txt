@@ -117,3 +117,13 @@ Example configuration for mod_wsgi
 If you want to deploy a project using mod_wsgi you could use this
 example as a starting point::
 
+  <Directory /path/to/buildout>
+         Order deny,allow
+         Allow from all
+  </Directory>
+  <VirtualHost 1.2.3.4:80>
+         ServerName      my.rocking.server
+         CustomLog       /var/log/apache2/my.rocking.server/access.log combined
+         ErrorLog        /var/log/apache2/my.rocking.server/error.log
+         WSGIScriptAlias / /path/to/buildout/bin/django.wsgi
+  </VirtualHost>
