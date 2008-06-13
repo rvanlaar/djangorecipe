@@ -4,13 +4,17 @@ from setuptools import setup, find_packages
 
 version = '0.8'
 
-readme = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
-                           'README.txt')).read()
+def read_file(name):
+    return open(os.path.join(os.path.dirname(__file__), 
+                             name)).read()    
+
+readme = read_file('README.txt')
+changes = read_file('CHANGES.txt')
 
 setup(name='djangorecipe',
       version=version,
       description="Buildout recipe for Django",
-      long_description=readme,
+      long_description='\n\n'.join([readme, changes]),
       classifiers=[
         'Framework :: Buildout',
         'Framework :: Django',

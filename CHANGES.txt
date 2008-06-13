@@ -1,0 +1,9 @@
+Changes
+=======
+
+0.90
+----
+
+- The wsgi script is no longer made executable and readable only by
+  the user who ran buildout. This avoids problems with deployment.
+

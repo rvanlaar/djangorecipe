@@ -249,7 +249,6 @@ class Recipe(object):
             o.update(self.options)
             f.write(wsgi_template % o)
             f.close()
-            os.chmod(script_name, stat.S_IRWXU|stat.S_IRGRP|stat.S_IXGRP)
 
 
         # Create default settings
