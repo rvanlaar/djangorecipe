@@ -476,6 +476,43 @@ def no_download_cache():
 
     '''
 
+def full_svn_url(test):
+    '''
+    The recipe makes it possible to checkout a specific
+    repository. This can be used to checkout a branch of the Django
+    project or to pin the trunk to a specific revision.
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... eggs-directory = /home/jvloothuis/Projects/eggs
+    ... parts = django
+    ... 
+    ... [django]
+    ... recipe = djangorecipe
+    ... version = http://code.djangoproject.com/svn/django/branches/newforms-admin@7833
+    ... settings = development
+    ... project = dummyshop
+    ... """)
+
+    >>> print system(buildout),
+    Upgraded:
+      zc.buildout version ...,
+      setuptools version ...;
+    restarting.
+    Generated script '/sample-buildout/bin/buildout'.
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Installing django.
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Generated script '/sample-buildout/bin/django'.
+
+    Make sure the version number matches the requested version.
+
+    >>> print system('bin/django --version'),
+    0.97-newforms-admin-SVN-7833
+    '''
+
 def setUp(test):
     zc.buildout.testing.buildoutSetUp(test)
 

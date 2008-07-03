@@ -36,6 +36,15 @@ project
   This option sets the name for your project. The recipe will create a
   basic structure if the project is not already there.
 
+version
+  The version argument can accept a few different types of
+  arguments. You can specify `trunk`. In this case it will do a
+  checkout of the Django trunk. Another option is to specify a release
+  number like `0.96.2`. This will download the release
+  tarball. Finally you can specify a full svn url (including the
+  revision number). An example of this would be
+  `http://code.djangoproject.com/svn/django/branches/newforms-admin@7833`.
+
 settings
   You can set the name of the settings file which is to be used with
   this option. This is useful if you want to have a different

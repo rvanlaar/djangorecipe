@@ -169,9 +169,12 @@ class Recipe(object):
         # only try to download stuff if we aren't asked to install from cache
         install_from_cache = self.buildout['buildout'].get(
             'install-from-cache', '').strip() != 'true'
-        if version == 'trunk':
-            download_location = os.path.join(download_dir, 'django-svn')
 
+        if self.is_svn_url(version):
+            svn_url = self.version_to_svn(version)
+            download_location = os.path.join(
+                download_dir, 'django-' + 
+                self.version_to_download_suffix(version))
             if install_from_cache:
                 if os.path.exists(download_location):
                     if self.command('svn up %s' % download_location):
@@ -180,9 +183,7 @@ class Recipe(object):
                             "Please check your internet connection." % (
                                 download_location))
                 else:
-                    if self.command(
-                        'svn co http://code.djangoproject.com/svn/django/trunk/ %s' % 
-                        download_location):
+                    if self.command('svn co %s %s' % (svn_url, download_location)):
                         raise UserError(
                             "Failed to checkout Django. "
                             "Please check your internet connection.")
@@ -284,6 +285,24 @@ class Recipe(object):
             print 'Skipping creating of project: %(project)s since it exists' % self.options
 
         return location
+
+    def is_svn_url(self, version):
+        return version == 'trunk' or subprocess.call(
+            'svn info ' + version,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE) == 0
+
+    def version_to_svn(self, version):
+        if version == 'trunk':
+            return 'http://code.djangoproject.com/svn/django/trunk/'
+        else:
+            return version
+
+    def version_to_download_suffix(self, version):
+        if version == 'trunk':
+            return 'svn'
+        return [p for p in version.split('/') if p][-1]
 
     def update(self):
         if self.options['version']:
