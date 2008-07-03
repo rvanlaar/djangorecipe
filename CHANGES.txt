@@ -1,8 +1,11 @@
 Changes
 =======
 
-0.90
-----
+0.9
+---
+
+- The settings option is fixed so that it supports arbitrary depth
+  settings paths (example; `conf.customer.development`).
 
 - The version argument now excepts a full svn url as well. You can use
   this to get a branch or fix any url to a specific revision with the
@@ -10,4 +13,3 @@ Changes
 
 - The wsgi script is no longer made executable and readable only by
   the user who ran buildout. This avoids problems with deployment.
-

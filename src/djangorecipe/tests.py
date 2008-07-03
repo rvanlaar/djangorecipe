@@ -513,6 +513,55 @@ def full_svn_url(test):
     0.97-newforms-admin-SVN-7833
     '''
 
+def test_settings_path(test):
+    '''
+    The settings option must be used to tell Django which settings
+    file it should load. Since all previous tests have shown that the
+    default options work we will use this test to show that an
+    arbitrary path should work as well.
+
+    >>> write('buildout.cfg',
+    ... """
+    ... [buildout]
+    ... eggs-directory = /home/jvloothuis/Projects/eggs
+    ... parts = django
+    ... 
+    ... [django]
+    ... recipe = djangorecipe
+    ... version = 0.96.2
+    ... settings = conf.development
+    ... project = dummy
+    ... """)
+
+    >>> mkdir('parts/django')
+
+    >>> print system(buildout),
+    Upgraded:
+      zc.buildout version ...,
+      setuptools version ...;
+    restarting.
+    Generated script '/sample-buildout/bin/buildout'.
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Installing django.
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
+    Generated script '/sample-buildout/bin/django'.
+
+    We will now creat the conf dir so that we can show that its
+    settings are loaded.
+
+    >>> mkdir('dummy/conf')
+    >>> write('dummy/conf/__init__.py', '')
+    >>> write('dummy/conf/development.py', 
+    ...     'print "Hello from deep settings"')
+
+    Our settings should print the previously specified message
+
+    >>> print system('bin/django --version'), 
+    Hello from deep settings
+    0.96.2
+    '''
+
 def setUp(test):
     zc.buildout.testing.buildoutSetUp(test)
 
