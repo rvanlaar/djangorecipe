@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.9.1
+-----
+
+- Fixed the previous release which was broken due to a missing
+  manifest file
+
 0.9
 ---
 
