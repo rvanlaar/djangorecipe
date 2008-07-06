@@ -4,3 +4,4 @@ parts
 bin
 .bzr.backup
 .installed.cfg
+build

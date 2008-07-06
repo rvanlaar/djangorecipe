@@ -1,4 +1,4 @@
-from django.core.management import execute_manager
+from django.core import management
 
 def main(settings_file):
     try:
@@ -12,4 +12,4 @@ def main(settings_file):
         sys.stderr.write("Error: Can't load the file 'settings.py'")
         sys.exit(1)
 
-    execute_manager(mod)
+    management.execute_manager(mod)

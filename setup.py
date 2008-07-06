@@ -37,6 +37,6 @@ setup(name='djangorecipe',
       entry_points="""
       # -*- Entry points: -*-
       [zc.buildout]
-      default = djangorecipe:Recipe
+      default = djangorecipe.recipe:Recipe
       """,
       )
