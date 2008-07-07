@@ -210,6 +210,18 @@ class TestRecipe(unittest.TestCase):
         self.recipe.create_manage_script([], [])
         self.assert_(os.path.exists(manage))
 
+    def test_settings_option(self):
+        # The settings option can be used to specify the settings file
+        # for Django to use. By default it uses `development`.
+        self.assertEqual(self.recipe.options['settings'], 'development')
+        # When we change it an generate a manage script it will use
+        # this var.
+        self.recipe.options['settings'] = 'spameggs'
+        self.recipe.create_manage_script([], [])
+        manage = os.path.join(self.bin_dir, 'django')
+        self.assert_(open(manage).read(), 
+                     "djangorecipe.manage.main('project.spameggs')")
+
     @mock.patch('urllib', 'urlretrieve')
     def test_get_release(self, mock):
         # The get_release method fecthes a release tarball and
@@ -396,232 +408,6 @@ class TestManageScript(ScriptTestCase):
         self.assertEqual(execute_manager.call_args, 
                          ((self.settings,), {}))
 
-
-def djang_test_command(test):
-    '''
-    Make sure the test command works.
-
-    >>> write('buildout.cfg',
-    ... """
-    ... [buildout]
-    ... eggs-directory = /home/jvloothuis/Projects/eggs
-    ... parts = django
-    ... 
-    ... [django]
-    ... recipe = djangorecipe
-    ... version = 0.96.2
-    ... settings = development
-    ... project = dummyshop
-    ... """)
-
-    >>> print system(buildout),
-    Upgraded:
-      zc.buildout version ...,
-      setuptools version ...;
-    restarting.
-    Generated script '/sample-buildout/bin/buildout'.
-    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
-    Installing django.
-    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
-    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
-    Generated script '/sample-buildout/bin/django'.
-
-    Run the test command.
-
-    >>> print system('bin/django test'),
-    Creating test database...
-    ...
-    ----------------------------------------------------------------------
-    Ran ... tests in ...
-    <BLANKLINE>
-    OK
-    '''
-
-
-def djang_settings_option(test):
-    '''
-    The settings option can be used to setup which settings file is
-    used.
-
-    >>> write('buildout.cfg',
-    ... """
-    ... [buildout]
-    ... eggs-directory = /home/jvloothuis/Projects/eggs
-    ... parts = django
-    ... 
-    ... [django]
-    ... recipe = djangorecipe
-    ... version = trunk
-    ... settings = development
-    ... project = dummyshop
-    ... """)
-
-    >>> print system(buildout),
-    Upgraded:
-      zc.buildout version ...,
-      setuptools version ...;
-    restarting.
-    Generated script '/sample-buildout/bin/buildout'.
-    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
-    Installing django.
-    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
-    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
-    Generated script '/sample-buildout/bin/django'.
-
-    If we make a syntax error in the development settings it should
-    crash the management command.
-
-
-    >>> write('dummyshop/development.py',
-    ... """
-    ... assert 0
-    ... """)
-
-    >>> print system('bin/django version')
-    Traceback (most recent call last):
-    ...
-        assert 0
-    AssertionError
-    <BLANKLINE>
-
-    '''
-
-
-
-def test_runner(test):
-    ''' 
-    The test options can be used to specify a number of apps to test.
-
-    >>> write('buildout.cfg',
-    ... """
-    ... [buildout]
-    ... eggs-directory = /home/jvloothuis/Projects/eggs
-    ... parts = django
-    ... 
-    ... [django]
-    ... recipe = djangorecipe
-    ... version = trunk
-    ... settings = development
-    ... test = someapp
-    ... project = dummy
-    ... """)
-
-    >>> print system(buildout),
-    Upgraded:
-      zc.buildout version ...,
-      setuptools version ...;
-    restarting.
-    Generated script '/sample-buildout/bin/buildout'.
-    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
-    Installing django.
-    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
-    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
-    Generated script '/sample-buildout/bin/django'.
-    Generated script '/sample-buildout/bin/test'.
-
-    The apps are not installed so running the tests will break it.
-
-    >>> print system('bin/test'),
-    Traceback (most recent call last):
-    ...
-    django.core.exceptions.ImproperlyConfigured: App with label someapp could not be found
-
-
-    Now we will create an app so that the test will run.
-
-    >>> mkdir('dummy/someapp')
-    >>> write('dummy/someapp/__init__.py', '')
-    >>> write('dummy/someapp/urls.py', '')
-    >>> write('dummy/someapp/views.py', '')
-    >>> write('dummy/someapp/models.py', '')
-    >>> write('dummy/someapp/tests.py',
-    ... """
-    ... import doctest
-    ...
-    ... def simple_test(test):
-    ...     \'\'\'
-    ...     >>> 1 == 2
-    ...     False
-    ...     \'\'\'
-    ...
-    ... def suite():
-    ...     return doctest.DocTestSuite()
-    ... """)
-
-    We need to add the app to the installed apps.
-
-    >>> write('dummy/development.py',
-    ... """
-    ... from dummy.settings import *
-    ... INSTALLED_APPS = (
-    ...     'django.contrib.auth',
-    ...     'django.contrib.contenttypes',
-    ...     'django.contrib.sessions',
-    ...     'django.contrib.admin',
-    ...     'dummy.someapp',
-    ... )
-    ... """)
-
-    >>> print system('bin/test'),
-    Creating test database...
-    ...
-    Destroying test database...
-    .
-    ----------------------------------------------------------------------
-    Ran 1 test in ...
-    <BLANKLINE>
-    OK
-
-    '''
-
-def test_settings_path(test):
-    '''
-    The settings option must be used to tell Django which settings
-    file it should load. Since all previous tests have shown that the
-    default options work we will use this test to show that an
-    arbitrary path should work as well.
-
-    >>> write('buildout.cfg',
-    ... """
-    ... [buildout]
-    ... eggs-directory = /home/jvloothuis/Projects/eggs
-    ... parts = django
-    ... 
-    ... [django]
-    ... recipe = djangorecipe
-    ... version = 0.96.2
-    ... settings = conf.development
-    ... project = dummy
-    ... """)
-
-    >>> mkdir('parts/django')
-
-    >>> print system(buildout),
-    Upgraded:
-      zc.buildout version ...,
-      setuptools version ...;
-    restarting.
-    Generated script '/sample-buildout/bin/buildout'.
-    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
-    Installing django.
-    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
-    Couldn't find index page for 'zc.recipe.egg' (maybe misspelled?)
-    Generated script '/sample-buildout/bin/django'.
-
-    We will now creat the conf dir so that we can show that its
-    settings are loaded.
-
-    >>> mkdir('dummy/conf')
-    >>> write('dummy/conf/__init__.py', '')
-    >>> write('dummy/conf/development.py', 
-    ...     'print "Hello from deep settings"')
-
-    Our settings should print the previously specified message
-
-    >>> print system('bin/django --version'), 
-    Hello from deep settings
-    0.96.2
-    '''
 
 def setUp(test):
     zc.buildout.testing.buildoutSetUp(test)
