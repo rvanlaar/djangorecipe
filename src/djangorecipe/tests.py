@@ -396,6 +396,13 @@ class TestTestScript(ScriptTestCase):
 
         test.main('cheeseshop.nce.development',  'tilsit', 'stilton')
         self.assertEqual(execute_manager.call_args[0], (settings,))
+
+    @mock.patch('sys', 'exit')
+    def test_settings_error(self, sys_exit):
+        # When the settings file cannot be imported the test runner
+        # wil exit with a message and a specific exit code.
+        test.main('cheeseshop.tilsit', 'stilton')
+        self.assertEqual(sys_exit.call_args, ((1,), {}))
     
 class TestManageScript(ScriptTestCase):
 
@@ -408,6 +415,12 @@ class TestManageScript(ScriptTestCase):
         self.assertEqual(execute_manager.call_args, 
                          ((self.settings,), {}))
 
+    @mock.patch('sys', 'exit')
+    def test_settings_error(self, sys_exit):
+        # When the settings file cannot be imported the management
+        # script it wil exit with a message and a specific exit code.
+        manage.main('cheeseshop.tilsit')
+        self.assertEqual(sys_exit.call_args, ((1,), {}))
 
 def setUp(test):
     zc.buildout.testing.buildoutSetUp(test)

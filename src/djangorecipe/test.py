@@ -10,6 +10,6 @@ def main(settings_file, *apps):
     except ImportError:
         import sys
         sys.stderr.write("Error: Can't load the file 'settings.py'")
-        sys.exit(1)
+        return sys.exit(1)
 
     management.execute_manager(settings, argv=argv)

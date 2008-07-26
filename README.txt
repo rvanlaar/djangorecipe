@@ -19,11 +19,11 @@ You can see an example of how to use the recipe below::
   
   [django]
   recipe = djangorecipe
-  version = 0.96.1
+  version = trunk
   settings = development
   eggs = ${buildout:eggs}
   pythonpath = 
-  ${satchmo:location}
+    ${satchmo:location}
   project = dummyshop
 
 
