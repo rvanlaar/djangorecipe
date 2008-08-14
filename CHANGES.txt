@@ -1,6 +1,12 @@
 Changes
 =======
 
+Unreleased
+----------
+
+- Revision pinns for the svn checkout now stay pinned when re-running
+  the buildout. This fixes issue #250811.
+
 0.9.1
 -----
 

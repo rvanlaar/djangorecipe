@@ -316,7 +316,6 @@ class Recipe(object):
         f.write(wsgi_template % o)
         f.close()
 
-
     def is_svn_url(self, version):
         return version == 'trunk' or subprocess.call(
             'svn info ' + version,
@@ -338,8 +337,12 @@ class Recipe(object):
     def update(self):
         if not self.install_from_cache and \
                 self.is_svn_url(self.options['version']):
-            subprocess.call('svn up %s' % self.options['location'], 
-                            shell=True)
+
+            command = 'svn up'
+            if '@' in self.options['version']:
+                command += ' -r ' + self.options['version'].split('@')[-1]
+            subprocess.call(command, shell=True, 
+                            cwd=self.options['location'])
 
     def command(self, cmd):
         output = subprocess.PIPE

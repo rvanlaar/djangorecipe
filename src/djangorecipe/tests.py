@@ -320,8 +320,11 @@ class TestRecipe(unittest.TestCase):
         # When the recipe is asked to do an update and the version is
         # a svn version it just does an update on the parts folder.
         self.recipe.update()
-        self.assert_('svn up ' in call_process.call_args[0][0])
-        
+        self.assertEqual('svn up', call_process.call_args[0][0])
+        # It changes the working directory so that the simple svn up
+        # command will work.
+        self.assertEqual(call_process.call_args[1].keys(), ['shell', 'cwd'])
+
     @mock.patch('subprocess', 'call')
     def test_update_with_cache(self, call_process):
         # When the recipe is asked to do an update whilst in install
@@ -352,6 +355,19 @@ class TestRecipe(unittest.TestCase):
         # passed to rmtree are the ones we wanted to delete.
         self.assertEqual(rmtree.call_args[0][0].split('/')[-2:], 
                          ['parts', 'django'])
+
+    @mock.patch('subprocess', 'call')
+    def test_update_pinned_svn_url(self, call):
+        # Make sure that updating a pinned version is updated
+        # accordingly. It must not switch to updating beyond it's
+        # requested revision.
+        # The recipe does this by checking for an @ sign in the url /
+        # version.
+        self.recipe.is_svn_url = lambda version: True
+
+        self.recipe.options['version'] = 'http://testing/trunk@2531'
+        self.recipe.update()
+        self.assertEqual(call.call_args[0], ('svn up -r 2531',))
 
 
 class ScriptTestCase(unittest.TestCase):
