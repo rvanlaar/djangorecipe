@@ -3,7 +3,6 @@ import tempfile
 import os
 import sys
 import shutil
-import subprocess
 
 import mock
 from zc.buildout import UserError
