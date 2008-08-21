@@ -69,7 +69,7 @@ class TestRecipe(unittest.TestCase):
         # The command method is a wrapper for subprocess which excutes
         # a command and return's it's status code. We will demonstrate
         # this with a simple test of running `dir`.
-        self.failIf(self.recipe.command('dir'))
+        self.failIf(self.recipe.command('echo'))
         # Executing a non existing command should return an error code
         self.assert_(self.recipe.command('spamspamspameggs'))
 
@@ -209,6 +209,19 @@ class TestRecipe(unittest.TestCase):
         self.recipe.create_manage_script([], [])
         self.assert_(os.path.exists(manage))
 
+    def test_create_manage_script_projectegg(self):
+        # When a projectegg is specified, then the egg specified
+        # should get used as the project file.
+        manage = os.path.join(self.bin_dir, 'django')
+        self.recipe.options['projectegg'] = 'spameggs'
+        self.recipe.create_manage_script([], [])
+        self.assert_(os.path.exists(manage))
+        
+        # Check that we have 'spameggs' as the project
+        manage = os.path.join(self.bin_dir, 'django')
+        self.assert_("djangorecipe.manage.main('spameggs.development')" 
+                     in open(manage).read())
+
     def test_settings_option(self):
         # The settings option can be used to specify the settings file
         # for Django to use. By default it uses `development`.
@@ -218,8 +231,8 @@ class TestRecipe(unittest.TestCase):
         self.recipe.options['settings'] = 'spameggs'
         self.recipe.create_manage_script([], [])
         manage = os.path.join(self.bin_dir, 'django')
-        self.assert_(open(manage).read(), 
-                     "djangorecipe.manage.main('project.spameggs')")
+        self.assert_("djangorecipe.manage.main('project.spameggs')"
+                     in open(manage).read())
 
     @mock.patch('urllib', 'urlretrieve')
     def test_get_release(self, mock):

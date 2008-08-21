@@ -36,6 +36,11 @@ project
   This option sets the name for your project. The recipe will create a
   basic structure if the project is not already there.
 
+projectegg
+  Use this instead of the project option when you want to use an egg
+  as the project. This disables the generation of the project
+  structure.
+
 version
   The version argument can accept a few different types of
   arguments. You can specify `trunk`. In this case it will do a

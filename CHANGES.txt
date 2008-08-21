@@ -7,6 +7,10 @@ Unreleased
 - Revision pinns for the svn checkout now stay pinned when re-running
   the buildout. This fixes issue #250811.
 
+- Added an option to specify an egg to use as the project. This
+  disables the code which creates the basic project structure. Thanks
+  to Dan Fairs for the patch from issue #252647.
+
 0.9.1
 -----
 

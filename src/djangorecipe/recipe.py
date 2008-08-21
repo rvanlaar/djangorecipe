@@ -200,11 +200,13 @@ class Recipe(object):
             self.make_wsgi_script(extra_paths)
 
 
-        # Create default settings
-        if not os.path.exists(project_dir):
-            self.create_project(project_dir)
-        else:
-            print 'Skipping creating of project: %(project)s since it exists' % self.options
+        # Create default settings if we haven't got a project
+        # egg specified, and if it doesn't already exist
+        if not self.options.get('projectegg'):
+            if not os.path.exists(project_dir):
+                self.create_project(project_dir)
+            else:
+                print 'Skipping creating of project: %(project)s since it exists' % self.options
 
         return location
 
@@ -248,14 +250,14 @@ class Recipe(object):
 
         return tarball
 
-
     def create_manage_script(self, extra_paths, ws):
+        project = self.options.get('projectegg', self.options['project'])
         zc.buildout.easy_install.scripts(
             [(self.options.get('control-script', self.name),
               'djangorecipe.manage', 'main')],
             ws, self.options['executable'], self.options['bin-directory'],
             extra_paths = extra_paths,
-            arguments= "'%s.%s'" % (self.options['project'], 
+            arguments= "'%s.%s'" % (project, 
                                     self.options['settings']))
 
 
