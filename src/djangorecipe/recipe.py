@@ -173,7 +173,7 @@ class Recipe(object):
             self.install_svn_version(version, download_dir, location, 
                                      self.install_from_cache)
         else:
-            tarball = self.get_release()
+            tarball = self.get_release(version, download_dir)
             # Extract and put the dir in its proper place
             self.install_release(version, download_dir, tarball, location)
 
@@ -235,8 +235,11 @@ class Recipe(object):
 
     def install_release(self, version, download_dir, tarball, destination):
         extraction_dir = os.path.join(download_dir, 'django-archive')
-        untarred_dir = os.path.join(extraction_dir, 'Django-%s' % version)
         setuptools.archive_util.unpack_archive(tarball, extraction_dir)
+        # Lookup the resulting extraction dir instead of guessing it
+        # (Django releases have a tendency not to be consistend here)
+        untarred_dir = os.path.join(extraction_dir, 
+                                    os.listdir(extraction_dir)[0])
         shutil.move(untarred_dir, destination)
         shutil.rmtree(extraction_dir)
 

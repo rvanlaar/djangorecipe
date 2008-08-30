@@ -1,11 +1,17 @@
 Changes
 =======
 
-Unreleased
-----------
+0.10
+----
+
+- The recipe no longer expects the top level directory name in a
+  release tarball to be consistent with the version number. This fixes
+  issue #260097. Thanks to erny for reporting this issue and
+  suggesting a solution.
 
 - Revision pinns for the svn checkout now stay pinned when re-running
-  the buildout. This fixes issue #250811.
+  the buildout. This fixes issue #250811. Thanks to Remco for
+  reporting this.
 
 - Added an option to specify an egg to use as the project. This
   disables the code which creates the basic project structure. Thanks

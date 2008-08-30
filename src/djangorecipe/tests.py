@@ -251,23 +251,27 @@ class TestRecipe(unittest.TestCase):
     @mock.patch('setuptools.archive_util', 'unpack_archive')
     @mock.patch('shutil', 'move')
     @mock.patch('shutil', 'rmtree')
-    def test_install_release(self, unpack, move, rmtree):
+    @mock.patch('os', 'listdir')
+    def test_install_release(self, unpack, move, rmtree, listdir):
         # To install a release the recipe uses a specific method. We
         # have have mocked all the calls which interact with the
         # filesystem.
+        listdir.return_value = ('Django-0.96-2',)
         self.recipe.install_release('0.96.2', 'downloads', 
                                     'downloads/django-0.96.2.tar.gz',
                                     'parts/django')
         # Let's see what the mock's have been called with
+        self.assertEqual(listdir.call_args, 
+                         (('downloads/django-archive',), {}))
         self.assertEqual(unpack.call_args, 
                          (('downloads/django-0.96.2.tar.gz', 
                            'downloads/django-archive'), {}))
         self.assertEqual(move.call_args, 
-                         (('downloads/django-archive/Django-0.96.2', 
+                         (('downloads/django-archive/Django-0.96-2', 
                            'parts/django'), {}))
         self.assertEqual(rmtree.call_args, 
                          (('downloads/django-archive',), {}))
-
+        
     @mock.patch('shutil', 'copytree')
     @mock.patch(Recipe, 'command')
     def test_install_svn_version(self, copytree, command):
