@@ -236,11 +236,20 @@ class TestRecipe(unittest.TestCase):
         self.recipe.options['projectegg'] = 'spameggs'
         self.recipe.create_manage_script([], [])
         self.assert_(os.path.exists(manage))
-        
         # Check that we have 'spameggs' as the project
-        manage = os.path.join(self.bin_dir, 'django')
         self.assert_("djangorecipe.manage.main('spameggs.development')" 
                      in open(manage).read())
+
+    def test_create_wsgi_script_projectegg(self):
+        # When a projectegg is specified, then the egg specified
+        # should get used as the project in the wsgi script.
+        wsgi = os.path.join(self.bin_dir, 'django.wsgi')
+        self.recipe.options['projectegg'] = 'spameggs'
+        self.recipe.make_wsgi_script([])
+        self.assert_(os.path.exists(wsgi))
+        # Check that we have 'spameggs' as the project
+        self.assert_("os.environ['DJANGO_SETTINGS_MODULE']='spameggs.development'"
+                     in open(wsgi).read())
 
     def test_settings_option(self):
         # The settings option can be used to specify the settings file

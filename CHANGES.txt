@@ -11,6 +11,10 @@ unreleased
   saw this as a change in options and therefore always decided to
   un-install & install.
 
+- When both projectegg and wsgi=True are specified, the generated wsgi
+  file did not have the correct settings file in it. This has been
+  fixed with a patch from Dan Fairs.
+
 0.10
 ----
 

@@ -320,6 +320,8 @@ class Recipe(object):
         f = open(script_name, 'w')
         o = {'extra_paths': repr(extra_paths)}
         o.update(self.options)
+        if self.options.get('projectegg'):
+            o['project'] = self.options.get('projectegg')
         f.write(wsgi_template % o)
         f.close()
 
