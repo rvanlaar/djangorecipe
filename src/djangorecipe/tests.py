@@ -52,6 +52,26 @@ class TestRecipe(unittest.TestCase):
         # Remove our test dir
         shutil.rmtree(self.buildout_dir)
 
+    def test_consistent_options(self):
+        # Buildout is pretty clever in detecting changing options. If
+        # the recipe modifies it's options during initialisation it
+        # will store this to determine wheter it needs to update or do
+        # a uninstall & install. We need to make sure that we normally
+        # do not trigger this. That means running the recipe with the
+        # same options should give us the same results.
+        self.assertEqual(*[
+                Recipe({'buildout': {'eggs-directory': self.eggs_dir,
+                                     'develop-eggs-directory': self.develop_eggs_dir,
+                                     'python': 'python-version',
+                                     'bin-directory': self.bin_dir,
+                                     'parts-directory': self.parts_dir,
+                                     'directory': self.buildout_dir,
+                                     },
+                        'python-version': {'executable': sys.executable}}, 
+                       'django', 
+                       {'recipe': 'djangorecipe',
+                        'version': 'trunk'}).options.copy() for i in range(2)])
+
     def test_svn_url(self):
         # Make sure that only a few specific type of url's are
         # considered svn url's

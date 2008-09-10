@@ -136,7 +136,6 @@ class Recipe(object):
         options.setdefault(
             'media_root', 
             "os.path.join(os.path.dirname(__file__), 'media')")
-        options.setdefault('secret', self.generate_secret())
         # set this so the rest of the recipe can expect it to be there
         options.setdefault('pythonpath', '')
 
@@ -284,21 +283,24 @@ class Recipe(object):
     def create_project(self, project_dir):
         os.makedirs(project_dir)
 
+        template_vars = {'secret': self.generate_secret()}
+        template_vars.update(self.options)
+
         self.create_file(
             os.path.join(project_dir, 'development.py'),
-            development_settings, self.options)
+            development_settings, template_vars)
 
         self.create_file(
             os.path.join(project_dir, 'production.py'),
-            production_settings, self.options)
+            production_settings, template_vars)
 
         self.create_file(
             os.path.join(project_dir, 'urls.py'),
-            urls_template, self.options)
+            urls_template, template_vars)
 
         self.create_file(
             os.path.join(project_dir, 'settings.py'),
-            settings_template, self.options)
+            settings_template, template_vars)
 
         # Create the media and templates directories for our
         # project

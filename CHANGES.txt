@@ -1,6 +1,16 @@
 Changes
 =======
 
+unreleased
+----------
+
+- Another go at fixing the updating problem (#250811) by making sure
+  the update method is always called. It would not be called in the
+  previous version since the recipe wrote a random secret (if it
+  wasn't specified) to the options for use with a template. Buildout
+  saw this as a change in options and therefore always decided to
+  un-install & install.
+
 0.10
 ----
 
