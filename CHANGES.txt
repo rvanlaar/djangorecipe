@@ -1,8 +1,8 @@
 Changes
 =======
 
-unreleased
-----------
+0.11
+----
 
 - Another go at fixing the updating problem (#250811) by making sure
   the update method is always called. It would not be called in the
@@ -17,8 +17,8 @@ unreleased
 
 - The recipe now has logging. All print statements have been replaced
   and a few extra logging calls have been added. This makes the recipe
-  more informative about long running tasks. Thanks erny for from
-  issue #260628.
+  more informative about long running tasks. Thanks erny for the patch
+  from issue #260628.
 
 0.10
 ----
