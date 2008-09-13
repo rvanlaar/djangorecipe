@@ -347,19 +347,19 @@ class Recipe(object):
         command = 'svn up'
         if '@' in self.options['version']:
             command += ' -r ' + version.split('@')[-1]
-        return subprocess.call(command, shell=True, cwd=path)
+        return self.command(command, cwd=path)
 
     def update(self):
         if not self.install_from_cache and \
                 self.is_svn_url(self.options['version']):
             self.svn_update(self.options['location'], self.options['version'])
 
-    def command(self, cmd):
+    def command(self, cmd, **kwargs):
         output = subprocess.PIPE
         if self.buildout['buildout'].get('verbosity'):
             output = None
         command = subprocess.Popen(
-            cmd, shell=True, stdout=output)
+            cmd, shell=True, stdout=output, **kwargs)
         return command.wait()
 
     def create_file(self, file, template, options):

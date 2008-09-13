@@ -318,8 +318,8 @@ class TestRecipe(unittest.TestCase):
 
     @mock.patch('shutil', 'copytree')
     @mock.patch('os.path', 'exists')
-    @mock.patch('subprocess', 'call')
-    def test_install_and_update_svn_version(self, copytree, exists, call):
+    @mock.patch(Recipe, 'command')
+    def test_install_and_update_svn_version(self, copytree, exists, command):
         # When an checkout has been done of a svn based installation
         # is already done the recipe should just update it.
         exists.return_value = True
@@ -327,10 +327,9 @@ class TestRecipe(unittest.TestCase):
         self.recipe.install_svn_version('trunk', 'downloads', 
                                         'parts/django', False)
         self.assertEqual(exists.call_args, (('downloads/django-svn',), {}))
-        self.assertEqual(call.call_args, 
-                         (('svn up',), 
-                          {'shell': True, 'cwd': 'downloads/django-svn'}))
-        
+        self.assertEqual(command.call_args, 
+                         (('svn up',), {'cwd': 'downloads/django-svn'}))
+
     @mock.patch(Recipe, 'command')
     def test_install_broken_svn(self, command):
         # When the checkout from svn fails during a svn build the
@@ -358,15 +357,15 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(copytree.call_args, 
                          (('downloads/django-svn', 'parts/django'), {}))
 
-    @mock.patch('subprocess', 'call')
-    def test_update_svn(self, call_process):
+    @mock.patch(Recipe, 'command')
+    def test_update_svn(self, command):
         # When the recipe is asked to do an update and the version is
         # a svn version it just does an update on the parts folder.
         self.recipe.update()
-        self.assertEqual('svn up', call_process.call_args[0][0])
+        self.assertEqual('svn up', command.call_args[0][0])
         # It changes the working directory so that the simple svn up
         # command will work.
-        self.assertEqual(call_process.call_args[1].keys(), ['shell', 'cwd'])
+        self.assertEqual(command.call_args[1].keys(), ['cwd'])
 
     @mock.patch('subprocess', 'call')
     def test_update_with_cache(self, call_process):
@@ -401,8 +400,8 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(rmtree.call_args[0][0].split('/')[-2:], 
                          ['parts', 'django'])
 
-    @mock.patch('subprocess', 'call')
-    def test_update_pinned_svn_url(self, call):
+    @mock.patch(Recipe, 'command')
+    def test_update_pinned_svn_url(self, command):
         # Make sure that updating a pinned version is updated
         # accordingly. It must not switch to updating beyond it's
         # requested revision.
@@ -412,7 +411,7 @@ class TestRecipe(unittest.TestCase):
 
         self.recipe.options['version'] = 'http://testing/trunk@2531'
         self.recipe.update()
-        self.assertEqual(call.call_args[0], ('svn up -r 2531',))
+        self.assertEqual(command.call_args[0], ('svn up -r 2531',))
 
 
 class ScriptTestCase(unittest.TestCase):
