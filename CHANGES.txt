@@ -15,6 +15,11 @@ unreleased
   file did not have the correct settings file in it. This has been
   fixed with a patch from Dan Fairs.
 
+- The recipe now has logging. All print statements have been replaced
+  and a few extra logging calls have been added. This makes the recipe
+  more informative about long running tasks. Thanks erny for from
+  issue #260628.
+
 0.10
 ----
 

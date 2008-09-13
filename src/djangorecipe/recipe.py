@@ -3,6 +3,7 @@ import os
 import subprocess
 import urllib
 import shutil
+import logging
 
 from zc.buildout import UserError
 import zc.recipe.egg
@@ -122,6 +123,7 @@ application = django.core.handlers.wsgi.WSGIHandler()
 
 class Recipe(object):
     def __init__(self, buildout, name, options):
+        self.log = logging.getLogger(name)
         self.egg = zc.recipe.egg.Egg(buildout, options['recipe'], options)
 
         self.buildout, self.name, self.options = buildout, name, options
@@ -205,7 +207,7 @@ class Recipe(object):
             if not os.path.exists(project_dir):
                 self.create_project(project_dir)
             else:
-                print 'Skipping creating of project: %(project)s since it exists' % self.options
+                self.log.info('Skipping creating of project: %(project)s since it exists' % self.options)
 
         return location
 
@@ -223,11 +225,12 @@ class Recipe(object):
                         "Please check your internet connection." % (
                             download_location))
             else:
+                self.log.info("Checking out Django from svn: %s" % svn_url)
                 if self.command('svn co %s %s' % (svn_url, download_location)):
                     raise UserError("Failed to checkout Django. "
                                     "Please check your internet connection.")
         else:
-            print "Installing Django from cache: " + download_location
+            self.log.info("Installing Django from cache: " + download_location)
 
         shutil.copytree(download_location, location)
 
@@ -248,8 +251,8 @@ class Recipe(object):
         # Only download when we don't yet have an archive
         if not os.path.exists(tarball):
             download_url = 'http://www.djangoproject.com/download/%s/tarball/'
+            self.log.info("Downloading Django from: %s" % download_url)
             urllib.urlretrieve(download_url % version, tarball)
-
         return tarball
 
     def create_manage_script(self, extra_paths, ws):
@@ -347,6 +350,7 @@ class Recipe(object):
         command = 'svn up'
         if '@' in self.options['version']:
             command += ' -r ' + version.split('@')[-1]
+        self.log.info("Updating Django from svn")
         return self.command(command, cwd=path)
 
     def update(self):
