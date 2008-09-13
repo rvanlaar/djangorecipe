@@ -217,7 +217,7 @@ class Recipe(object):
             self.version_to_download_suffix(version))
         if not install_from_cache:
             if os.path.exists(download_location):
-                if self.command('svn up %s' % download_location):
+                if self.svn_update(download_location, version):
                     raise UserError(
                         "Failed to update Django; %s. "
                         "Please check your internet connection." % (
@@ -343,15 +343,16 @@ class Recipe(object):
             return 'svn'
         return [p for p in version.split('/') if p][-1]
 
+    def svn_update(self, path, version):
+        command = 'svn up'
+        if '@' in self.options['version']:
+            command += ' -r ' + version.split('@')[-1]
+        return subprocess.call(command, shell=True, cwd=path)
+
     def update(self):
         if not self.install_from_cache and \
                 self.is_svn_url(self.options['version']):
-
-            command = 'svn up'
-            if '@' in self.options['version']:
-                command += ' -r ' + self.options['version'].split('@')[-1]
-            subprocess.call(command, shell=True, 
-                            cwd=self.options['location'])
+            self.svn_update(self.options['location'], self.options['version'])
 
     def command(self, cmd):
         output = subprocess.PIPE

@@ -315,6 +315,21 @@ class TestRecipe(unittest.TestCase):
         # issued
         self.assertEqual(copytree.call_args, 
                          (('downloads/django-svn', 'parts/django'), {}))
+
+    @mock.patch('shutil', 'copytree')
+    @mock.patch('os.path', 'exists')
+    @mock.patch('subprocess', 'call')
+    def test_install_and_update_svn_version(self, copytree, exists, call):
+        # When an checkout has been done of a svn based installation
+        # is already done the recipe should just update it.
+        exists.return_value = True
+
+        self.recipe.install_svn_version('trunk', 'downloads', 
+                                        'parts/django', False)
+        self.assertEqual(exists.call_args, (('downloads/django-svn',), {}))
+        self.assertEqual(call.call_args, 
+                         (('svn up',), 
+                          {'shell': True, 'cwd': 'downloads/django-svn'}))
         
     @mock.patch(Recipe, 'command')
     def test_install_broken_svn(self, command):
@@ -343,24 +358,6 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(copytree.call_args, 
                          (('downloads/django-svn', 'parts/django'), {}))
 
-    @mock.patch('shutil', 'copytree')
-    @mock.patch(Recipe, 'command')
-    @mock.patch('os.path', 'exists')
-    def test_update_svn_version(self, copytree, command, path_exists):
-        # If the checkout of a svn release has done before the install
-        # method will just do an update (instead of doing a completely
-        # new installation). To make the recipe believe we already
-        # have a checkout we will mock a function from the os lib.
-        path_exists.return_value = True
-        self.recipe.install_svn_version('trunk', 'downloads', 
-                                        'parts/django', False)
-        self.assertEqual(command.call_args, 
-                         (('svn up downloads/django-svn',), {}))
-        # Like with a normal checkout a copy from the cache to the
-        # destination should have been made
-        self.assertEqual(copytree.call_args, 
-                         (('downloads/django-svn', 'parts/django'), {}))
-
     @mock.patch('subprocess', 'call')
     def test_update_svn(self, call_process):
         # When the recipe is asked to do an update and the version is
@@ -383,15 +380,17 @@ class TestRecipe(unittest.TestCase):
     @mock.patch('os.path', 'exists')
     @mock.patch('urllib', 'urlretrieve')
     @mock.patch('shutil', 'copytree')
-    @mock.patch('os', 'mkdir')
     @mock.patch(ZCRecipeEggScripts, 'working_set')
     @mock.patch('zc.buildout.easy_install', 'scripts')
+    @mock.patch(Recipe, 'install_release')
     def test_clear_existing_django(self, rmtree, path_exists, urlretrieve,
-                                   copytree, mkdir, working_set, scripts):
+                                   copytree, working_set, scripts,
+                                   install_release):
         # When the recipe is executed and Django is already installed
         # within parts it should remove it. We will mock the exists
         # check to make it let the recipe think it has an existing
         # Django install.
+        self.recipe.options['version'] = '1.0'
         path_exists.return_value = True
         working_set.return_value = (None, [])
         self.recipe.install()
