@@ -22,7 +22,7 @@ You can see an example of how to use the recipe below::
   version = trunk
   settings = development
   eggs = ${buildout:eggs}
-  pythonpath = 
+  extra-paths = 
     ${satchmo:location}
   project = dummyshop
 
@@ -61,7 +61,7 @@ download-cache
   installation. The recipe will use this folder as a cache for a
   downloaded version of Django.
 
-pythonpath
+extra-paths
   All paths specified here will be used to extend the default Python
   path for the `bin/*` scripts.
 
