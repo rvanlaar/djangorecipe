@@ -240,6 +240,29 @@ class TestRecipe(unittest.TestCase):
         self.assert_("djangorecipe.manage.main('spameggs.development')" 
                      in open(manage).read())
 
+    
+    @mock.patch('shutil', 'rmtree')
+    @mock.patch('os.path', 'exists')
+    @mock.patch('urllib', 'urlretrieve')
+    @mock.patch('shutil', 'copytree')
+    @mock.patch(ZCRecipeEggScripts, 'working_set')
+    @mock.patch('zc.buildout.easy_install', 'scripts')
+    @mock.patch(Recipe, 'install_release')
+    @mock.patch(Recipe, 'create_manage_script')
+    @mock.patch(Recipe, 'create_test_runner')
+    def test_extra_paths(self, rmtree, path_exists, urlretrieve,
+                                   copytree, working_set, scripts,
+                                   install_release, manage, testrunner):
+        # The recipe allows extra-paths to be specified. It uses these to
+        # extend the Python path within it's generated scripts.
+        self.recipe.options['version'] = '1.0'
+        self.recipe.options['extra-paths'] = 'somepackage\nanotherpackage'
+        path_exists.return_value = True
+        working_set.return_value = (None, [])
+        self.recipe.install()
+        self.assertEqual(manage.call_args[0][0][-2:], 
+                         ['somepackage', 'anotherpackage'])
+
     def test_create_wsgi_script_projectegg(self):
         # When a projectegg is specified, then the egg specified
         # should get used as the project in the wsgi script.

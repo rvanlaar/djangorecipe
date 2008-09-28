@@ -138,8 +138,13 @@ class Recipe(object):
         options.setdefault(
             'media_root',
             "os.path.join(os.path.dirname(__file__), 'media')")
-        # set this so the rest of the recipe can expect it to be there
-        options.setdefault('pythonpath', '')
+        # Set this so the rest of the recipe can expect the values to be
+        # there. We need to make sure that both pythonpath and extra-paths are
+        # set for BBB.
+        if 'extra-paths' in options:
+            options['pythonpath'] = options['extra-paths']
+        else:
+            options.setdefault('extra-paths', options.get('pythonpath', ''))
 
         # Usefull when using archived versions
         buildout['buildout'].setdefault(
@@ -185,7 +190,7 @@ class Recipe(object):
         extra_paths.extend(ws_locations)
 
         pythonpath = [p.replace('/', os.path.sep) for p in
-                      self.options['pythonpath'].splitlines() if p.strip()]
+                      self.options['extra-paths'].splitlines() if p.strip()]
         extra_paths.extend(pythonpath)
 
         requirements, ws = self.egg.working_set(['djangorecipe'])

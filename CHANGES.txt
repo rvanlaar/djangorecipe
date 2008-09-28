@@ -8,6 +8,9 @@ unreleased
   versions is to be downloaded using subversion. This fixes issue
   #271145. Thanks to Kapil Thangavelu for the patch.
 
+- Changed the `pythonpath` option to `extra-paths`. This makes the
+  recipe more consistent with other recipes (see issue #270908).
+
 0.11
 ----
 
