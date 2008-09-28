@@ -136,7 +136,7 @@ class Recipe(object):
 
         options.setdefault('urlconf', options['project'] + '.urls')
         options.setdefault(
-            'media_root', 
+            'media_root',
             "os.path.join(os.path.dirname(__file__), 'media')")
         # set this so the rest of the recipe can expect it to be there
         options.setdefault('pythonpath', '')
@@ -144,7 +144,7 @@ class Recipe(object):
         # Usefull when using archived versions
         buildout['buildout'].setdefault(
             'download-cache',
-            os.path.join(buildout['buildout']['directory'], 
+            os.path.join(buildout['buildout']['directory'],
                          'downloads'))
 
         # mod_wsgi support script
@@ -169,9 +169,9 @@ class Recipe(object):
         # Remove a pre-existing installation if it is there
         if os.path.exists(location):
             shutil.rmtree(location)
-            
+
         if self.is_svn_url(version):
-            self.install_svn_version(version, download_dir, location, 
+            self.install_svn_version(version, download_dir, location,
                                      self.install_from_cache)
         else:
             tarball = self.get_release(version, download_dir)
@@ -187,7 +187,7 @@ class Recipe(object):
         pythonpath = [p.replace('/', os.path.sep) for p in
                       self.options['pythonpath'].splitlines() if p.strip()]
         extra_paths.extend(pythonpath)
-        
+
         requirements, ws = self.egg.working_set(['djangorecipe'])
 
         # Create the Django management script
@@ -211,11 +211,11 @@ class Recipe(object):
 
         return location
 
-    def install_svn_version(self, version, download_dir, location, 
+    def install_svn_version(self, version, download_dir, location,
                             install_from_cache):
         svn_url = self.version_to_svn(version)
         download_location = os.path.join(
-            download_dir, 'django-' + 
+            download_dir, 'django-' +
             self.version_to_download_suffix(version))
         if not install_from_cache:
             if os.path.exists(download_location):
@@ -240,14 +240,14 @@ class Recipe(object):
         setuptools.archive_util.unpack_archive(tarball, extraction_dir)
         # Lookup the resulting extraction dir instead of guessing it
         # (Django releases have a tendency not to be consistend here)
-        untarred_dir = os.path.join(extraction_dir, 
+        untarred_dir = os.path.join(extraction_dir,
                                     os.listdir(extraction_dir)[0])
         shutil.move(untarred_dir, destination)
         shutil.rmtree(extraction_dir)
 
     def get_release(self, version, download_dir):
         tarball = os.path.join(download_dir, 'django-%s.tar.gz' % version)
-            
+
         # Only download when we don't yet have an archive
         if not os.path.exists(tarball):
             download_url = 'http://www.djangoproject.com/download/%s/tarball/'
@@ -262,7 +262,7 @@ class Recipe(object):
               'djangorecipe.manage', 'main')],
             ws, self.options['executable'], self.options['bin-directory'],
             extra_paths = extra_paths,
-            arguments= "'%s.%s'" % (project, 
+            arguments= "'%s.%s'" % (project,
                                     self.options['settings']))
 
 
@@ -274,7 +274,7 @@ class Recipe(object):
             zc.buildout.easy_install.scripts(
                 [(self.options.get('testrunner', 'test'),
                   'djangorecipe.test', 'main')],
-                working_set, self.options['executable'], 
+                working_set, self.options['executable'],
                 self.options['bin-directory'],
                 extra_paths = extra_paths,
                 arguments= "'%s.%s', %s" % (
@@ -373,7 +373,6 @@ class Recipe(object):
         f = open(file, 'w')
         f.write(template % options)
         f.close()
-        
 
     def generate_secret(self):
         chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
