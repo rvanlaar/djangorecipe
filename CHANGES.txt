@@ -1,6 +1,13 @@
 Changes
 =======
 
+unreleased
+----------
+
+- The recipe no longer executes subversion to determine whether the
+  versions is to be downloaded using subversion. This fixes issue
+  #271145. Thanks to Kapil Thangavelu for the patch.
+
 0.11
 ----
 

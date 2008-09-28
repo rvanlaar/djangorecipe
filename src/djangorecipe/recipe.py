@@ -329,11 +329,11 @@ class Recipe(object):
         f.close()
 
     def is_svn_url(self, version):
-        return version == 'trunk' or subprocess.call(
-            'svn info ' + version,
-            shell=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE) == 0
+        for uri_base in ('svn://', 'svn+ssh://', 'http', 'https'):
+            if version.startswith( uri_base ):
+                return True
+        # We can also have a special `trunk` marker which indicates svn
+        return version == 'trunk'
 
     def version_to_svn(self, version):
         if version == 'trunk':
