@@ -2,11 +2,11 @@ import os
 
 from setuptools import setup, find_packages
 
-version = '0.11'
+version = '0.12'
 
 def read_file(name):
-    return open(os.path.join(os.path.dirname(__file__), 
-                             name)).read()    
+    return open(os.path.join(os.path.dirname(__file__),
+                             name)).read()
 
 readme = read_file('README.txt')
 changes = read_file('CHANGES.txt')
@@ -21,7 +21,7 @@ setup(name='djangorecipe',
         'Topic :: Software Development :: Build Tools',
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: BSD License',
-        ], 
+        ],
       package_dir={'': 'src'},
       packages=find_packages('src'),
       keywords='',
