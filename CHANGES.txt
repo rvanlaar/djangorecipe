@@ -1,6 +1,11 @@
 Changes
 =======
 
+0.12.1
+------
+
+- Re-upload since CHANGES.txt was missing from the release
+
 0.12
 ----
 
