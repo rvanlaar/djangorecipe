@@ -4,6 +4,7 @@ import subprocess
 import urllib
 import shutil
 import logging
+import re
 
 from zc.buildout import UserError
 import zc.recipe.egg
@@ -353,8 +354,11 @@ class Recipe(object):
 
     def svn_update(self, path, version):
         command = 'svn up'
-        if '@' in self.options['version']:
-            command += ' -r ' + version.split('@')[-1]
+        
+        revision_search = re.compile(r'@([0-9]*)$').search(self.options['version'])
+        
+        if revision_search is not None:
+            command += ' -r ' + revision_search.group(1)
         self.log.info("Updating Django from svn")
         return self.command(command, cwd=path)
 

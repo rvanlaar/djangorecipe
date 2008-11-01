@@ -1,6 +1,13 @@
 Changes
 =======
 
+Unreleased
+----------
+
+- Specifying a user name within a subversion url now works. The code
+  that determined the revision has been updated. This fixes issue
+  #274004. Thanks to Remco for the patch.
+
 0.12.1
 ------
 

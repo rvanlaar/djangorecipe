@@ -436,6 +436,22 @@ class TestRecipe(unittest.TestCase):
         self.recipe.update()
         self.assertEqual(command.call_args[0], ('svn up -r 2531',))
 
+    @mock.patch(Recipe, 'command')
+    def test_update_username_in_svn_url(self, command):
+        # Make sure that updating a version with a username
+        # in the URL works
+        self.recipe.is_svn_url = lambda version: True
+
+        # First test with both a revision and a username in the url
+        self.recipe.options['version'] = 'http://user@testing/trunk@2531'
+        self.recipe.update()
+        self.assertEqual(command.call_args[0], ('svn up -r 2531',))
+
+        # Now test with only the username
+        self.recipe.options['version'] = 'http://user@testing/trunk'
+        self.recipe.update()
+        self.assertEqual(command.call_args[0], ('svn up',))
+
 
 class ScriptTestCase(unittest.TestCase):
     
