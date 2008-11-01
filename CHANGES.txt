@@ -8,6 +8,10 @@ Unreleased
   that determined the revision has been updated. This fixes issue
   #274004. Thanks to Remco for the patch.
 
+- Updated the template for creating new projects. It now uses the
+  current admin system when generating it's `urls.py` file. This fixes
+  issue #276255. Thanks to Roland for the patch.
+
 0.12.1
 ------
 
