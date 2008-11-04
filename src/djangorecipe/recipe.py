@@ -345,7 +345,7 @@ class Recipe(object):
         open(os.path.join(project_dir, '__init__.py'), 'w').close()
 
 
-    def make_script(self, template, extra_paths):
+    def make_script(self, protocol, template, extra_paths):
         script_name = os.path.join(
             self.buildout['buildout']['bin-directory'],
             self.options.get('control-script', self.name) + '.%s' % protocol)
