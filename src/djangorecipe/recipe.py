@@ -175,6 +175,7 @@ class Recipe(object):
 
         # mod_wsgi support script
         options.setdefault('wsgi', 'false')
+        options.setdefault('fcgi', 'false')
 
         # only try to download stuff if we aren't asked to install from cache
         self.install_from_cache = self.buildout['buildout'].get(
@@ -226,7 +227,8 @@ class Recipe(object):
         for protocol in ('wsgi', 'fcgi'):
             if protocol in self.options and \
                 self.options.get(protocol).lower() == 'true':
-                    self.make_script(script_templates[protocol], extra_paths)
+                    self.make_script(protocol,
+                                     script_templates[protocol], extra_paths)
 
         # Create default settings if we haven't got a project
         # egg specified, and if it doesn't already exist
@@ -346,7 +348,7 @@ class Recipe(object):
     def make_script(self, template, extra_paths):
         script_name = os.path.join(
             self.buildout['buildout']['bin-directory'],
-            self.options.get('control-script', self.name) + '.wsgi')
+            self.options.get('control-script', self.name) + '.%s' % protocol)
         f = open(script_name, 'w')
         o = {'extra_paths': repr(extra_paths)}
         o.update(self.options)
