@@ -109,6 +109,7 @@ if settings.DEBUG:
 
 script_templates = {
     'wsgi': '''
+#!/usr/bin/env python
 import os, sys
  
 # Add the project to the python path
@@ -125,6 +126,7 @@ import django.core.handlers.wsgi
 application = django.core.handlers.wsgi.WSGIHandler()
 ''',
     'fcgi': '''
+#!/usr/bin/env python
 import os, sys
 
 # Add the project to the python path
