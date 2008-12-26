@@ -7,6 +7,9 @@ unreleased
 - The recipe now supports creating a FCGI script. Thanks to Jannis
   Leidel for the patch.
 
+- When downloading a Django recipe for the first time the recipe now
+  properly reports the url it is downloading from.
+
 0.13
 ----
 

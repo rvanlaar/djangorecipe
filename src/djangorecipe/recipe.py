@@ -281,7 +281,8 @@ class Recipe(object):
         # Only download when we don't yet have an archive
         if not os.path.exists(tarball):
             download_url = 'http://www.djangoproject.com/download/%s/tarball/'
-            self.log.info("Downloading Django from: %s" % download_url)
+            self.log.info("Downloading Django from: %s" % (
+                    download_url % version))
             urllib.urlretrieve(download_url % version, tarball)
         return tarball
 
