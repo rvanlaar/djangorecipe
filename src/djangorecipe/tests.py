@@ -157,7 +157,7 @@ class TestRecipe(unittest.TestCase):
         # To ease deployment a WSGI script can be generated. The
         # script adds any paths from the `extra_paths` option to the
         # Python path.
-        self.recipe.make_wsgi_script(['monty.python', 'spam.eggs'])
+        self.recipe.make_script('wsgi', ['monty.python', 'spam.eggs'])
         # This should have created a script in the bin dir
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
         self.assert_(os.path.exists(wsgi_script))
@@ -171,6 +171,25 @@ class TestRecipe(unittest.TestCase):
             contents)
         # and a line which set's up the WSGI app
         self.assert_('application = django.core.handlers.wsgi.WSGIHandler()'
+                     in contents)
+
+    def test_make_fcgi_script(self):
+        # Another deployment options is FCGI. The recipe supports an option to
+        # automatically create the required script.
+        self.recipe.make_script('fcgi', ['monty.python', 'spam.eggs'])
+        # This should have created a script in the bin dir
+        fcgi_script = os.path.join(self.bin_dir, 'django.fcgi')
+        self.assert_(os.path.exists(fcgi_script))
+        # The contents should list our paths
+        contents = open(fcgi_script).read()
+        self.assert_('monty.python' in contents)
+        self.assert_('spam.eggs' in contents)
+        # It should also have a reference to our settings module
+        self.assert_(
+            "os.environ['DJANGO_SETTINGS_MODULE'] = 'project.development'" in
+            contents)
+        # and a line which set's up the FCGI app
+        self.assert_('from django.core.servers.fastcgi import runfastcgi'
                      in contents)
 
     def test_create_project(self):
@@ -268,7 +287,7 @@ class TestRecipe(unittest.TestCase):
         # should get used as the project in the wsgi script.
         wsgi = os.path.join(self.bin_dir, 'django.wsgi')
         self.recipe.options['projectegg'] = 'spameggs'
-        self.recipe.make_wsgi_script([])
+        self.recipe.make_script('wsgi', [])
         self.assert_(os.path.exists(wsgi))
         # Check that we have 'spameggs' as the project
         self.assert_("os.environ['DJANGO_SETTINGS_MODULE']='spameggs.development'"

@@ -135,7 +135,7 @@ sys.path.extend(
 )
 
 # Set our settings module
-os.environ['DJANGO_SETTINGS_MODULE'] = "%(project)s.%(settings)s"
+os.environ['DJANGO_SETTINGS_MODULE'] = '%(project)s.%(settings)s'
 
 from django.core.servers.fastcgi import runfastcgi
 
@@ -229,8 +229,7 @@ class Recipe(object):
         for protocol in ('wsgi', 'fcgi'):
             if protocol in self.options and \
                 self.options.get(protocol).lower() == 'true':
-                    self.make_script(protocol,
-                                     script_templates[protocol], extra_paths)
+                    self.make_script(protocol, extra_paths)
 
         # Create default settings if we haven't got a project
         # egg specified, and if it doesn't already exist
@@ -347,7 +346,8 @@ class Recipe(object):
         open(os.path.join(project_dir, '__init__.py'), 'w').close()
 
 
-    def make_script(self, protocol, template, extra_paths):
+    def make_script(self, protocol, extra_paths):
+        template = script_templates[protocol]
         script_name = os.path.join(
             self.buildout['buildout']['bin-directory'],
             self.options.get('control-script', self.name) + '.%s' % protocol)
@@ -379,9 +379,8 @@ class Recipe(object):
 
     def svn_update(self, path, version):
         command = 'svn up'
-        
         revision_search = re.compile(r'@([0-9]*)$').search(self.options['version'])
-        
+
         if revision_search is not None:
             command += ' -r ' + revision_search.group(1)
         self.log.info("Updating Django from svn")
