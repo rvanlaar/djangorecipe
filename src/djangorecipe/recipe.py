@@ -107,7 +107,9 @@ if settings.DEBUG:
     )
 '''
 
-wsgi_template = '''
+script_templates = {
+    'wsgi': '''
+#!/usr/bin/env python
 import os, sys
  
 # Add the project to the python path
@@ -122,7 +124,25 @@ import django.core.handlers.wsgi
  
 # Run WSGI handler for the application
 application = django.core.handlers.wsgi.WSGIHandler()
-'''
+''',
+    'fcgi': '''
+#!/usr/bin/env python
+import os, sys
+
+# Add the project to the python path
+sys.path.extend(
+  %(extra_paths)s
+)
+
+# Set our settings module
+os.environ['DJANGO_SETTINGS_MODULE'] = '%(project)s.%(settings)s'
+
+from django.core.servers.fastcgi import runfastcgi
+
+# Run FASTCGI handler
+runfastcgi()
+''',
+}
 
 class Recipe(object):
     def __init__(self, buildout, name, options):
@@ -157,6 +177,7 @@ class Recipe(object):
 
         # mod_wsgi support script
         options.setdefault('wsgi', 'false')
+        options.setdefault('fcgi', 'false')
 
         # only try to download stuff if we aren't asked to install from cache
         self.install_from_cache = self.buildout['buildout'].get(
@@ -204,10 +225,11 @@ class Recipe(object):
         # Create the test runner
         self.create_test_runner(extra_paths, ws)
 
-        # Make the wsgi script if enabled
-        if self.options.get('wsgi').lower() == 'true':
-            self.make_wsgi_script(extra_paths)
-
+        # Make the wsgi and fastcgi scripts if enabled
+        for protocol in ('wsgi', 'fcgi'):
+            if protocol in self.options and \
+                self.options.get(protocol).lower() == 'true':
+                    self.make_script(protocol, extra_paths)
 
         # Create default settings if we haven't got a project
         # egg specified, and if it doesn't already exist
@@ -324,16 +346,17 @@ class Recipe(object):
         open(os.path.join(project_dir, '__init__.py'), 'w').close()
 
 
-    def make_wsgi_script(self, extra_paths):
+    def make_script(self, protocol, extra_paths):
+        template = script_templates[protocol]
         script_name = os.path.join(
             self.buildout['buildout']['bin-directory'],
-            self.options.get('control-script', self.name) + '.wsgi')
+            self.options.get('control-script', self.name) + '.%s' % protocol)
         f = open(script_name, 'w')
         o = {'extra_paths': repr(extra_paths)}
         o.update(self.options)
         if self.options.get('projectegg'):
             o['project'] = self.options.get('projectegg')
-        f.write(wsgi_template % o)
+        f.write(template % o)
         f.close()
 
     def is_svn_url(self, version):
@@ -356,9 +379,8 @@ class Recipe(object):
 
     def svn_update(self, path, version):
         command = 'svn up'
-        
         revision_search = re.compile(r'@([0-9]*)$').search(self.options['version'])
-        
+
         if revision_search is not None:
             command += ' -r ' + revision_search.group(1)
         self.log.info("Updating Django from svn")

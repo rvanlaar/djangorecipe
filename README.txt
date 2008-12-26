@@ -71,9 +71,13 @@ control-script
   uses the name of the section (the part between the `[ ]`).
 
 wsgi
-  An extra script is generated in the bin folder When this is set to
+  An extra script is generated in the bin folder when this is set to
   `true`. This can be used with mod_wsgi to deploy the project. The
   name of the script is `control-script.wsgi`.
+
+fcgi
+  Like `wsgi` this creates an extra script within the bin folder. This
+  script can be used with an FCGI deployment.
 
 test
   If you want a script in the bin folder to run all the tests for a
