@@ -1,8 +1,8 @@
 Changes
 =======
 
-unreleased
-----------
+0.14
+----
 
 - The recipe now supports creating a FCGI script. Thanks to Jannis
   Leidel for the patch.
