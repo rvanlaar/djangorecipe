@@ -65,6 +65,10 @@ extra-paths
   All paths specified here will be used to extend the default Python
   path for the `bin/*` scripts.
 
+pth-files
+  Adds paths found from a site `.pth` file to the extra-paths.  
+  Useful for things like Pinax which maintains its own external_libs dir.
+
 control-script
   The name of the script created in the bin folder. This script is the
   equivalent of the `manage.py` Django normally creates. By default it
@@ -127,6 +131,26 @@ The next example shows you how to use some more of the options::
   test = 
     someapp
     anotherapp
+
+Example using .pth files
+========================
+
+Pinax uses a .pth file to add a bunch of libraries to its path; we can
+specify it's directory to get the libraries it specified added to our
+path::
+
+  [pinax]
+  recipe	= djangorecipe
+  version	= 1.0.2
+  eggs		= PIL
+  project       = pinax
+  settings	= settings
+  extra-paths	= ${buildout:directory}/pinax/projects
+		  ${buildout:directory}/pinax/projects/pinax
+		  ${buildout:directory}/pinax/projects/pinax/apps
+		  ${buildout:directory}/pinax/apps/local_apps
+		  ${buildout:directory}/pinax/apps/external_apps
+  pth-files	= ${buildout:directory}/pinax/libs/external_libs
 
 
 Example configuration for mod_wsgi

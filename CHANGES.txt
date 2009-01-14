@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.15
+----
+
+- Added "pth-files" option to add libraries to extra-paths from
+  site .pth files. Thanks to Chris Shenton for the patch.
+
 0.14
 ----
 

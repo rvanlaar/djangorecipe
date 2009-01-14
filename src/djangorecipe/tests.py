@@ -282,6 +282,27 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(manage.call_args[0][0][-2:], 
                          ['somepackage', 'anotherpackage'])
 
+    @mock.patch('site', 'addsitedir')
+    def test_pth_files(self, addsitedir):
+        # When a pth-files option is set the recipe will use that to add more
+        # paths to extra-paths.
+        addsitedir.return_value = ['extra', 'dirs']
+        recipe = Recipe({'buildout': {'eggs-directory': self.eggs_dir,
+                                           'develop-eggs-directory': self.develop_eggs_dir,
+                                           'python': 'python-version',
+                                           'bin-directory': self.bin_dir,
+                                           'parts-directory': self.parts_dir,
+                                           'directory': self.buildout_dir,
+                                           },
+                              'python-version': {'executable': sys.executable}}, 
+                             'django', 
+                             {'recipe': 'djangorecipe',
+                              'version': 'trunk',
+                              'pth-files': 'somedir'})
+        self.assertEqual(addsitedir.call_args, (('somedir', set([])), {}))
+        # The extra-paths option has been extended.
+        self.assertEqual(recipe.options['extra-paths'], '\nextra\ndirs')
+
     def test_create_wsgi_script_projectegg(self):
         # When a projectegg is specified, then the egg specified
         # should get used as the project in the wsgi script.

@@ -169,6 +169,13 @@ class Recipe(object):
         else:
             options.setdefault('extra-paths', options.get('pythonpath', ''))
 
+        # Add libraries found by a site .pth files to our extra-paths.
+        if 'pth-files' in options:
+            import site
+            for pth_file in options['pth-files'].splitlines():
+                pth_libs = site.addsitedir(pth_file, set())
+                options['extra-paths'] += '\n' + '\n'.join(pth_libs)
+
         # Usefull when using archived versions
         buildout['buildout'].setdefault(
             'download-cache',
