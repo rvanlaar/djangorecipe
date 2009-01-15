@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.15.1
+------
+
+- Update to make the previously added pth-files option better
+  documented.
+
 0.15
 ----
 

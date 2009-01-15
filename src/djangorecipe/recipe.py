@@ -174,7 +174,10 @@ class Recipe(object):
             import site
             for pth_file in options['pth-files'].splitlines():
                 pth_libs = site.addsitedir(pth_file, set())
-                options['extra-paths'] += '\n' + '\n'.join(pth_libs)
+                if not pth_libs:
+                    self.log.warning("No site *.pth libraries found for pth_file=%s" % pth_file)
+                else:
+                    options['extra-paths'] += '\n' + '\n'.join(pth_libs)
 
         # Usefull when using archived versions
         buildout['buildout'].setdefault(

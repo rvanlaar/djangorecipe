@@ -139,18 +139,46 @@ Pinax uses a .pth file to add a bunch of libraries to its path; we can
 specify it's directory to get the libraries it specified added to our
 path::
 
-  [pinax]
+  [buildout]
+  parts	= PIL
+	  svncode
+	  myproject
+
+  [PIL]
+  recipe	= zc.recipe.egg:custom
+  egg		= PIL
+  find-links	= http://dist.repoze.org/
+
+  [svncode]
+  recipe	= iw.recipe.subversion
+  urls		= http://svn.pinaxproject.com/pinax/tags/0.5.1rc1	pinax
+
+  [myproject]
   recipe	= djangorecipe
   version	= 1.0.2
   eggs		= PIL
-  project       = pinax
+  project	= myproject
   settings	= settings
-  extra-paths	= ${buildout:directory}/pinax/projects
-		  ${buildout:directory}/pinax/projects/pinax
-		  ${buildout:directory}/pinax/projects/pinax/apps
-		  ${buildout:directory}/pinax/apps/local_apps
-		  ${buildout:directory}/pinax/apps/external_apps
-  pth-files	= ${buildout:directory}/pinax/libs/external_libs
+  extra-paths	= ${buildout:directory}/myproject/apps
+		  ${svncode:location}/pinax/apps/external_apps
+		  ${svncode:location}/pinax/apps/local_apps
+  pth-files	= ${svncode:location}/pinax/libs/external_libs
+  wsgi		= true
+
+Above, we use stock Pinax for pth-files and extra-paths paths for
+apps, and our own project for the path that will be found first in the
+list.  Note that we expect our project to be checked out (e.g., by
+svn:external) directly under this directory.
+
+WARNING: The first time you run this, buildout seems to try and run
+the recipe before the [svncode] section checks out Pinax, and it emits
+a warning that it couldn't find any pth libraries.  But then it runs
+the [svncode] and then [myproject] and does seem to find the pth
+libraries, but emits the bin/myproject script without the pth
+libraries -- as if it's cached the previous non-libraries.  If you run
+buildout again, it will generate them with the expanded pth locations
+found from the [svncode] section.  This feels like a bug in buildout
+but I don't undrestand it well enough to provide a work-around.
 
 
 Example configuration for mod_wsgi
