@@ -1,6 +1,14 @@
 Changes
 =======
 
+0.15.2
+------
+
+- Update to move pth-files finder from the __init__ method to the
+  install method so it runs in buildout-order, else it looks for pth
+  files in dirs that may not yet exist. Thanks to Chris Shenton for
+  the update to his original patch.
+
 0.15.1
 ------
 

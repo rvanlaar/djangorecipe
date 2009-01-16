@@ -256,10 +256,9 @@ class TestRecipe(unittest.TestCase):
         self.recipe.create_manage_script([], [])
         self.assert_(os.path.exists(manage))
         # Check that we have 'spameggs' as the project
-        self.assert_("djangorecipe.manage.main('spameggs.development')" 
+        self.assert_("djangorecipe.manage.main('spameggs.development')"
                      in open(manage).read())
 
-    
     @mock.patch('shutil', 'rmtree')
     @mock.patch('os.path', 'exists')
     @mock.patch('urllib', 'urlretrieve')
@@ -279,29 +278,35 @@ class TestRecipe(unittest.TestCase):
         path_exists.return_value = True
         working_set.return_value = (None, [])
         self.recipe.install()
-        self.assertEqual(manage.call_args[0][0][-2:], 
+        self.assertEqual(manage.call_args[0][0][-2:],
                          ['somepackage', 'anotherpackage'])
 
+    @mock.patch('shutil', 'rmtree')
+    @mock.patch('os.path', 'exists')
+    @mock.patch('urllib', 'urlretrieve')
+    @mock.patch('shutil', 'copytree')
+    @mock.patch(ZCRecipeEggScripts, 'working_set')
+    @mock.patch('zc.buildout.easy_install', 'scripts')
+    @mock.patch(Recipe, 'install_release')
+    @mock.patch(Recipe, 'create_manage_script')
+    @mock.patch(Recipe, 'create_test_runner')
     @mock.patch('site', 'addsitedir')
-    def test_pth_files(self, addsitedir):
+    def test_pth_files(self, rmtree, path_exists, urlretrieve,
+                       copytree, working_set, scripts,
+                       install_release, manage, testrunner, addsitedir):
         # When a pth-files option is set the recipe will use that to add more
         # paths to extra-paths.
+        self.recipe.options['version'] = '1.0'
+        path_exists.return_value = True
+        working_set.return_value = (None, [])
+        # The mock values needed to demonstrate the pth-files option.
         addsitedir.return_value = ['extra', 'dirs']
-        recipe = Recipe({'buildout': {'eggs-directory': self.eggs_dir,
-                                           'develop-eggs-directory': self.develop_eggs_dir,
-                                           'python': 'python-version',
-                                           'bin-directory': self.bin_dir,
-                                           'parts-directory': self.parts_dir,
-                                           'directory': self.buildout_dir,
-                                           },
-                              'python-version': {'executable': sys.executable}}, 
-                             'django', 
-                             {'recipe': 'djangorecipe',
-                              'version': 'trunk',
-                              'pth-files': 'somedir'})
+        self.recipe.options['pth-files'] = 'somedir'
+
+        self.recipe.install()
         self.assertEqual(addsitedir.call_args, (('somedir', set([])), {}))
         # The extra-paths option has been extended.
-        self.assertEqual(recipe.options['extra-paths'], '\nextra\ndirs')
+        self.assertEqual(self.recipe.options['extra-paths'], '\nextra\ndirs')
 
     def test_create_wsgi_script_projectegg(self):
         # When a projectegg is specified, then the egg specified
@@ -336,10 +341,10 @@ class TestRecipe(unittest.TestCase):
             'downloads/django-0.96.2.tar.gz')
         # It tried to download the release through our mock
         self.assertEqual(
-            mock.call_args, 
-            (('http://www.djangoproject.com/download/0.96.2/tarball/', 
+            mock.call_args,
+            (('http://www.djangoproject.com/download/0.96.2/tarball/',
               'downloads/django-0.96.2.tar.gz'), {}))
-        
+
     @mock.patch('setuptools.archive_util', 'unpack_archive')
     @mock.patch('shutil', 'move')
     @mock.patch('shutil', 'rmtree')

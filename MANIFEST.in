@@ -1,2 +1,2 @@
-recursive-include . *.txt 
+global-include *.txt 
 recursive-include . *.py 

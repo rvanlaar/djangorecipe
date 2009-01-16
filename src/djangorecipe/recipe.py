@@ -169,16 +169,6 @@ class Recipe(object):
         else:
             options.setdefault('extra-paths', options.get('pythonpath', ''))
 
-        # Add libraries found by a site .pth files to our extra-paths.
-        if 'pth-files' in options:
-            import site
-            for pth_file in options['pth-files'].splitlines():
-                pth_libs = site.addsitedir(pth_file, set())
-                if not pth_libs:
-                    self.log.warning("No site *.pth libraries found for pth_file=%s" % pth_file)
-                else:
-                    options['extra-paths'] += '\n' + '\n'.join(pth_libs)
-
         # Usefull when using archived versions
         buildout['buildout'].setdefault(
             'download-cache',
@@ -222,6 +212,17 @@ class Recipe(object):
 
         extra_paths = [os.path.join(location), base_dir]
         extra_paths.extend(ws_locations)
+
+        # Add libraries found by a site .pth files to our extra-paths.
+        if 'pth-files' in self.options:
+            import site
+            for pth_file in self.options['pth-files'].splitlines():
+                pth_libs = site.addsitedir(pth_file, set())
+                if not pth_libs:
+                    self.log.warning("No site *.pth libraries found for pth_file=%s" % pth_file)
+                else:
+                    self.log.info("Adding *.pth libraries=%s" % pth_libs)
+                    self.options['extra-paths'] += '\n' + '\n'.join(pth_libs)
 
         pythonpath = [p.replace('/', os.path.sep) for p in
                       self.options['extra-paths'].splitlines() if p.strip()]

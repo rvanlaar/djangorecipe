@@ -168,17 +168,8 @@ path::
 Above, we use stock Pinax for pth-files and extra-paths paths for
 apps, and our own project for the path that will be found first in the
 list.  Note that we expect our project to be checked out (e.g., by
-svn:external) directly under this directory.
+svn:external) directly under this directory in to 'myproject'.
 
-WARNING: The first time you run this, buildout seems to try and run
-the recipe before the [svncode] section checks out Pinax, and it emits
-a warning that it couldn't find any pth libraries.  But then it runs
-the [svncode] and then [myproject] and does seem to find the pth
-libraries, but emits the bin/myproject script without the pth
-libraries -- as if it's cached the previous non-libraries.  If you run
-buildout again, it will generate them with the expanded pth locations
-found from the [svncode] section.  This feels like a bug in buildout
-but I don't undrestand it well enough to provide a work-around.
 
 
 Example configuration for mod_wsgi
