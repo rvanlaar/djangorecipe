@@ -81,9 +81,23 @@ class TestRecipe(unittest.TestCase):
         self.failIf(self.recipe.is_svn_url('0.96.2'))
         # The next line specifies a proper link with the trunk
         self.assert_(self.recipe.is_svn_url('trunk'))
-        # A full svn url should also work
-        self.assert_(
-            'http://code.djangoproject.com/svn/django/branches/newforms-admin@7833')
+        # A url looking like trunk should also fail
+        self.failIf(self.recipe.is_svn_url('trunka'))
+        # A full svn url including version should work
+        self.assert_(self.recipe.is_svn_url(
+            'http://code.djangoproject.com/svn/django/branches/newforms-admin@7833'))
+        # HTTPS should work too
+        self.assert_(self.recipe.is_svn_url(
+            'https://code.djangoproject.com/svn/django/branches/newforms-admin@7833'))
+        # Svn+ssh should work
+        self.assert_(self.recipe.is_svn_url(
+            'svn+ssh://myserver/newforms-admin@7833'))
+        # Svn protocol through any custom tunnel defined in ~/.subversion/config should work
+        self.assert_(self.recipe.is_svn_url(
+            'svn+MY_Custom-tunnel://myserver/newforms-admin@7833'))
+        # Using a non existent protocol should not be a svn url?
+        self.failIf(self.recipe.is_svn_url(
+            'unknown://myserver/newforms-admin@7833'))
 
     def test_command(self):
         # The command method is a wrapper for subprocess which excutes

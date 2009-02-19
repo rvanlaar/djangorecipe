@@ -1,6 +1,12 @@
 Changes
 =======
 
+Unreleased
+----------
+
+- Subversion aliases are now supported (something like
+  svn+mystuff://myjunk). Thanks to Remco for the patch.
+
 0.15.2
 ------
 

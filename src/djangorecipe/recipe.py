@@ -372,11 +372,11 @@ class Recipe(object):
         f.close()
 
     def is_svn_url(self, version):
-        for uri_base in ('svn://', 'svn+ssh://', 'http', 'https'):
-            if version.startswith( uri_base ):
-                return True
-        # We can also have a special `trunk` marker which indicates svn
-        return version == 'trunk'
+        # Search if there is http/https/svn or svn+[a tunnel identifier] in the
+        # url or if the trunk marker is used, all indicating the use of svn
+        svn_version_search = re.compile(r'^(http|https|svn|svn\+[a-zA-Z-_]+)://|^(trunk)$').search(version)
+
+        return svn_version_search is not None
 
     def version_to_svn(self, version):
         if version == 'trunk':
