@@ -18,7 +18,7 @@ def release_djangorecipe():
             os.path.abspath('.'), version))
     local('cd /tmp/djangorecipe-$(version); python2.5 setup.py egg_info')
     # Release the code.
-    #local('python2.5 setup.py sdist register upload')
+    local('python2.5 setup.py sdist register upload')
 
 def release():
     """Release everything related to the project."""
