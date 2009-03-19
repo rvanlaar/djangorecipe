@@ -1,6 +1,12 @@
 Changes
 =======
 
+Unreleased
+----------
+
+- Added an option to specify a log file for output redirection from
+  the WSGI script. Thanks to Guido Wesdorp for the patch.
+
 0.16
 ----
 

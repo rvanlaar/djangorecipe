@@ -118,8 +118,29 @@ sys.path.extend(
 )
  
 # Set our settings module
-os.environ['DJANGO_SETTINGS_MODULE']='%(project)s.%(settings)s'
- 
+os.environ['DJANGO_SETTINGS_MODULE'] = '%(project)s.%(settings)s'
+
+import datetime
+class logger(object):
+    def __init__(self, logfile):
+        self.logfile = logfile
+
+    def write(self, data):
+        self.log(data)
+
+    def writeline(self, data):
+        self.log(data)
+
+    def log(self, msg):
+        line = '%%s - %%s\n' %% (
+            datetime.datetime.now().strftime('%%Y%%m%%d %%H:%%M:%%S'), msg)
+        fp = open(self.logfile, 'a')
+        try:
+            fp.write(line)
+        finally:
+            fp.close()
+sys.stdout = sys.stderr = logger(%(wsgilog)r)
+
 import django.core.handlers.wsgi
  
 # Run WSGI handler for the application
@@ -178,6 +199,7 @@ class Recipe(object):
         # mod_wsgi support script
         options.setdefault('wsgi', 'false')
         options.setdefault('fcgi', 'false')
+        options.setdefault('wsgilog', '')
 
         # only try to download stuff if we aren't asked to install from cache
         self.install_from_cache = self.buildout['buildout'].get(
@@ -219,7 +241,9 @@ class Recipe(object):
             for pth_file in self.options['pth-files'].splitlines():
                 pth_libs = site.addsitedir(pth_file, set())
                 if not pth_libs:
-                    self.log.warning("No site *.pth libraries found for pth_file=%s" % pth_file)
+                    self.log.warning(
+                        "No site *.pth libraries found for pth_file=%s" % (
+                         pth_file,))
                 else:
                     self.log.info("Adding *.pth libraries=%s" % pth_libs)
                     self.options['extra-paths'] += '\n' + '\n'.join(pth_libs)
@@ -248,7 +272,9 @@ class Recipe(object):
             if not os.path.exists(project_dir):
                 self.create_project(project_dir)
             else:
-                self.log.info('Skipping creating of project: %(project)s since it exists' % self.options)
+                self.log.info(
+                    'Skipping creating of project: %(project)s since '
+                    'it exists' % self.options)
 
         return location
 
@@ -391,7 +417,8 @@ class Recipe(object):
 
     def svn_update(self, path, version):
         command = 'svn up'
-        revision_search = re.compile(r'@([0-9]*)$').search(self.options['version'])
+        revision_search = re.compile(r'@([0-9]*)$').search(
+            self.options['version'])
 
         if revision_search is not None:
             command += ' -r ' + revision_search.group(1)
@@ -422,4 +449,3 @@ class Recipe(object):
     def generate_secret(self):
         chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
         return ''.join([choice(chars) for i in range(50)])
-

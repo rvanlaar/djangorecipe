@@ -79,6 +79,11 @@ wsgi
   `true`. This can be used with mod_wsgi to deploy the project. The
   name of the script is `control-script.wsgi`.
 
+wsgilog
+  In case the WSGI server you're using does not allow printing to stdout,
+  you can set this variable to a filesystem path - all stdout/stderr data
+  is redirected to the log instead of printed
+
 fcgi
   Like `wsgi` this creates an extra script within the bin folder. This
   script can be used with an FCGI deployment.

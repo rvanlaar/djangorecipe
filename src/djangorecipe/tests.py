@@ -181,11 +181,18 @@ class TestRecipe(unittest.TestCase):
         self.assert_('spam.eggs' in contents)
         # It should also have a reference to our settings module
         self.assert_(
-            "os.environ['DJANGO_SETTINGS_MODULE']='project.development'" in
+            "os.environ['DJANGO_SETTINGS_MODULE'] = 'project.development'" in
             contents)
         # and a line which set's up the WSGI app
         self.assert_('application = django.core.handlers.wsgi.WSGIHandler()'
                      in contents)
+        self.assert_("sys.stdout = sys.stderr = logger('')" in contents)
+
+        self.recipe.options['wsgilog'] = '/foo'
+        self.recipe.make_script('wsgi', ['monty.python', 'spam.eggs'])
+        wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
+        contents = open(wsgi_script).read()
+        self.assert_("sys.stdout = sys.stderr = logger('/foo')" in contents)
 
     def test_make_fcgi_script(self):
         # Another deployment options is FCGI. The recipe supports an option to
@@ -330,8 +337,9 @@ class TestRecipe(unittest.TestCase):
         self.recipe.make_script('wsgi', [])
         self.assert_(os.path.exists(wsgi))
         # Check that we have 'spameggs' as the project
-        self.assert_("os.environ['DJANGO_SETTINGS_MODULE']='spameggs.development'"
-                     in open(wsgi).read())
+        self.assert_(
+            "os.environ['DJANGO_SETTINGS_MODULE'] = 'spameggs.development'"
+            in open(wsgi).read())
 
     def test_settings_option(self):
         # The settings option can be used to specify the settings file
