@@ -132,7 +132,7 @@ class logger(object):
         self.log(data)
 
     def log(self, msg):
-        line = '%%s - %%s\n' %% (
+        line = '%%s - %%s\\n' %% (
             datetime.datetime.now().strftime('%%Y%%m%%d %%H:%%M:%%S'), msg)
         fp = open(self.logfile, 'a')
         try:
