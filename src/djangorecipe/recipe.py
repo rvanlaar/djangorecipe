@@ -120,26 +120,7 @@ sys.path.extend(
 # Set our settings module
 os.environ['DJANGO_SETTINGS_MODULE'] = '%(project)s.%(settings)s'
 
-import datetime
-class logger(object):
-    def __init__(self, logfile):
-        self.logfile = logfile
-
-    def write(self, data):
-        self.log(data)
-
-    def writeline(self, data):
-        self.log(data)
-
-    def log(self, msg):
-        line = '%%s - %%s\\n' %% (
-            datetime.datetime.now().strftime('%%Y%%m%%d %%H:%%M:%%S'), msg)
-        fp = open(self.logfile, 'a')
-        try:
-            fp.write(line)
-        finally:
-            fp.close()
-sys.stdout = sys.stderr = logger(%(wsgilog)r)
+%(wsgilog_handler)s
 
 import django.core.handlers.wsgi
  
@@ -164,6 +145,29 @@ from django.core.servers.fastcgi import runfastcgi
 runfastcgi()
 ''',
 }
+
+wsgilog_template = '''\
+import datetime
+class logger(object):
+    def __init__(self, logfile):
+        self.logfile = logfile
+
+    def write(self, data):
+        self.log(data)
+
+    def writeline(self, data):
+        self.log(data)
+
+    def log(self, msg):
+        line = '%%s - %%s\\n' %% (
+            datetime.datetime.now().strftime('%%Y%%m%%d %%H:%%M:%%S'), msg)
+        fp = open(self.logfile, 'a')
+        try:
+            fp.write(line)
+        finally:
+            fp.close()
+sys.stdout = sys.stderr = logger(%(wsgilog)r)
+'''
 
 class Recipe(object):
     def __init__(self, buildout, name, options):
@@ -394,6 +398,10 @@ class Recipe(object):
         o.update(self.options)
         if self.options.get('projectegg'):
             o['project'] = self.options.get('projectegg')
+        if protocol == 'wsgi' and self.options.get('wsgilog', ''):
+            o['wsgilog_handler'] = wsgilog_template % o
+        else:
+            o['wsgilog_handler'] = ''
         f.write(template % o)
         f.close()
 
