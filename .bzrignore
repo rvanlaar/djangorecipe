@@ -5,3 +5,7 @@ bin
 .bzr.backup
 .installed.cfg
 build
+downloads
+eggs
+koe
+src/*.egg-info

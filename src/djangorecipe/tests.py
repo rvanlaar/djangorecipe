@@ -186,7 +186,7 @@ class TestRecipe(unittest.TestCase):
         # and a line which set's up the WSGI app
         self.assert_('application = django.core.handlers.wsgi.WSGIHandler()'
                      in contents)
-        self.assert_("sys.stdout = sys.stderr = logger('')" in contents)
+        self.assert_("class logger(object)" not in contents)
 
         self.recipe.options['wsgilog'] = '/foo'
         self.recipe.make_script('wsgi', ['monty.python', 'spam.eggs'])

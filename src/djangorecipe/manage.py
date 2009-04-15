@@ -7,9 +7,10 @@ def main(settings_file):
         for comp in components[1:]:
             mod = getattr(mod, comp)
 
-    except ImportError:
+    except ImportError, e:
         import sys
-        sys.stderr.write("Error: Can't load the file 'settings.py'")
+        sys.stderr.write("Error loading the settings module '%s': %s"
+                            % (settings_file, e))
         return sys.exit(1)
 
     management.execute_manager(mod)

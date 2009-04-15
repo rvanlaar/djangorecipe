@@ -1,6 +1,17 @@
 Changes
 =======
 
+Unreleased
+----------
+
+- Fixed a problem with the new WSGI logging option #348797. Thanks to
+  Bertrand Mathieu for the patch.
+
+- Disable generation of the WSGI log if "wsgilog" isn't set, thanks to
+  Jacob Kaplan-Moss for the patch.
+
+- Updated buildout.cfg and .bzrignore, thanks Jacob Kaplan-Moss. 
+
 0.17
 ----
 
