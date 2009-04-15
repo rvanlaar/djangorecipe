@@ -1,8 +1,8 @@
 Changes
 =======
 
-Unreleased
-----------
+0.17.1
+------
 
 - Fixed a problem with the new WSGI logging option #348797. Thanks to
   Bertrand Mathieu for the patch.
