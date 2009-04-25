@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.17.2
+------
+
+- Changed the download code to use urllib2. This should make it work
+  from behind proxies (fixes #362822). Thanks to pauld for the patch.
+
 0.17.1
 ------
 

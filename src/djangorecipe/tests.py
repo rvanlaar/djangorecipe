@@ -353,19 +353,32 @@ class TestRecipe(unittest.TestCase):
         self.assert_("djangorecipe.manage.main('project.spameggs')"
                      in open(manage).read())
 
-    @mock.patch('urllib', 'urlretrieve')
+    @mock.patch('urllib2', 'urlopen')
     def test_get_release(self, mock):
         # The get_release method fecthes a release tarball and
         # extracts it. We have setup a mock so that it won't actually
         # download the release. Let's call the code.
-        self.assertEqual(
-            self.recipe.get_release('0.96.2', 'downloads'),
-            'downloads/django-0.96.2.tar.gz')
-        # It tried to download the release through our mock
-        self.assertEqual(
-            mock.call_args,
-            (('http://www.djangoproject.com/download/0.96.2/tarball/',
-              'downloads/django-0.96.2.tar.gz'), {}))
+        class FakeFile(object):
+            def read(self):
+                return 'Django tarball'
+            def close(self):
+                self.closed = True
+
+        tmp = tempfile.mkdtemp()
+        filename = os.path.join(tmp, 'django-0.96.2.tar.gz')
+        mock.return_value = FakeFile()
+        try:
+            self.assertEqual(
+                self.recipe.get_release('0.96.2', tmp),
+                filename)
+            # It tried to download the release through our mock
+            mock.assert_called_with(
+                'http://www.djangoproject.com/download/0.96.2/tarball/')
+            # The file should have been filled with the contents from the
+            # handle it got.
+            self.assertEqual(open(filename).read(), 'Django tarball')
+        finally:
+            shutil.rmtree(tmp)
 
     @mock.patch('setuptools.archive_util', 'unpack_archive')
     @mock.patch('shutil', 'move')
@@ -376,7 +389,7 @@ class TestRecipe(unittest.TestCase):
         # have have mocked all the calls which interact with the
         # filesystem.
         listdir.return_value = ('Django-0.96-2',)
-        self.recipe.install_release('0.96.2', 'downloads', 
+        self.recipe.install_release('0.96.2', 'downloads',
                                     'downloads/django-0.96.2.tar.gz',
                                     'parts/django')
         # Let's see what the mock's have been called with

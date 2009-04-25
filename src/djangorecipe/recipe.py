@@ -1,7 +1,7 @@
 from random import choice
 import os
 import subprocess
-import urllib
+import urllib2
 import shutil
 import logging
 import re
@@ -324,7 +324,12 @@ class Recipe(object):
             download_url = 'http://www.djangoproject.com/download/%s/tarball/'
             self.log.info("Downloading Django from: %s" % (
                     download_url % version))
-            urllib.urlretrieve(download_url % version, tarball)
+
+            tarball_f = open(tarball, 'wb')
+            f = urllib2.urlopen(download_url % version)
+            tarball_f.write(f.read())
+            tarball_f.close()
+            f.close()
         return tarball
 
     def create_manage_script(self, extra_paths, ws):
