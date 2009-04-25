@@ -30,6 +30,9 @@ setup(name='djangorecipe',
       url='https://launchpad.net/djangorecipe',
       license='BSD',
       zip_safe=False,
+      setup_requires = [
+        'setuptools_bzr',
+        ],
       install_requires=[
         'zc.buildout',
         'zc.recipe.egg',

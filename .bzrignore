@@ -9,3 +9,4 @@ downloads
 eggs
 koe
 src/*.egg-info
+setuptools_bzr-1.2-py2.6.egg
