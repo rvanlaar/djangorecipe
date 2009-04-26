@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.17.3
+------
+
+- Removed dependency on setuptools_bzr since it does not seem to work
+  like I expected.
+
 0.17.2
 ------
 

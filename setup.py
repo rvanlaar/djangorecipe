@@ -2,7 +2,7 @@ import os
 
 from setuptools import setup, find_packages
 
-version = '0.17.2'
+version = '0.17.3'
 
 def read_file(name):
     return open(os.path.join(os.path.dirname(__file__),
@@ -30,9 +30,6 @@ setup(name='djangorecipe',
       url='https://launchpad.net/djangorecipe',
       license='BSD',
       zip_safe=False,
-      setup_requires = [
-        'setuptools_bzr',
-        ],
       install_requires=[
         'zc.buildout',
         'zc.recipe.egg',
