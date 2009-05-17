@@ -297,7 +297,10 @@ class Recipe(object):
                             download_location))
             else:
                 self.log.info("Checking out Django from svn: %s" % svn_url)
-                if self.command('svn co %s %s' % (svn_url, download_location)):
+                cmd = 'svn co %s %s' % (svn_url, download_location)
+                if not self.buildout['buildout'].get('verbosity'):
+                    cmd += ' -q'
+                if self.command(cmd):
                     raise UserError("Failed to checkout Django. "
                                     "Please check your internet connection.")
         else:
@@ -436,6 +439,8 @@ class Recipe(object):
         if revision_search is not None:
             command += ' -r ' + revision_search.group(1)
         self.log.info("Updating Django from svn")
+        if not self.buildout['buildout'].get('verbosity'):
+            command += ' -q'
         return self.command(command, cwd=path)
 
     def update(self):

@@ -1,6 +1,11 @@
 Changes
 =======
 
+Unreleased
+----------
+
+- Fixed a problem when not running in verbose mode (fixes #375151).
+
 0.17.3
 ------
 

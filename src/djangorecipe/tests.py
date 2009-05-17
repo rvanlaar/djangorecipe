@@ -401,22 +401,22 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(move.call_args, 
                          (('downloads/django-archive/Django-0.96-2', 
                            'parts/django'), {}))
-        self.assertEqual(rmtree.call_args, 
+        self.assertEqual(rmtree.call_args,
                          (('downloads/django-archive',), {}))
-        
+
     @mock.patch('shutil', 'copytree')
     @mock.patch(Recipe, 'command')
     def test_install_svn_version(self, copytree, command):
         # Installation from svn is handled by a method. We have mocked
         # the command method to avoid actual checkouts of Django.
-        self.recipe.install_svn_version('trunk', 'downloads', 
+        self.recipe.install_svn_version('trunk', 'downloads',
                                         'parts/django', False)
         # This should have tried to do a checkout of the Django trunk
-        self.assertEqual(command.call_args, 
-                         (('svn co http://code.djangoproject.com/svn/django/trunk/ downloads/django-svn',), {}))
+        self.assertEqual(command.call_args,
+                         (('svn co http://code.djangoproject.com/svn/django/trunk/ downloads/django-svn -q',), {}))
         # A copy command to the parts directory should also have been
         # issued
-        self.assertEqual(copytree.call_args, 
+        self.assertEqual(copytree.call_args,
                          (('downloads/django-svn', 'parts/django'), {}))
 
     @mock.patch('shutil', 'copytree')
@@ -427,11 +427,11 @@ class TestRecipe(unittest.TestCase):
         # is already done the recipe should just update it.
         exists.return_value = True
 
-        self.recipe.install_svn_version('trunk', 'downloads', 
+        self.recipe.install_svn_version('trunk', 'downloads',
                                         'parts/django', False)
         self.assertEqual(exists.call_args, (('downloads/django-svn',), {}))
-        self.assertEqual(command.call_args, 
-                         (('svn up',), {'cwd': 'downloads/django-svn'}))
+        self.assertEqual(command.call_args,
+                         (('svn up -q',), {'cwd': 'downloads/django-svn'}))
 
     @mock.patch(Recipe, 'command')
     def test_install_broken_svn(self, command):
@@ -465,7 +465,7 @@ class TestRecipe(unittest.TestCase):
         # When the recipe is asked to do an update and the version is
         # a svn version it just does an update on the parts folder.
         self.recipe.update()
-        self.assertEqual('svn up', command.call_args[0][0])
+        self.assertEqual('svn up -q', command.call_args[0][0])
         # It changes the working directory so that the simple svn up
         # command will work.
         self.assertEqual(command.call_args[1].keys(), ['cwd'])
@@ -514,7 +514,7 @@ class TestRecipe(unittest.TestCase):
 
         self.recipe.options['version'] = 'http://testing/trunk@2531'
         self.recipe.update()
-        self.assertEqual(command.call_args[0], ('svn up -r 2531',))
+        self.assertEqual(command.call_args[0], ('svn up -r 2531 -q',))
 
     @mock.patch(Recipe, 'command')
     def test_update_username_in_svn_url(self, command):
@@ -525,12 +525,12 @@ class TestRecipe(unittest.TestCase):
         # First test with both a revision and a username in the url
         self.recipe.options['version'] = 'http://user@testing/trunk@2531'
         self.recipe.update()
-        self.assertEqual(command.call_args[0], ('svn up -r 2531',))
+        self.assertEqual(command.call_args[0], ('svn up -r 2531 -q',))
 
         # Now test with only the username
         self.recipe.options['version'] = 'http://user@testing/trunk'
         self.recipe.update()
-        self.assertEqual(command.call_args[0], ('svn up',))
+        self.assertEqual(command.call_args[0], ('svn up -q',))
 
 
 class ScriptTestCase(unittest.TestCase):
