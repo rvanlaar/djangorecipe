@@ -1,8 +1,8 @@
 Changes
 =======
 
-Unreleased
-----------
+0.17.4
+------
 
 - Fixed a problem when not running in verbose mode (fixes #375151).
 
