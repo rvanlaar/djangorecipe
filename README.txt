@@ -40,7 +40,11 @@ projectegg
   Use this instead of the project option when you want to use an egg
   as the project. This disables the generation of the project
   structure.
-
+  
+python
+  This option can be used to specify a specific Python version which can be a
+  different version from the one used to run the buildout.
+  
 version
   The version argument can accept a few different types of
   arguments. You can specify `trunk`. In this case it will do a
@@ -175,6 +179,23 @@ apps, and our own project for the path that will be found first in the
 list.  Note that we expect our project to be checked out (e.g., by
 svn:external) directly under this directory in to 'myproject'.
 
+Example with a different Python version
+=======================================
+
+To use a different Python version from the one that ran buildout in the
+generated script use something like::
+
+  [buildout]
+  parts	= myproject
+
+  [special-python]
+  executable = /some/special/python
+
+  [myproject]
+  recipe	= djangorecipe
+  version	= 1.0.2
+  project	= myproject
+  python	= special-python
 
 
 Example configuration for mod_wsgi

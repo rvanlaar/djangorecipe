@@ -109,7 +109,7 @@ if settings.DEBUG:
 
 script_templates = {
     'wsgi': '''
-#!/usr/bin/env python
+#!%(executable)s
 import os, sys
  
 # Add the project to the python path
@@ -126,7 +126,7 @@ import django.core.handlers.wsgi
 application = django.core.handlers.wsgi.WSGIHandler()
 ''',
     'fcgi': '''
-#!/usr/bin/env python
+#!%(executable)s
 import os, sys
 
 # Add the project to the python path
@@ -393,7 +393,7 @@ class Recipe(object):
 
 
     def make_script(self, protocol, extra_paths):
-        template = script_templates[protocol]
+        template = script_templates[protocol].strip()
         script_name = os.path.join(
             self.buildout['buildout']['bin-directory'],
             self.options.get('control-script', self.name) + '.%s' % protocol)

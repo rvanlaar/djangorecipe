@@ -6,6 +6,9 @@ Unreleased
 
 - Paths from eggs and extra-paths now get precedence over the default
   system path (fixes #370420). Thanks to Horst Gutmann for the patch.
+  
+- The generated WSGI script now uses the `python` option if present. This
+  fixes #361695.
 
 0.17.4
 ------

@@ -532,6 +532,39 @@ class TestRecipe(unittest.TestCase):
         self.recipe.update()
         self.assertEqual(command.call_args[0], ('svn up -q',))
 
+    def test_python_option(self):
+        # The python option makes it possible to specify a specific Python 
+        # executable which is to be used for the generated scripts.
+        recipe = Recipe({'buildout': {'eggs-directory': self.eggs_dir,
+                                      'develop-eggs-directory': self.develop_eggs_dir,
+                                      'python': 'python-version',
+                                      'bin-directory': self.bin_dir,
+                                      'parts-directory': self.parts_dir,
+                                      'directory': self.buildout_dir,
+                                     },
+                         'python-version': {'executable': '/python4k'}}, 
+                        'django',
+                        {'recipe': 'djangorecipe', 'version': 'trunk'})
+        recipe.make_script('wsgi', ['monty.python', 'spam.eggs'])
+        # This should have created a script in the bin dir
+        wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
+        self.assertEqual(open(wsgi_script).readlines()[0], '#!/python4k\n')
+        # Changeing the option for only the part will change the used Python
+        # version.
+        recipe = Recipe({'buildout': {'eggs-directory': self.eggs_dir,
+                                      'develop-eggs-directory': self.develop_eggs_dir,
+                                      'python': 'python-version',
+                                      'bin-directory': self.bin_dir,
+                                      'parts-directory': self.parts_dir,
+                                      'directory': self.buildout_dir,
+                                     },
+                         'python-version': {'executable': '/python4k'},
+                         'py5k': {'executable': '/python5k'}}, 
+                        'django',
+                        {'recipe': 'djangorecipe', 'version': 'trunk',
+                         'python': 'py5k'})
+        recipe.make_script('wsgi', ['monty.python', 'spam.eggs'])
+        self.assertEqual(open(wsgi_script).readlines()[0], '#!/python5k\n')        
 
 class ScriptTestCase(unittest.TestCase):
     
