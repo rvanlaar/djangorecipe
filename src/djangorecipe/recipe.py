@@ -113,9 +113,7 @@ script_templates = {
 import os, sys
  
 # Add the project to the python path
-sys.path.extend(
-  %(extra_paths)s
-)
+sys.path[0:0] = %(extra_paths)s
  
 # Set our settings module
 os.environ['DJANGO_SETTINGS_MODULE'] = '%(project)s.%(settings)s'
@@ -132,9 +130,7 @@ application = django.core.handlers.wsgi.WSGIHandler()
 import os, sys
 
 # Add the project to the python path
-sys.path.extend(
-  %(extra_paths)s
-)
+sys.path[0:0] = %(extra_paths)s
 
 # Set our settings module
 os.environ['DJANGO_SETTINGS_MODULE'] = '%(project)s.%(settings)s'
