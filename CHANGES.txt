@@ -1,8 +1,8 @@
 Changes
 =======
 
-Unreleased
-----------
+0.18
+----
 
 - Paths from eggs and extra-paths now get precedence over the default
   system path (fixes #370420). Thanks to Horst Gutmann for the patch.
