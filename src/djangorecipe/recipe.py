@@ -11,6 +11,34 @@ from zc.buildout import UserError
 import zc.recipe.egg
 import setuptools
 
+script_template = {
+    'wsgi': '''
+
+%(relative_paths_setup)s
+import sys
+sys.path[0:0] = [
+  %(path)s,
+  ]
+%(initialization)s
+import %(module_name)s
+
+application = %(module_name)s.%(attrs)s(%(arguments)s)
+''',
+    'fcgi': '''
+
+%(relative_paths_setup)s
+import sys
+sys.path[0:0] = [
+  %(path)s,
+  ]
+%(initialization)s
+import %(module_name)s
+
+%(module_name)s.%(attrs)s(%(arguments)s)
+'''
+}
+
+
 settings_template = '''
 import os
 
@@ -328,7 +356,11 @@ class Recipe(object):
         open(os.path.join(project_dir, '__init__.py'), 'w').close()
 
     def create_protocol_scripts(self, extra_paths, ws):
+        _script_template = zc.buildout.easy_install.script_template
         for protocol in ('wsgi', 'fcgi'):
+            zc.buildout.easy_install.script_template = \
+                zc.buildout.easy_install.script_header + \
+                    script_template[protocol]
             if (protocol in self.options and
                     self.options.get(protocol).lower() == 'true'):
                 project = self.options.get('projectegg',
@@ -341,6 +373,7 @@ class Recipe(object):
                     arguments= "'%s.%s', logfile=%s" % (project,
                                                         self.options['settings'],
                                                         self.options.get('logfile')))
+        zc.buildout.easy_install.script_template = _script_template
 
     def is_svn_url(self, version):
         # Search if there is http/https/svn or svn+[a tunnel identifier] in the
