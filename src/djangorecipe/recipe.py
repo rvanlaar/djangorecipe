@@ -5,7 +5,6 @@ import urllib2
 import shutil
 import logging
 import re
-import pprint
 
 from zc.buildout import UserError
 import zc.recipe.egg
