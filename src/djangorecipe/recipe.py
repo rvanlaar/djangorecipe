@@ -440,7 +440,8 @@ class Recipe(object):
         return self.command(command, cwd=path)
 
     def update(self):
-        if not self.install_from_cache and \
+        newest = self.buildout['buildout'].get('newest') != 'false'
+        if newest and not self.install_from_cache and \
                 self.is_svn_url(self.options['version']):
             self.svn_update(self.options['location'], self.options['version'])
 

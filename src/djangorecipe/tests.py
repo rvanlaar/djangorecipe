@@ -478,6 +478,14 @@ class TestRecipe(unittest.TestCase):
         self.recipe.update()
         self.failIf(call_process.called)
         
+    @mock.patch('subprocess', 'call')
+    def test_update_with_newest_false(self, call_process):
+        # When the recipe is asked to do an update whilst in install
+        # from cache mode it just ignores it
+        self.recipe.buildout['buildout']['newest'] = 'false'
+        self.recipe.update()
+        self.assertFalse(call_process.called)
+
     @mock.patch('shutil', 'rmtree')
     @mock.patch('os.path', 'exists')
     @mock.patch('urllib', 'urlretrieve')
