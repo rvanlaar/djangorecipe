@@ -167,51 +167,47 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(self.recipe.version_to_download_suffix(
                 'http://monty/branches/python'), 'python')
 
-    def test_make_wsgi_script(self):
+    def test_make_protocol_scripts(self):
         # To ease deployment a WSGI script can be generated. The
         # script adds any paths from the `extra_paths` option to the
         # Python path.
-        self.recipe.make_script('wsgi', ['monty.python', 'spam.eggs'])
+        self.recipe.options['wsgi'] = 'true'
+        self.recipe.options['fcgi'] = 'true'
+        self.recipe.make_scripts([], [])
         # This should have created a script in the bin dir
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
         self.assert_(os.path.exists(wsgi_script))
         # The contents should list our paths
         contents = open(wsgi_script).read()
-        self.assert_('monty.python' in contents)
-        self.assert_('spam.eggs' in contents)
         # It should also have a reference to our settings module
-        self.assert_(
-            "os.environ['DJANGO_SETTINGS_MODULE'] = 'project.development'" in
-            contents)
+        self.assert_('project.development' in contents)
         # and a line which set's up the WSGI app
-        self.assert_('application = django.core.handlers.wsgi.WSGIHandler()'
-                     in contents)
+        self.assert_("application = djangorecipe.wsgi.main('project.development', logfile='')" in contents)
         self.assert_("class logger(object)" not in contents)
 
-        self.recipe.options['wsgilog'] = '/foo'
-        self.recipe.make_script('wsgi', ['monty.python', 'spam.eggs'])
-        wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
-        contents = open(wsgi_script).read()
-        self.assert_("sys.stdout = sys.stderr = logger('/foo')" in contents)
-
-    def test_make_fcgi_script(self):
         # Another deployment options is FCGI. The recipe supports an option to
         # automatically create the required script.
-        self.recipe.make_script('fcgi', ['monty.python', 'spam.eggs'])
-        # This should have created a script in the bin dir
         fcgi_script = os.path.join(self.bin_dir, 'django.fcgi')
         self.assert_(os.path.exists(fcgi_script))
         # The contents should list our paths
         contents = open(fcgi_script).read()
-        self.assert_('monty.python' in contents)
-        self.assert_('spam.eggs' in contents)
         # It should also have a reference to our settings module
-        self.assert_(
-            "os.environ['DJANGO_SETTINGS_MODULE'] = 'project.development'" in
-            contents)
-        # and a line which set's up the FCGI app
-        self.assert_('from django.core.servers.fastcgi import runfastcgi'
-                     in contents)
+        self.assert_('project.development' in contents)
+        # and a line which set's up the WSGI app
+        self.assert_("djangorecipe.fcgi.main('project.development', logfile='')" in contents)
+        self.assert_("class logger(object)" not in contents)
+
+        self.recipe.options['logfile'] = '/foo'
+        self.recipe.make_scripts([], [])
+        wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
+        contents = open(wsgi_script).read()
+        self.assert_("logfile='/foo'" in contents)
+
+        self.recipe.options['logfile'] = '/foo'
+        self.recipe.make_scripts([], [])
+        fcgi_script = os.path.join(self.bin_dir, 'django.fcgi')
+        contents = open(fcgi_script).read()
+        self.assert_("logfile='/foo'" in contents)
 
     def test_create_project(self):
         # If a project does not exist already the recipe will create
@@ -333,13 +329,14 @@ class TestRecipe(unittest.TestCase):
         # When a projectegg is specified, then the egg specified
         # should get used as the project in the wsgi script.
         wsgi = os.path.join(self.bin_dir, 'django.wsgi')
+        recipe_dir = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), '..'))
         self.recipe.options['projectegg'] = 'spameggs'
-        self.recipe.make_script('wsgi', [])
+        self.recipe.options['wsgi'] = 'true'
+        self.recipe.make_scripts([recipe_dir], [])
         self.assert_(os.path.exists(wsgi))
         # Check that we have 'spameggs' as the project
-        self.assert_(
-            "os.environ['DJANGO_SETTINGS_MODULE'] = 'spameggs.development'"
-            in open(wsgi).read())
+        self.assert_('spameggs.development' in open(wsgi).read())
 
     def test_settings_option(self):
         # The settings option can be used to specify the settings file
@@ -544,8 +541,9 @@ class TestRecipe(unittest.TestCase):
                                      },
                          'python-version': {'executable': '/python4k'}}, 
                         'django',
-                        {'recipe': 'djangorecipe', 'version': 'trunk'})
-        recipe.make_script('wsgi', ['monty.python', 'spam.eggs'])
+                        {'recipe': 'djangorecipe', 'version': 'trunk',
+                         'wsgi': 'true'})
+        recipe.make_scripts([], [])
         # This should have created a script in the bin dir
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
         self.assertEqual(open(wsgi_script).readlines()[0], '#!/python4k\n')
@@ -562,8 +560,8 @@ class TestRecipe(unittest.TestCase):
                          'py5k': {'executable': '/python5k'}}, 
                         'django',
                         {'recipe': 'djangorecipe', 'version': 'trunk',
-                         'python': 'py5k'})
-        recipe.make_script('wsgi', ['monty.python', 'spam.eggs'])
+                         'python': 'py5k', 'wsgi': 'true'})
+        recipe.make_scripts([], [])
         self.assertEqual(open(wsgi_script).readlines()[0], '#!/python5k\n')        
 
 class ScriptTestCase(unittest.TestCase):

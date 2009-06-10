@@ -170,6 +170,7 @@ class Recipe(object):
         options.setdefault('wsgi', 'false')
         options.setdefault('fcgi', 'false')
         options.setdefault('wsgilog', '')
+        options.setdefault('logfile', '')
 
         # only try to download stuff if we aren't asked to install from cache
         self.install_from_cache = self.buildout['buildout'].get(
@@ -227,7 +228,7 @@ class Recipe(object):
         self.create_test_runner(extra_paths, ws)
 
         # Make the wsgi and fastcgi scripts if enabled
-        self.create_protocol_scripts(extra_paths, ws)
+        self.make_scripts(extra_paths, ws)
 
         # Create default settings if we haven't got a project
         # egg specified, and if it doesn't already exist
@@ -354,7 +355,7 @@ class Recipe(object):
         # project dir.
         open(os.path.join(project_dir, '__init__.py'), 'w').close()
 
-    def create_protocol_scripts(self, extra_paths, ws):
+    def make_scripts(self, extra_paths, ws):
         _script_template = zc.buildout.easy_install.script_template
         for protocol in ('wsgi', 'fcgi'):
             zc.buildout.easy_install.script_template = \
@@ -369,9 +370,9 @@ class Recipe(object):
                     'djangorecipe.%s' % protocol, 'main')], ws,
                     self.options['executable'], self.options['bin-directory'],
                     extra_paths = extra_paths,
-                    arguments= "'%s.%s', logfile=%s" % (project,
-                                                        self.options['settings'],
-                                                        self.options.get('logfile')))
+                    arguments= "'%s.%s', logfile='%s'" % (project,
+                                                          self.options['settings'],
+                                                          self.options.get('logfile')))
         zc.buildout.easy_install.script_template = _script_template
 
     def is_svn_url(self, version):
