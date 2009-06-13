@@ -7,6 +7,10 @@ Unreleased
 - When running again with non-newest set the recipe will no longer update
   the Subversion checkout. Thanks  to vinilios for the patch.
 
+- The WSGI and FCGI scripts are now generated using Buildout's own system. This
+  makes them more similar to the generated manage script with regard to the
+  setup of paths. Thanks to Jannis Leidel for the patch.
+
 0.18
 ----
 

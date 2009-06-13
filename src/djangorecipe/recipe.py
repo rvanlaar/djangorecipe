@@ -10,6 +10,34 @@ from zc.buildout import UserError
 import zc.recipe.egg
 import setuptools
 
+script_template = {
+    'wsgi': '''
+
+%(relative_paths_setup)s
+import sys
+sys.path[0:0] = [
+  %(path)s,
+  ]
+%(initialization)s
+import %(module_name)s
+
+application = %(module_name)s.%(attrs)s(%(arguments)s)
+''',
+    'fcgi': '''
+
+%(relative_paths_setup)s
+import sys
+sys.path[0:0] = [
+  %(path)s,
+  ]
+%(initialization)s
+import %(module_name)s
+
+%(module_name)s.%(attrs)s(%(arguments)s)
+'''
+}
+
+
 settings_template = '''
 import os
 
@@ -107,64 +135,6 @@ if settings.DEBUG:
     )
 '''
 
-script_templates = {
-    'wsgi': '''
-#!%(executable)s
-import os, sys
- 
-# Add the project to the python path
-sys.path[0:0] = %(extra_paths)s
- 
-# Set our settings module
-os.environ['DJANGO_SETTINGS_MODULE'] = '%(project)s.%(settings)s'
-
-%(wsgilog_handler)s
-
-import django.core.handlers.wsgi
- 
-# Run WSGI handler for the application
-application = django.core.handlers.wsgi.WSGIHandler()
-''',
-    'fcgi': '''
-#!%(executable)s
-import os, sys
-
-# Add the project to the python path
-sys.path[0:0] = %(extra_paths)s
-
-# Set our settings module
-os.environ['DJANGO_SETTINGS_MODULE'] = '%(project)s.%(settings)s'
-
-from django.core.servers.fastcgi import runfastcgi
-
-# Run FASTCGI handler
-runfastcgi()
-''',
-}
-
-wsgilog_template = '''\
-import datetime
-class logger(object):
-    def __init__(self, logfile):
-        self.logfile = logfile
-
-    def write(self, data):
-        self.log(data)
-
-    def writeline(self, data):
-        self.log(data)
-
-    def log(self, msg):
-        line = '%%s - %%s\\n' %% (
-            datetime.datetime.now().strftime('%%Y%%m%%d %%H:%%M:%%S'), msg)
-        fp = open(self.logfile, 'a')
-        try:
-            fp.write(line)
-        finally:
-            fp.close()
-sys.stdout = sys.stderr = logger(%(wsgilog)r)
-'''
-
 class Recipe(object):
     def __init__(self, buildout, name, options):
         self.log = logging.getLogger(name)
@@ -200,6 +170,7 @@ class Recipe(object):
         options.setdefault('wsgi', 'false')
         options.setdefault('fcgi', 'false')
         options.setdefault('wsgilog', '')
+        options.setdefault('logfile', '')
 
         # only try to download stuff if we aren't asked to install from cache
         self.install_from_cache = self.buildout['buildout'].get(
@@ -229,11 +200,7 @@ class Recipe(object):
             # Extract and put the dir in its proper place
             self.install_release(version, download_dir, tarball, location)
 
-        requirements, ws = self.egg.working_set()
-        ws_locations = [d.location for d in ws]
-
         extra_paths = [os.path.join(location), base_dir]
-        extra_paths.extend(ws_locations)
 
         # Add libraries found by a site .pth files to our extra-paths.
         if 'pth-files' in self.options:
@@ -250,8 +217,8 @@ class Recipe(object):
 
         pythonpath = [p.replace('/', os.path.sep) for p in
                       self.options['extra-paths'].splitlines() if p.strip()]
-        extra_paths.extend(pythonpath)
 
+        extra_paths.extend(pythonpath)
         requirements, ws = self.egg.working_set(['djangorecipe'])
 
         # Create the Django management script
@@ -261,10 +228,7 @@ class Recipe(object):
         self.create_test_runner(extra_paths, ws)
 
         # Make the wsgi and fastcgi scripts if enabled
-        for protocol in ('wsgi', 'fcgi'):
-            if protocol in self.options and \
-                self.options.get(protocol).lower() == 'true':
-                    self.make_script(protocol, extra_paths)
+        self.make_scripts(extra_paths, ws)
 
         # Create default settings if we haven't got a project
         # egg specified, and if it doesn't already exist
@@ -391,29 +355,32 @@ class Recipe(object):
         # project dir.
         open(os.path.join(project_dir, '__init__.py'), 'w').close()
 
-
-    def make_script(self, protocol, extra_paths):
-        template = script_templates[protocol].strip()
-        script_name = os.path.join(
-            self.buildout['buildout']['bin-directory'],
-            self.options.get('control-script', self.name) + '.%s' % protocol)
-        f = open(script_name, 'w')
-        o = {'extra_paths': repr(extra_paths)}
-        o.update(self.options)
-        if self.options.get('projectegg'):
-            o['project'] = self.options.get('projectegg')
-        if protocol == 'wsgi' and self.options.get('wsgilog', ''):
-            o['wsgilog_handler'] = wsgilog_template % o
-        else:
-            o['wsgilog_handler'] = ''
-        f.write(template % o)
-        f.close()
+    def make_scripts(self, extra_paths, ws):
+        _script_template = zc.buildout.easy_install.script_template
+        for protocol in ('wsgi', 'fcgi'):
+            zc.buildout.easy_install.script_template = \
+                zc.buildout.easy_install.script_header + \
+                    script_template[protocol]
+            if self.options.get(protocol, '').lower() == 'true':
+                project = self.options.get('projectegg',
+                                           self.options['project'])
+                zc.buildout.easy_install.scripts(
+                    [('%s.%s' % (self.options.get('control-script', self.name),
+                                protocol),
+                      'djangorecipe.%s' % protocol, 'main')],
+                    ws,
+                    self.options['executable'], 
+                    self.options['bin-directory'],extra_paths = extra_paths,
+                    arguments= "'%s.%s', logfile='%s'" % (
+                        project, self.options['settings'],
+                        self.options.get('logfile')))
+        zc.buildout.easy_install.script_template = _script_template
 
     def is_svn_url(self, version):
         # Search if there is http/https/svn or svn+[a tunnel identifier] in the
         # url or if the trunk marker is used, all indicating the use of svn
-        svn_version_search = re.compile(r'^(http|https|svn|svn\+[a-zA-Z-_]+)://|^(trunk)$').search(version)
-
+        svn_version_search = re.compile(
+            r'^(http|https|svn|svn\+[a-zA-Z-_]+)://|^(trunk)$').search(version)
         return svn_version_search is not None
 
     def version_to_svn(self, version):
