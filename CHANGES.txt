@@ -1,8 +1,8 @@
 Changes
 =======
 
-Unreleased
-----------
+0.19
+----
 
 - When running again with non-newest set the recipe will no longer update
   the Subversion checkout. Thanks  to vinilios for the patch.
