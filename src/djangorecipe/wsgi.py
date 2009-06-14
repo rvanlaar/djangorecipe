@@ -41,4 +41,4 @@ def main(settings_file, logfile=None):
     from django.core.handlers.wsgi import WSGIHandler
  
     # Run WSGI handler for the application
-    application = WSGIHandler()
+    return WSGIHandler()
