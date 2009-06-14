@@ -11,7 +11,7 @@ def main(settings_file, logfile=None):
         import sys
         sys.stderr.write("Error loading the settings module '%s': %s"
                             % (settings_file, e))
-        return sys.exit(1)
+        sys.exit(1)
 
     # Setup settings
     management.setup_environ(mod)
@@ -41,4 +41,4 @@ def main(settings_file, logfile=None):
     from django.core.handlers.wsgi import WSGIHandler
  
     # Run WSGI handler for the application
-    application = WSGIHandler()
+    return WSGIHandler()

@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.19.1
+------
+
+- Applied fix for the change in WSGI script generation. The previous release 
+  did not work properly.
+
 0.19
 ----
 
