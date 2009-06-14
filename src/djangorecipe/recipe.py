@@ -361,25 +361,26 @@ class Recipe(object):
             zc.buildout.easy_install.script_template = \
                 zc.buildout.easy_install.script_header + \
                     script_template[protocol]
-            if (protocol in self.options and
-                    self.options.get(protocol).lower() == 'true'):
+            if self.options.get(protocol, '').lower() == 'true':
                 project = self.options.get('projectegg',
                                            self.options['project'])
-                zc.buildout.easy_install.scripts([('%s.%s' % \
-                    (self.options.get('control-script', self.name), protocol),
-                    'djangorecipe.%s' % protocol, 'main')], ws,
-                    self.options['executable'], self.options['bin-directory'],
-                    extra_paths = extra_paths,
-                    arguments= "'%s.%s', logfile='%s'" % (project,
-                                                          self.options['settings'],
-                                                          self.options.get('logfile')))
+                zc.buildout.easy_install.scripts(
+                    [('%s.%s' % (self.options.get('control-script', self.name),
+                                protocol),
+                      'djangorecipe.%s' % protocol, 'main')],
+                    ws,
+                    self.options['executable'], 
+                    self.options['bin-directory'],extra_paths = extra_paths,
+                    arguments= "'%s.%s', logfile='%s'" % (
+                        project, self.options['settings'],
+                        self.options.get('logfile')))
         zc.buildout.easy_install.script_template = _script_template
 
     def is_svn_url(self, version):
         # Search if there is http/https/svn or svn+[a tunnel identifier] in the
         # url or if the trunk marker is used, all indicating the use of svn
-        svn_version_search = re.compile(r'^(http|https|svn|svn\+[a-zA-Z-_]+)://|^(trunk)$').search(version)
-
+        svn_version_search = re.compile(
+            r'^(http|https|svn|svn\+[a-zA-Z-_]+)://|^(trunk)$').search(version)
         return svn_version_search is not None
 
     def version_to_svn(self, version):
@@ -406,7 +407,8 @@ class Recipe(object):
         return self.command(command, cwd=path)
 
     def update(self):
-        if not self.install_from_cache and \
+        newest = self.buildout['buildout'].get('newest') != 'false'
+        if newest and not self.install_from_cache and \
                 self.is_svn_url(self.options['version']):
             self.svn_update(self.options['location'], self.options['version'])
 

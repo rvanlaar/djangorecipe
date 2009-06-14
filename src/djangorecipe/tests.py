@@ -182,7 +182,9 @@ class TestRecipe(unittest.TestCase):
         # It should also have a reference to our settings module
         self.assert_('project.development' in contents)
         # and a line which set's up the WSGI app
-        self.assert_("application = djangorecipe.wsgi.main('project.development', logfile='')" in contents)
+        self.assert_("application = "
+                     "djangorecipe.wsgi.main('project.development', logfile='')"
+                     in contents)
         self.assert_("class logger(object)" not in contents)
 
         # Another deployment options is FCGI. The recipe supports an option to
@@ -194,7 +196,8 @@ class TestRecipe(unittest.TestCase):
         # It should also have a reference to our settings module
         self.assert_('project.development' in contents)
         # and a line which set's up the WSGI app
-        self.assert_("djangorecipe.fcgi.main('project.development', logfile='')" in contents)
+        self.assert_("djangorecipe.fcgi.main('project.development', logfile='')"
+                     in contents)
         self.assert_("class logger(object)" not in contents)
 
         self.recipe.options['logfile'] = '/foo'
@@ -475,6 +478,14 @@ class TestRecipe(unittest.TestCase):
         self.recipe.update()
         self.failIf(call_process.called)
         
+    @mock.patch('subprocess', 'call')
+    def test_update_with_newest_false(self, call_process):
+        # When the recipe is asked to do an update whilst in install
+        # from cache mode it just ignores it
+        self.recipe.buildout['buildout']['newest'] = 'false'
+        self.recipe.update()
+        self.assertFalse(call_process.called)
+
     @mock.patch('shutil', 'rmtree')
     @mock.patch('os.path', 'exists')
     @mock.patch('urllib', 'urlretrieve')
