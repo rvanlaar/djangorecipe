@@ -460,8 +460,19 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(copytree.call_args, 
                          (('downloads/django-svn', 'parts/django'), {}))
 
+    @mock.patch('shutil', 'rmtree')
+    @mock.patch('os.path', 'exists')
+    @mock.patch('urllib', 'urlretrieve')
+    @mock.patch('shutil', 'copytree')
+    @mock.patch(ZCRecipeEggScripts, 'working_set')
+    @mock.patch('zc.buildout.easy_install', 'scripts')
+    @mock.patch(Recipe, 'install_release')
     @mock.patch(Recipe, 'command')
-    def test_update_svn(self, command):
+    def test_update_svn(self, rmtree, path_exists, urlretrieve,
+                        copytree, working_set, scripts,
+                        install_release, command):
+        path_exists.return_value = True
+        working_set.return_value = (None, [])
         # When the recipe is asked to do an update and the version is
         # a svn version it just does an update on the parts folder.
         self.recipe.update()
@@ -470,16 +481,38 @@ class TestRecipe(unittest.TestCase):
         # command will work.
         self.assertEqual(command.call_args[1].keys(), ['cwd'])
 
+    @mock.patch('shutil', 'rmtree')
+    @mock.patch('os.path', 'exists')
+    @mock.patch('urllib', 'urlretrieve')
+    @mock.patch('shutil', 'copytree')
+    @mock.patch(ZCRecipeEggScripts, 'working_set')
+    @mock.patch('zc.buildout.easy_install', 'scripts')
+    @mock.patch(Recipe, 'install_release')
     @mock.patch('subprocess', 'call')
-    def test_update_with_cache(self, call_process):
+    def test_update_with_cache(self, rmtree, path_exists, urlretrieve,
+                               copytree, working_set, scripts,
+                               install_release, call_process):
+        path_exists.return_value = True
+        working_set.return_value = (None, [])
         # When the recipe is asked to do an update whilst in install
         # from cache mode it just ignores it
         self.recipe.install_from_cache = True
         self.recipe.update()
         self.failIf(call_process.called)
         
+    @mock.patch('shutil', 'rmtree')
+    @mock.patch('os.path', 'exists')
+    @mock.patch('urllib', 'urlretrieve')
+    @mock.patch('shutil', 'copytree')
+    @mock.patch(ZCRecipeEggScripts, 'working_set')
+    @mock.patch('zc.buildout.easy_install', 'scripts')
+    @mock.patch(Recipe, 'install_release')
     @mock.patch('subprocess', 'call')
-    def test_update_with_newest_false(self, call_process):
+    def test_update_with_newest_false(self, rmtree, path_exists, urlretrieve,
+                                      copytree, working_set, scripts,
+                                      install_release, call_process):
+        path_exists.return_value = True
+        working_set.return_value = (None, [])
         # When the recipe is asked to do an update whilst in install
         # from cache mode it just ignores it
         self.recipe.buildout['buildout']['newest'] = 'false'
@@ -511,8 +544,19 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(rmtree.call_args[0][0].split('/')[-2:], 
                          ['parts', 'django'])
 
+    @mock.patch('shutil', 'rmtree')
+    @mock.patch('os.path', 'exists')
+    @mock.patch('urllib', 'urlretrieve')
+    @mock.patch('shutil', 'copytree')
+    @mock.patch(ZCRecipeEggScripts, 'working_set')
+    @mock.patch('zc.buildout.easy_install', 'scripts')
+    @mock.patch(Recipe, 'install_release')
     @mock.patch(Recipe, 'command')
-    def test_update_pinned_svn_url(self, command):
+    def test_update_pinned_svn_url(self, rmtree, path_exists, urlretrieve,
+                                   copytree, working_set, scripts,
+                                   install_release, command):
+        path_exists.return_value = True
+        working_set.return_value = (None, [])
         # Make sure that updating a pinned version is updated
         # accordingly. It must not switch to updating beyond it's
         # requested revision.
@@ -524,8 +568,19 @@ class TestRecipe(unittest.TestCase):
         self.recipe.update()
         self.assertEqual(command.call_args[0], ('svn up -r 2531 -q',))
 
+    @mock.patch('shutil', 'rmtree')
+    @mock.patch('os.path', 'exists')
+    @mock.patch('urllib', 'urlretrieve')
+    @mock.patch('shutil', 'copytree')
+    @mock.patch(ZCRecipeEggScripts, 'working_set')
+    @mock.patch('zc.buildout.easy_install', 'scripts')
+    @mock.patch(Recipe, 'install_release')
     @mock.patch(Recipe, 'command')
-    def test_update_username_in_svn_url(self, command):
+    def test_update_username_in_svn_url(self, rmtree, path_exists, urlretrieve,
+                                        copytree, working_set, scripts,
+                                        install_release, command):
+        path_exists.return_value = True
+        working_set.return_value = (None, [])
         # Make sure that updating a version with a username
         # in the URL works
         self.recipe.is_svn_url = lambda version: True

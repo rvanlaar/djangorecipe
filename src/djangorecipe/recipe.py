@@ -200,25 +200,7 @@ class Recipe(object):
             # Extract and put the dir in its proper place
             self.install_release(version, download_dir, tarball, location)
 
-        extra_paths = [os.path.join(location), base_dir]
-
-        # Add libraries found by a site .pth files to our extra-paths.
-        if 'pth-files' in self.options:
-            import site
-            for pth_file in self.options['pth-files'].splitlines():
-                pth_libs = site.addsitedir(pth_file, set())
-                if not pth_libs:
-                    self.log.warning(
-                        "No site *.pth libraries found for pth_file=%s" % (
-                         pth_file,))
-                else:
-                    self.log.info("Adding *.pth libraries=%s" % pth_libs)
-                    self.options['extra-paths'] += '\n' + '\n'.join(pth_libs)
-
-        pythonpath = [p.replace('/', os.path.sep) for p in
-                      self.options['extra-paths'].splitlines() if p.strip()]
-
-        extra_paths.extend(pythonpath)
+        extra_paths = self.get_extra_paths()
         requirements, ws = self.egg.working_set(['djangorecipe'])
 
         # Create the Django management script
@@ -406,11 +388,46 @@ class Recipe(object):
             command += ' -q'
         return self.command(command, cwd=path)
 
+    def get_extra_paths(self):
+        extra_paths = [self.options['location'],
+                       self.buildout['buildout']['directory']
+                       ]
+
+        # Add libraries found by a site .pth files to our extra-paths.
+        if 'pth-files' in self.options:
+            import site
+            for pth_file in self.options['pth-files'].splitlines():
+                pth_libs = site.addsitedir(pth_file, set())
+                if not pth_libs:
+                    self.log.warning(
+                        "No site *.pth libraries found for pth_file=%s" % (
+                         pth_file,))
+                else:
+                    self.log.info("Adding *.pth libraries=%s" % pth_libs)
+                    self.options['extra-paths'] += '\n' + '\n'.join(pth_libs)
+
+        pythonpath = [p.replace('/', os.path.sep) for p in
+                      self.options['extra-paths'].splitlines() if p.strip()]
+
+        extra_paths.extend(pythonpath)
+        return extra_paths
+
     def update(self):
         newest = self.buildout['buildout'].get('newest') != 'false'
         if newest and not self.install_from_cache and \
                 self.is_svn_url(self.options['version']):
             self.svn_update(self.options['location'], self.options['version'])
+
+        extra_paths = self.get_extra_paths()
+        requirements, ws = self.egg.working_set(['djangorecipe'])
+        # Create the Django management script
+        self.create_manage_script(extra_paths, ws)
+
+        # Create the test runner
+        self.create_test_runner(extra_paths, ws)
+
+        # Make the wsgi and fastcgi scripts if enabled
+        self.make_scripts(extra_paths, ws)
 
     def command(self, cmd, **kwargs):
         output = subprocess.PIPE
