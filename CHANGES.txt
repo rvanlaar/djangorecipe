@@ -5,23 +5,28 @@ Unreleased
 ----------
 
 - The generated WSGI & FCGI scripts are now properly removed when
-  options change (fixes #328182). Thanks Horst Gutmann for the patch.
+  options change (fixes #328182). Thanks to Horst Gutmann for the
+  patch.
+
+- Scripts are now updated when dependencies change. This fixes #44658,
+  thanks to Paul Carduner for the patch.
 
 0.19.1
 ------
 
-- Applied fix for the change in WSGI script generation. The previous release
-  did not work properly.
+- Applied fix for the change in WSGI script generation. The previous
+  release did not work properly.
 
 0.19
 ----
 
-- When running again with non-newest set the recipe will no longer update
-  the Subversion checkout. Thanks  to vinilios for the patch.
+- When running again with non-newest set the recipe will no longer
+  update the Subversion checkout. Thanks to vinilios for the patch.
 
-- The WSGI and FCGI scripts are now generated using Buildout's own system. This
-  makes them more similar to the generated manage script with regard to the
-  setup of paths. Thanks to Jannis Leidel for the patch.
+- The WSGI and FCGI scripts are now generated using Buildout's own
+  system. This makes them more similar to the generated manage script
+  with regard to the setup of paths. Thanks to Jannis Leidel for the
+  patch.
 
 0.18
 ----
@@ -29,8 +34,8 @@ Unreleased
 - Paths from eggs and extra-paths now get precedence over the default
   system path (fixes #370420). Thanks to Horst Gutmann for the patch.
 
-- The generated WSGI script now uses the `python` option if present. This
-  fixes #361695.
+- The generated WSGI script now uses the `python` option if
+  present. This fixes #361695.
 
 0.17.4
 ------
