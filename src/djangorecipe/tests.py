@@ -26,9 +26,9 @@ class TestRecipe(unittest.TestCase):
     def setUp(self):
         # Create a directory for our buildout files created by the recipe
         self.buildout_dir = tempfile.mkdtemp('djangorecipe')
-        
+
         self.bin_dir = os.path.join(self.buildout_dir, 'bin')
-        self.develop_eggs_dir = os.path.join(self.buildout_dir, 
+        self.develop_eggs_dir = os.path.join(self.buildout_dir,
                                              'develop-eggs')
         self.eggs_dir = os.path.join(self.buildout_dir, 'eggs')
         self.parts_dir = os.path.join(self.buildout_dir, 'parts')
@@ -43,8 +43,8 @@ class TestRecipe(unittest.TestCase):
                                            'parts-directory': self.parts_dir,
                                            'directory': self.buildout_dir,
                                            },
-                              'python-version': {'executable': sys.executable}}, 
-                             'django', 
+                              'python-version': {'executable': sys.executable}},
+                             'django',
                              {'recipe': 'djangorecipe',
                               'version': 'trunk'})
 
@@ -67,8 +67,8 @@ class TestRecipe(unittest.TestCase):
                                      'parts-directory': self.parts_dir,
                                      'directory': self.buildout_dir,
                                      },
-                        'python-version': {'executable': sys.executable}}, 
-                       'django', 
+                        'python-version': {'executable': sys.executable}},
+                       'django',
                        {'recipe': 'djangorecipe',
                         'version': 'trunk'}).options.copy() for i in range(2)])
 
@@ -115,9 +115,9 @@ class TestRecipe(unittest.TestCase):
         self.recipe.buildout['buildout']['verbosity'] = 'verbose'
         self.recipe.command('silly-command')
         self.assertEqual(
-            popen.call_args, 
+            popen.call_args,
             (('silly-command',), {'shell': True, 'stdout': None}))
-        
+
     def test_create_file(self):
         # The create file helper should create a file at a certain
         # location unless it already exists. We will need a
@@ -160,7 +160,7 @@ class TestRecipe(unittest.TestCase):
         # To create standard names for the download directory a method
         # is provided which converts a version to a dir suffix. A
         # simple pointer to trunk should return svn.
-        self.assertEqual(self.recipe.version_to_download_suffix('trunk'), 
+        self.assertEqual(self.recipe.version_to_download_suffix('trunk'),
                          'svn')
         # Any other url should return the last path component. This
         # works out nicely for branches or version pinned url's.
@@ -211,6 +211,17 @@ class TestRecipe(unittest.TestCase):
         fcgi_script = os.path.join(self.bin_dir, 'django.fcgi')
         contents = open(fcgi_script).read()
         self.assert_("logfile='/foo'" in contents)
+
+    @mock.patch('zc.buildout.easy_install', 'scripts')
+    def test_make_protocol_scripts_return_value(self, scripts):
+        # The return value of make scripts lists the generated scripts.
+        self.recipe.options['wsgi'] = 'true'
+        self.recipe.options['fcgi'] = 'true'
+        scripts.return_value = ['some-path']
+        self.assertEqual(self.recipe.make_scripts([], []),
+                         ['some-path', 'some-path'])
+
+
 
     def test_create_project(self):
         # If a project does not exist already the recipe will create
@@ -297,6 +308,9 @@ class TestRecipe(unittest.TestCase):
         self.recipe.options['extra-paths'] = 'somepackage\nanotherpackage'
         path_exists.return_value = True
         working_set.return_value = (None, [])
+        manage.return_value = []
+        scripts.return_value = []
+        testrunner.return_value = []
         self.recipe.install()
         self.assertEqual(manage.call_args[0][0][-2:],
                          ['somepackage', 'anotherpackage'])
@@ -319,6 +333,9 @@ class TestRecipe(unittest.TestCase):
         self.recipe.options['version'] = '1.0'
         path_exists.return_value = True
         working_set.return_value = (None, [])
+        scripts.return_value = []
+        manage.return_value = []
+        testrunner.return_value = []
         # The mock values needed to demonstrate the pth-files option.
         addsitedir.return_value = ['extra', 'dirs']
         self.recipe.options['pth-files'] = 'somedir'
@@ -393,13 +410,13 @@ class TestRecipe(unittest.TestCase):
                                     'downloads/django-0.96.2.tar.gz',
                                     'parts/django')
         # Let's see what the mock's have been called with
-        self.assertEqual(listdir.call_args, 
+        self.assertEqual(listdir.call_args,
                          (('downloads/django-archive',), {}))
-        self.assertEqual(unpack.call_args, 
-                         (('downloads/django-0.96.2.tar.gz', 
+        self.assertEqual(unpack.call_args,
+                         (('downloads/django-0.96.2.tar.gz',
                            'downloads/django-archive'), {}))
-        self.assertEqual(move.call_args, 
-                         (('downloads/django-archive/Django-0.96-2', 
+        self.assertEqual(move.call_args,
+                         (('downloads/django-archive/Django-0.96-2',
                            'parts/django'), {}))
         self.assertEqual(rmtree.call_args,
                          (('downloads/django-archive',), {}))
@@ -451,13 +468,13 @@ class TestRecipe(unittest.TestCase):
         # a checkout but instead an existing checkout
         self.recipe.buildout['buildout']['install-from-cache'] = 'true'
         # Now we can run the installation method
-        self.recipe.install_svn_version('trunk', 'downloads', 
+        self.recipe.install_svn_version('trunk', 'downloads',
                                         'parts/django', True)
         # This should not have called the recipe's command method
         self.failIf(command.called)
         # A copy from the cache to the destination should have been
         # made
-        self.assertEqual(copytree.call_args, 
+        self.assertEqual(copytree.call_args,
                          (('downloads/django-svn', 'parts/django'), {}))
 
     @mock.patch(Recipe, 'command')
@@ -477,7 +494,7 @@ class TestRecipe(unittest.TestCase):
         self.recipe.install_from_cache = True
         self.recipe.update()
         self.failIf(call_process.called)
-        
+
     @mock.patch('subprocess', 'call')
     def test_update_with_newest_false(self, call_process):
         # When the recipe is asked to do an update whilst in install
@@ -503,12 +520,13 @@ class TestRecipe(unittest.TestCase):
         self.recipe.options['version'] = '1.0'
         path_exists.return_value = True
         working_set.return_value = (None, [])
+        scripts.return_value = []
         self.recipe.install()
         # This should have called remove tree
         self.assert_(rmtree.called)
         # We will assert that the last two compontents of the path
         # passed to rmtree are the ones we wanted to delete.
-        self.assertEqual(rmtree.call_args[0][0].split('/')[-2:], 
+        self.assertEqual(rmtree.call_args[0][0].split('/')[-2:],
                          ['parts', 'django'])
 
     @mock.patch(Recipe, 'command')
@@ -541,7 +559,7 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(command.call_args[0], ('svn up -q',))
 
     def test_python_option(self):
-        # The python option makes it possible to specify a specific Python 
+        # The python option makes it possible to specify a specific Python
         # executable which is to be used for the generated scripts.
         recipe = Recipe({'buildout': {'eggs-directory': self.eggs_dir,
                                       'develop-eggs-directory': self.develop_eggs_dir,
@@ -550,7 +568,7 @@ class TestRecipe(unittest.TestCase):
                                       'parts-directory': self.parts_dir,
                                       'directory': self.buildout_dir,
                                      },
-                         'python-version': {'executable': '/python4k'}}, 
+                         'python-version': {'executable': '/python4k'}},
                         'django',
                         {'recipe': 'djangorecipe', 'version': 'trunk',
                          'wsgi': 'true'})
@@ -568,15 +586,15 @@ class TestRecipe(unittest.TestCase):
                                       'directory': self.buildout_dir,
                                      },
                          'python-version': {'executable': '/python4k'},
-                         'py5k': {'executable': '/python5k'}}, 
+                         'py5k': {'executable': '/python5k'}},
                         'django',
                         {'recipe': 'djangorecipe', 'version': 'trunk',
                          'python': 'py5k', 'wsgi': 'true'})
         recipe.make_scripts([], [])
-        self.assertEqual(open(wsgi_script).readlines()[0], '#!/python5k\n')        
+        self.assertEqual(open(wsgi_script).readlines()[0], '#!/python5k\n')
 
 class ScriptTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         # We will also need to fake the settings file's module
         self.settings = mock.sentinel.Settings
@@ -591,14 +609,14 @@ class ScriptTestCase(unittest.TestCase):
 
 
 class TestTestScript(ScriptTestCase):
-    
+
     @mock.patch('django.core.management', 'execute_manager')
     def test_script(self, execute_manager):
         # The test script should execute the standard Django test
         # command with any apps given as its arguments.
         test.main('cheeseshop.development',  'spamm', 'eggs')
         # We only care about the arguments given to execute_manager
-        self.assertEqual(execute_manager.call_args[1], 
+        self.assertEqual(execute_manager.call_args[1],
                          {'argv': ['test', 'test', 'spamm', 'eggs']})
 
     @mock.patch('django.core.management', 'execute_manager')
@@ -623,7 +641,7 @@ class TestTestScript(ScriptTestCase):
         # wil exit with a message and a specific exit code.
         test.main('cheeseshop.tilsit', 'stilton')
         self.assertEqual(sys_exit.call_args, ((1,), {}))
-    
+
 class TestManageScript(ScriptTestCase):
 
     @mock.patch('django.core.management', 'execute_manager')
@@ -632,7 +650,7 @@ class TestManageScript(ScriptTestCase):
         # script. It has all the same bells and whistles since all it
         # does is call the normal Django stuff.
         manage.main('cheeseshop.development')
-        self.assertEqual(execute_manager.call_args, 
+        self.assertEqual(execute_manager.call_args,
                          ((self.settings,), {}))
 
     @mock.patch('sys', 'exit')

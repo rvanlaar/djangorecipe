@@ -1,10 +1,16 @@
 Changes
 =======
 
+Unreleased
+----------
+
+- The generated WSGI & FCGI scripts are now properly removed when
+  options change (fixes #328182). Thanks Horst Gutmann for the patch.
+
 0.19.1
 ------
 
-- Applied fix for the change in WSGI script generation. The previous release 
+- Applied fix for the change in WSGI script generation. The previous release
   did not work properly.
 
 0.19
@@ -22,7 +28,7 @@ Changes
 
 - Paths from eggs and extra-paths now get precedence over the default
   system path (fixes #370420). Thanks to Horst Gutmann for the patch.
-  
+
 - The generated WSGI script now uses the `python` option if present. This
   fixes #361695.
 
@@ -52,7 +58,7 @@ Changes
 - Disable generation of the WSGI log if "wsgilog" isn't set, thanks to
   Jacob Kaplan-Moss for the patch.
 
-- Updated buildout.cfg and .bzrignore, thanks Jacob Kaplan-Moss. 
+- Updated buildout.cfg and .bzrignore, thanks Jacob Kaplan-Moss.
 
 0.17
 ----

@@ -130,7 +130,7 @@ urlpatterns = patterns(
 
 if settings.DEBUG:
     urlpatterns += patterns('',
-        (r'^media/(?P<path>.*)$', 'django.views.static.serve', 
+        (r'^media/(?P<path>.*)$', 'django.views.static.serve',
          {'document_root': settings.MEDIA_ROOT}),
     )
 '''
@@ -221,14 +221,16 @@ class Recipe(object):
         extra_paths.extend(pythonpath)
         requirements, ws = self.egg.working_set(['djangorecipe'])
 
+        script_paths = []
+
         # Create the Django management script
-        self.create_manage_script(extra_paths, ws)
+        script_paths.extend(self.create_manage_script(extra_paths, ws))
 
         # Create the test runner
-        self.create_test_runner(extra_paths, ws)
+        script_paths.extend(self.create_test_runner(extra_paths, ws))
 
         # Make the wsgi and fastcgi scripts if enabled
-        self.make_scripts(extra_paths, ws)
+        script_paths.extend(self.make_scripts(extra_paths, ws))
 
         # Create default settings if we haven't got a project
         # egg specified, and if it doesn't already exist
@@ -240,7 +242,7 @@ class Recipe(object):
                     'Skipping creating of project: %(project)s since '
                     'it exists' % self.options)
 
-        return location
+        return script_paths + [location]
 
     def install_svn_version(self, version, download_dir, location,
                             install_from_cache):
@@ -297,7 +299,7 @@ class Recipe(object):
 
     def create_manage_script(self, extra_paths, ws):
         project = self.options.get('projectegg', self.options['project'])
-        zc.buildout.easy_install.scripts(
+        return zc.buildout.easy_install.scripts(
             [(self.options.get('control-script', self.name),
               'djangorecipe.manage', 'main')],
             ws, self.options['executable'], self.options['bin-directory'],
@@ -311,7 +313,7 @@ class Recipe(object):
         apps = self.options.get('test', '').split()
         # Only create the testrunner if the user requests it
         if apps:
-            zc.buildout.easy_install.scripts(
+            return zc.buildout.easy_install.scripts(
                 [(self.options.get('testrunner', 'test'),
                   'djangorecipe.test', 'main')],
                 working_set, self.options['executable'],
@@ -321,6 +323,8 @@ class Recipe(object):
                     self.options['project'],
                     self.options['settings'],
                     ', '.join(["'%s'" % app for app in apps])))
+        else:
+            return []
 
 
     def create_project(self, project_dir):
@@ -356,6 +360,7 @@ class Recipe(object):
         open(os.path.join(project_dir, '__init__.py'), 'w').close()
 
     def make_scripts(self, extra_paths, ws):
+        scripts = []
         _script_template = zc.buildout.easy_install.script_template
         for protocol in ('wsgi', 'fcgi'):
             zc.buildout.easy_install.script_template = \
@@ -364,17 +369,21 @@ class Recipe(object):
             if self.options.get(protocol, '').lower() == 'true':
                 project = self.options.get('projectegg',
                                            self.options['project'])
-                zc.buildout.easy_install.scripts(
-                    [('%s.%s' % (self.options.get('control-script', self.name),
-                                protocol),
-                      'djangorecipe.%s' % protocol, 'main')],
-                    ws,
-                    self.options['executable'], 
-                    self.options['bin-directory'],extra_paths = extra_paths,
-                    arguments= "'%s.%s', logfile='%s'" % (
-                        project, self.options['settings'],
-                        self.options.get('logfile')))
+                scripts.extend(
+                    zc.buildout.easy_install.scripts(
+                        [('%s.%s' % (self.options.get('control-script',
+                                                      self.name),
+                                     protocol),
+                          'djangorecipe.%s' % protocol, 'main')],
+                        ws,
+                        self.options['executable'],
+                        self.options['bin-directory'],
+                        extra_paths=extra_paths,
+                        arguments= "'%s.%s', logfile='%s'" % (
+                            project, self.options['settings'],
+                            self.options.get('logfile'))))
         zc.buildout.easy_install.script_template = _script_template
+        return scripts
 
     def is_svn_url(self, version):
         # Search if there is http/https/svn or svn+[a tunnel identifier] in the
