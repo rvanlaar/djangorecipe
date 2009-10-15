@@ -1,8 +1,8 @@
 Changes
 =======
 
-Unreleased
-----------
+0.19.2
+------
 
 - The generated WSGI & FCGI scripts are now properly removed when
   options change (fixes #328182). Thanks to Horst Gutmann for the
