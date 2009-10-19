@@ -3,6 +3,9 @@ import re
 
 version_re = re.compile(r'''version\s*=\s*['"](?P<version>[\d\.]+)['"]''')
 
+python = '/home/jvloothuis/bin/python-with-extras'
+set(python=python)
+
 def get_version():
     """Extract the current version from the setup.py file."""
     setup = open('setup.py').read()
@@ -12,13 +15,13 @@ def release_djangorecipe():
     """Release Djangorecipe to PyPi."""
     version = get_version()
     test()
-    local('python2.5 setup.py sdist')
+    local('$(python) setup.py sdist')
     # Make sure we have a proper release that could be installed.
     local('tar xfz %s/dist/djangorecipe-%s.tar.gz -C /tmp' % (
             os.path.abspath('.'), version))
-    local('cd /tmp/djangorecipe-$(version); python2.5 setup.py egg_info')
+    local('cd /tmp/djangorecipe-$(version); $(python) setup.py egg_info')
     # Release the code.
-    local('python2.5 setup.py sdist register upload')
+    local('$(python) setup.py sdist register upload')
 
 def release():
     """Release everything related to the project."""
@@ -28,6 +31,6 @@ def release():
 
 def test():
     """Create an in-place installation and run the tests."""
-    local('python2.5 bootstrap.py')
+    local('$(python) bootstrap.py')
     local('./bin/buildout -v')
     local('./bin/test')
