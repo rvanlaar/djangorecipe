@@ -1,6 +1,11 @@
 Changes
 =======
 
+Unreleased
+----------
+
+- Fixed #451065 which fixes a problem with the WSGI log file option.
+
 0.19.2
 ------
 

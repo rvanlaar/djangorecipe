@@ -1,5 +1,7 @@
+import sys
+
 from django.core import management
- 
+
 def main(settings_file, logfile=None):
     try:
         mod = __import__(settings_file)
@@ -8,7 +10,6 @@ def main(settings_file, logfile=None):
             mod = getattr(mod, comp)
 
     except ImportError, e:
-        import sys
         sys.stderr.write("Error loading the settings module '%s': %s"
                             % (settings_file, e))
         sys.exit(1)
@@ -39,6 +40,6 @@ def main(settings_file, logfile=None):
         sys.stdout = sys.stderr = logger(logfile)
 
     from django.core.handlers.wsgi import WSGIHandler
- 
+
     # Run WSGI handler for the application
     return WSGIHandler()
