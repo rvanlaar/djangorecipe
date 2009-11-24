@@ -4,6 +4,9 @@ Changes
 Unreleased
 ----------
 
+- The recipe know makes the `django` package know to setuptools during install.
+  This closes #397864. Thanks to Daniel Bruce and Dan Fairs for the patch.
+
 - Fixed #451065 which fixes a problem with the WSGI log file option.
 
 0.19.2

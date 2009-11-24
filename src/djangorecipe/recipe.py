@@ -200,6 +200,13 @@ class Recipe(object):
             # Extract and put the dir in its proper place
             self.install_release(version, download_dir, tarball, location)
 
+        self.options['setup'] = location
+        development = zc.recipe.egg.Develop(self.buildout,
+                                            self.options['recipe'],
+                                            self.options)
+        development.install()
+        del self.options['setup']
+
         extra_paths = self.get_extra_paths()
         requirements, ws = self.egg.working_set(['djangorecipe'])
 
