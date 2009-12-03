@@ -9,6 +9,9 @@ Unreleased
 
 - Fixed #451065 which fixes a problem with the WSGI log file option.
 
+- Added the posibilty to configure more FCGI related settings. Thanks to Vasily
+  Sulatskov for the patch.
+
 0.19.2
 ------
 

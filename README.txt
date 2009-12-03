@@ -11,18 +11,18 @@ You can see an example of how to use the recipe below::
   [buildout]
   parts = satchmo django
   eggs = ipython
-  
+
   [satchmo]
   recipe = gocept.download
   url = http://www.satchmoproject.com/snapshots/satchmo-0.6.tar.gz
   md5sum = 659a4845c1c731be5cfe29bfcc5d14b1
-  
+
   [django]
   recipe = djangorecipe
   version = trunk
   settings = development
   eggs = ${buildout:eggs}
-  extra-paths = 
+  extra-paths =
     ${satchmo:location}
   project = dummyshop
 
@@ -40,11 +40,11 @@ projectegg
   Use this instead of the project option when you want to use an egg
   as the project. This disables the generation of the project
   structure.
-  
+
 python
   This option can be used to specify a specific Python version which can be a
   different version from the one used to run the buildout.
-  
+
 version
   The version argument can accept a few different types of
   arguments. You can specify `trunk`. In this case it will do a
@@ -70,7 +70,7 @@ extra-paths
   path for the `bin/*` scripts.
 
 pth-files
-  Adds paths found from a site `.pth` file to the extra-paths.  
+  Adds paths found from a site `.pth` file to the extra-paths.
   Useful for things like Pinax which maintains its own external_libs dir.
 
 control-script
@@ -113,6 +113,18 @@ secret
   string by default.
 
 
+FCGI specific settings
+======================
+
+Options for FCGI can be set within a settings file (`settings.py`). The options
+is `FCGI_OPTIONS`. It should be set to a dictionary. The part below is an
+example::
+
+  FCGI_OPTIONS = {
+      'method': 'threaded',
+  }
+
+
 Another example
 ===============
 
@@ -120,24 +132,24 @@ The next example shows you how to use some more of the options::
 
   [buildout]
   parts = django extras
-  eggs = 
+  eggs =
     hashlib
-  
+
   [extras]
   recipe = iw.recipe.subversion
   urls =
     http://django-command-extensions.googlecode.com/svn/trunk/ django-command-extensions
     http://django-mptt.googlecode.com/svn/trunk/ django-mptt
-  
+
   [django]
   recipe = djangorecipe
   version = trunk
   settings = development
   project = exampleproject
   wsgi = true
-  eggs = 
+  eggs =
     ${buildout:eggs}
-  test = 
+  test =
     someapp
     anotherapp
 

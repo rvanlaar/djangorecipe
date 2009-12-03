@@ -1,5 +1,5 @@
 from django.core import management
- 
+
 def main(settings_file, logfile=None):
     try:
         mod = __import__(settings_file)
@@ -16,7 +16,9 @@ def main(settings_file, logfile=None):
     # Setup settings
     management.setup_environ(mod)
 
-    options = {}
+    from django.conf import settings
+
+    options = getattr(settings, 'FCGI_OPTIONS', {})
     if logfile:
         options['outlog'] = logfile
         options['errlog'] = logfile
