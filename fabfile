@@ -3,7 +3,7 @@ import re
 
 version_re = re.compile(r'''version\s*=\s*['"](?P<version>[\d\.]+)['"]''')
 
-python = '/home/jvloothuis/bin/python-with-extras'
+python = '/home/jeroen/bin/python-with-extras'
 set(python=python)
 
 def get_version():
