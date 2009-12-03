@@ -1,8 +1,8 @@
 Changes
 =======
 
-Unreleased
-----------
+0.20
+----
 
 - The recipe know makes the `django` package know to setuptools during install.
   This closes #397864. Thanks to Daniel Bruce and Dan Fairs for the patch.

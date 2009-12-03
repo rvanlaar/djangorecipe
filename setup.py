@@ -2,7 +2,7 @@ import os
 
 from setuptools import setup, find_packages
 
-version = '0.19.2'
+version = '0.20'
 
 def read_file(name):
     return open(os.path.join(os.path.dirname(__file__),
@@ -19,7 +19,7 @@ setup(name='djangorecipe',
         'Framework :: Buildout',
         'Framework :: Django',
         'Topic :: Software Development :: Build Tools',
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: BSD License',
         ],
       package_dir={'': 'src'},
