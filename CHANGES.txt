@@ -1,6 +1,12 @@
 Changes
 =======
 
+Development
+-----------
+
+- The admin url is now configured for django 1.1 or higher. Thanks to
+  Sam Charrington (fixes #672220).
+
 0.20
 ----
 
