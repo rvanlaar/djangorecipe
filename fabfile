@@ -3,8 +3,6 @@ import re
 
 version_re = re.compile(r'''version\s*=\s*['"](?P<version>[\d\.]+)['"]''')
 
-python = '/home/jeroen/bin/python-with-extras'
-set(python=python)
 
 def get_version():
     """Extract the current version from the setup.py file."""
@@ -31,6 +29,6 @@ def release():
 
 def test():
     """Create an in-place installation and run the tests."""
-    local('$(python) bootstrap.py')
+    local('python bootstrap.py')
     local('./bin/buildout -v')
     local('./bin/test')
