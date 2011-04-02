@@ -1,11 +1,13 @@
 Changes
 =======
 
-Development
------------
+0.21
+----
 
 - The admin url is now configured for django 1.1 or higher. Thanks to
   Sam Charrington (fixes #672220).
+
+- Bootstrap.py updated (fixes #501954).
 
 0.20
 ----
