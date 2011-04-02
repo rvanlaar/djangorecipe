@@ -289,7 +289,7 @@ class TestRecipe(unittest.TestCase):
         # Check that we have 'spameggs' as the project
         self.assert_("djangorecipe.manage.main('spameggs.development')"
                      in open(manage).read())
-                     
+
     @mock.patch('shutil', 'rmtree')
     @mock.patch('os.path', 'exists')
     @mock.patch('urllib', 'urlretrieve')
@@ -300,11 +300,11 @@ class TestRecipe(unittest.TestCase):
     @mock.patch(Recipe, 'create_manage_script')
     @mock.patch(Recipe, 'create_test_runner')
     @mock.patch('zc.recipe.egg', 'Develop')
-    def test_fulfills_django_dependency(self, rmtree, path_exists, 
-        urlretrieve, copytree, working_set, scripts, install_release, 
+    def test_fulfills_django_dependency(self, rmtree, path_exists,
+        urlretrieve, copytree, working_set, scripts, install_release,
         manage, testrunner, develop):
         # Test for https://bugs.launchpad.net/djangorecipe/+bug/397864
-        # djangorecipe should always fulfil the 'Django' requirement.        
+        # djangorecipe should always fulfil the 'Django' requirement.
         self.recipe.options['version'] = '1.0'
         path_exists.return_value = True
         working_set.return_value = (None, [])
@@ -318,7 +318,7 @@ class TestRecipe(unittest.TestCase):
         # We should see that Django was added as a develop egg.
         options = develop.call_args[0][2]
         self.assertEqual(options['location'], os.path.join(self.parts_dir, 'django'))
-        
+
         # Check that the install() method for the develop egg was called with no args
         first_method_name, args, kwargs = develop_install.method_calls[0]
         self.assertEqual('install', first_method_name)
@@ -334,7 +334,7 @@ class TestRecipe(unittest.TestCase):
     @mock.patch(Recipe, 'install_release')
     @mock.patch(Recipe, 'create_manage_script')
     @mock.patch(Recipe, 'create_test_runner')
-    @mock.patch('zc.recipe.egg', 'Develop')    
+    @mock.patch('zc.recipe.egg', 'Develop')
     def test_extra_paths(self, rmtree, path_exists, urlretrieve,
                                    copytree, working_set, scripts,
                                    install_release, manage, testrunner,
@@ -348,7 +348,7 @@ class TestRecipe(unittest.TestCase):
         manage.return_value = []
         scripts.return_value = []
         testrunner.return_value = []
-        develop.return_value = mock.Mock()        
+        develop.return_value = mock.Mock()
         self.recipe.install()
         self.assertEqual(manage.call_args[0][0][-2:],
                          ['somepackage', 'anotherpackage'])
@@ -363,7 +363,7 @@ class TestRecipe(unittest.TestCase):
     @mock.patch(Recipe, 'create_manage_script')
     @mock.patch(Recipe, 'create_test_runner')
     @mock.patch('site', 'addsitedir')
-    @mock.patch('zc.recipe.egg', 'Develop')    
+    @mock.patch('zc.recipe.egg', 'Develop')
     def test_pth_files(self, rmtree, path_exists, urlretrieve,
                        copytree, working_set, scripts,
                        install_release, manage, testrunner, addsitedir,
@@ -377,7 +377,7 @@ class TestRecipe(unittest.TestCase):
         manage.return_value = []
         testrunner.return_value = []
         develop.return_value = mock.Mock()
-        
+
         # The mock values needed to demonstrate the pth-files option.
         addsitedir.return_value = ['extra', 'dirs']
         self.recipe.options['pth-files'] = 'somedir'
@@ -585,7 +585,7 @@ class TestRecipe(unittest.TestCase):
     @mock.patch(ZCRecipeEggScripts, 'working_set')
     @mock.patch('zc.buildout.easy_install', 'scripts')
     @mock.patch(Recipe, 'install_release')
-    @mock.patch('zc.recipe.egg', 'Develop')        
+    @mock.patch('zc.recipe.egg', 'Develop')
     def test_clear_existing_django(self, rmtree, path_exists, urlretrieve,
                                    copytree, working_set, scripts,
                                    install_release, develop):
