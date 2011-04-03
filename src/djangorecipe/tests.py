@@ -476,7 +476,7 @@ class TestRecipe(unittest.TestCase):
                                         'parts/django', False)
         # This should have tried to do a checkout of the Django trunk
         self.assertEqual(command.call_args,
-                         (('svn co http://code.djangoproject.com/svn/django/trunk/ downloads/django-svn -q',), {}))
+                         (('svn co \'http://code.djangoproject.com/svn/django/trunk/\' \'downloads/django-svn\' -q',), {}))
         # A copy command to the parts directory should also have been
         # issued
         self.assertEqual(copytree.call_args,
@@ -495,6 +495,15 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(exists.call_args, (('downloads/django-svn',), {}))
         self.assertEqual(command.call_args,
                          (('svn up -q',), {'cwd': 'downloads/django-svn'}))
+
+    @mock.patch('shutil', 'copytree')
+    @mock.patch(Recipe, 'command')
+    def test_install_svn_with_space_in_svn_url(self, copytree, command):
+        self.recipe.install_svn_version('http://www.test.com/s v n/trunk',
+                                        'downloads', 'parts/django', False)
+        self.assertEqual(command.call_args,
+                         (('svn co \'http://www.test.com/s v n/trunk\' \'downloads/django-trunk\' -q',), {}))
+
 
     @mock.patch(Recipe, 'command')
     def test_install_broken_svn(self, command):

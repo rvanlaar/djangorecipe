@@ -248,7 +248,7 @@ class Recipe(object):
                             download_location))
             else:
                 self.log.info("Checking out Django from svn: %s" % svn_url)
-                cmd = 'svn co %s %s' % (svn_url, download_location)
+                cmd = 'svn co \'%s\' \'%s\'' % (svn_url, download_location)
                 if not self.buildout['buildout'].get('verbosity'):
                     cmd += ' -q'
                 if self.command(cmd):
