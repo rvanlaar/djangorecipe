@@ -98,6 +98,10 @@ class TestRecipe(unittest.TestCase):
         # Using a non existent protocol should not be a svn url?
         self.failIf(self.recipe.is_svn_url(
             'unknown://myserver/newforms-admin@7833'))
+        # Using a svn url with spaces
+        self.assert_(self.recipe.is_svn_url(
+            'http://code.djangoproject.com/svn/branches/branch with '
+            'spaces@123'))
 
     def test_command(self):
         # The command method is a wrapper for subprocess which excutes
