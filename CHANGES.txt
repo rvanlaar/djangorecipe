@@ -6,6 +6,9 @@ Development
 
 - Added support for svn urls with spaces. Thanks to Brad103 (fixes #537718).
 
+- Updated code and buildout to use newest zc.recipe.egg,
+  zc.recipe.testrunner and python-dateutil.
+
 0.21
 ----
 
