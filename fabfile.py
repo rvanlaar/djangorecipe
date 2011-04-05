@@ -1,6 +1,8 @@
 import os
 import re
 
+from fabric.api import local
+
 version_re = re.compile(r'''version\s*=\s*['"](?P<version>[\d\.]+)['"]''')
 
 
