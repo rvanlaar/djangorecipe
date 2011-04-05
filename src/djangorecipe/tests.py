@@ -42,6 +42,7 @@ class TestRecipe(unittest.TestCase):
                                            'bin-directory': self.bin_dir,
                                            'parts-directory': self.parts_dir,
                                            'directory': self.buildout_dir,
+                                           'find-links': '',
                                            },
                               'python-version': {'executable': sys.executable}},
                              'django',
