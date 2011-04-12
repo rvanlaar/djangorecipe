@@ -1,8 +1,8 @@
 Changes
 =======
 
-Development
------------
+0.22
+----
 
 - Added support for svn urls with spaces. Thanks to Brad103 (fixes #537718).
 
