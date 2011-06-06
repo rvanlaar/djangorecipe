@@ -5,6 +5,7 @@ Development
 -----------
 
 - Working on support for boilerplate for django 1.2 and django 1.3.
+  It defaults to 1.3 when the version isn't 1.2.
 
 0.22
 ----
