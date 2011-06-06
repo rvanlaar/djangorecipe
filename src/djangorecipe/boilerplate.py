@@ -308,16 +308,23 @@ LOGGING = {
 }
 """
 
-django_1_2 = {
-    'settings': settings_template_1_2,
-    'urls': urls_template,
-    'production_settings': production_settings,
-    'development_settings': development_settings,
-    }
-
-django_trunk = django_1_3 = {
-    'settings': settings_template_1_3,
-    'urls': urls_template,
-    'production_settings': production_settings,
-    'development_settings': development_settings,
+versions = {
+    '1.2': {
+        'settings': settings_template_1_2,
+        'urls': urls_template,
+        'production_settings': production_settings,
+        'development_settings': development_settings,
+        },
+    '1.3': {
+        'settings': settings_template_1_3,
+        'urls': urls_template,
+        'production_settings': production_settings,
+        'development_settings': development_settings,
+        },
+    'trunk': {
+        'settings': settings_template_1_3,
+        'urls': urls_template,
+        'production_settings': production_settings,
+        'development_settings': development_settings,
+        },
     }

@@ -10,8 +10,7 @@ from zc.buildout import UserError
 import zc.recipe.egg
 import setuptools
 
-import boilerplate
-
+from boilerplate import script_template, versions
 
 
 class Recipe(object):
@@ -54,7 +53,6 @@ class Recipe(object):
         # only try to download stuff if we aren't asked to install from cache
         self.install_from_cache = self.buildout['buildout'].get(
             'install-from-cache', '').strip() == 'true'
-
 
     def install(self):
         location = self.options['location']
@@ -138,7 +136,6 @@ class Recipe(object):
 
         shutil.copytree(download_location, location)
 
-
     def install_release(self, version, download_dir, tarball, destination):
         extraction_dir = os.path.join(download_dir, 'django-archive')
         setuptools.archive_util.unpack_archive(tarball, extraction_dir)
@@ -171,11 +168,9 @@ class Recipe(object):
             [(self.options.get('control-script', self.name),
               'djangorecipe.manage', 'main')],
             ws, self.options['executable'], self.options['bin-directory'],
-            extra_paths = extra_paths,
+            extra_paths=extra_paths,
             arguments= "'%s.%s'" % (project,
                                     self.options['settings']))
-
-
 
     def create_test_runner(self, extra_paths, working_set):
         apps = self.options.get('test', '').split()
@@ -186,7 +181,7 @@ class Recipe(object):
                   'djangorecipe.test', 'main')],
                 working_set, self.options['executable'],
                 self.options['bin-directory'],
-                extra_paths = extra_paths,
+                extra_paths=extra_paths,
                 arguments= "'%s.%s', %s" % (
                     self.options['project'],
                     self.options['settings'],
@@ -194,34 +189,34 @@ class Recipe(object):
         else:
             return []
 
-
     def create_project(self, project_dir):
         os.makedirs(project_dir)
 
         version = self.options['version']
-        if version == 'trunk':
-            configuration = boilerplate.django_trunk
-        else:
-
+        #XXX: Build a re for numbers, if no match use 'trunk'
+        version_re = re.compile("\d+\.\d+")
+        if version_re(version):
+            version = version_re.match(version).group()
+        config = versions.get(version, versions['trunk'])
 
         template_vars = {'secret': self.generate_secret()}
         template_vars.update(self.options)
 
         self.create_file(
             os.path.join(project_dir, 'development.py'),
-            development_settings, template_vars)
+            config['development_settings'], template_vars)
 
         self.create_file(
             os.path.join(project_dir, 'production.py'),
-            production_settings, template_vars)
+            config['production_settings'], template_vars)
 
         self.create_file(
             os.path.join(project_dir, 'urls.py'),
-            urls_template, template_vars)
+            config['urls_template'], template_vars)
 
         self.create_file(
             os.path.join(project_dir, 'settings.py'),
-            settings_template, template_vars)
+            config['settings_template'], template_vars)
 
         # Create the media and templates directories for our
         # project
@@ -239,7 +234,7 @@ class Recipe(object):
         for protocol in ('wsgi', 'fcgi'):
             zc.buildout.easy_install.script_template = \
                 zc.buildout.easy_install.script_header + \
-                    boilerplate.script_template[protocol]
+                    script_template[protocol]
             if self.options.get(protocol, '').lower() == 'true':
                 project = self.options.get('projectegg',
                                            self.options['project'])
@@ -250,7 +245,7 @@ class Recipe(object):
                                      protocol),
                           'djangorecipe.%s' % protocol, 'main')],
                         ws,
-                        selfg.options['executable'],
+                        self.options['executable'],
                         self.options['bin-directory'],
                         extra_paths=extra_paths,
                         arguments="'%s.%s', logfile='%s'" % (
@@ -291,7 +286,7 @@ class Recipe(object):
 
     def get_extra_paths(self):
         extra_paths = [self.options['location'],
-                       self.buildout['buildout']['directory']
+                       self.buildout['buildout']['directory'],
                        ]
 
         # Add libraries found by a site .pth files to our extra-paths.
