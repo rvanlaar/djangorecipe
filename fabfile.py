@@ -1,7 +1,7 @@
 import os
 import re
 
-from fabric.api import local
+from fabric.api import env, local
 
 version_re = re.compile(r'''version\s*=\s*['"](?P<version>[\d\.]+)['"]''')
 
@@ -10,6 +10,8 @@ def get_version():
     """Extract the current version from the setup.py file."""
     setup = open('setup.py').read()
     return version_re.search(setup).group('version')
+
+env.version = get_version()
 
 def release_djangorecipe():
     """Release Djangorecipe to PyPi."""
@@ -25,9 +27,8 @@ def release_djangorecipe():
 
 def release():
     """Release everything related to the project."""
-    set(version=get_version())
     release_djangorecipe()
-    local('bzr tag release-$(version)')
+    local('bzr tag release-%(version)s' % env )
 
 def test():
     """Create an in-place installation and run the tests."""
