@@ -1,6 +1,11 @@
 Changes
 =======
 
+Development
+-----------
+
+- Working on support for boilerplate for django 1.2 and django 1.3.
+
 0.22
 ----
 
