@@ -33,19 +33,22 @@ class TestRecipe(unittest.TestCase):
         self.eggs_dir = os.path.join(self.buildout_dir, 'eggs')
         self.parts_dir = os.path.join(self.buildout_dir, 'parts')
 
-        # We need to create the bin dir since the recipe should be able to expect it exists
+        # We need to create the bin dir since the recipe should be able to
+        # expect it exists
         os.mkdir(self.bin_dir)
 
-        self.recipe = Recipe({'buildout': {'eggs-directory': self.eggs_dir,
-                                           'develop-eggs-directory': self.develop_eggs_dir,
-                                           'python': 'python-version',
-                                           'bin-directory': self.bin_dir,
-                                           'parts-directory': self.parts_dir,
-                                           'directory': self.buildout_dir,
-                                           'find-links': '',
-                                           'allow-hosts':'',
-                                           },
-                              'python-version': {'executable': sys.executable}},
+        self.recipe = Recipe({
+                'buildout': {
+                    'eggs-directory': self.eggs_dir,
+                    'develop-eggs-directory': self.develop_eggs_dir,
+                    'python': 'python-version',
+                    'bin-directory': self.bin_dir,
+                    'parts-directory': self.parts_dir,
+                    'directory': self.buildout_dir,
+                    'find-links': '',
+                    'allow-hosts': '',
+                    },
+                'python-version': {'executable': sys.executable}},
                              'django',
                              {'recipe': 'djangorecipe',
                               'version': 'trunk'})
@@ -62,15 +65,16 @@ class TestRecipe(unittest.TestCase):
         # do not trigger this. That means running the recipe with the
         # same options should give us the same results.
         self.assertEqual(*[
-                Recipe({'buildout': {'eggs-directory': self.eggs_dir,
-                                     'develop-eggs-directory': self.develop_eggs_dir,
-                                     'python': 'python-version',
-                                     'bin-directory': self.bin_dir,
-                                     'parts-directory': self.parts_dir,
-                                     'directory': self.buildout_dir,
-                                     'find-links': '',
-                                     'allow-hosts':'',
-                                     },
+                Recipe({'buildout': {
+                            'eggs-directory': self.eggs_dir,
+                            'develop-eggs-directory': self.develop_eggs_dir,
+                            'python': 'python-version',
+                            'bin-directory': self.bin_dir,
+                            'parts-directory': self.parts_dir,
+                            'directory': self.buildout_dir,
+                            'find-links': '',
+                            'allow-hosts':'',
+                            },
                         'python-version': {'executable': sys.executable}},
                        'django',
                        {'recipe': 'djangorecipe',
@@ -325,9 +329,11 @@ class TestRecipe(unittest.TestCase):
 
         # We should see that Django was added as a develop egg.
         options = develop.call_args[0][2]
-        self.assertEqual(options['location'], os.path.join(self.parts_dir, 'django'))
+        self.assertEqual(options['location'], os.path.join(self.parts_dir,
+                                                           'django'))
 
-        # Check that the install() method for the develop egg was called with no args
+        # Check that the install() method for the develop egg was called
+        # with no args
         first_method_name, args, kwargs = develop_install.method_calls[0]
         self.assertEqual('install', first_method_name)
         self.assertEqual(0, len(args))
@@ -428,6 +434,7 @@ class TestRecipe(unittest.TestCase):
         class FakeFile(object):
             def read(self):
                 return 'Django tarball'
+
             def close(self):
                 self.closed = True
 
@@ -507,7 +514,6 @@ class TestRecipe(unittest.TestCase):
                                         'downloads', 'parts/django', False)
         self.assertEqual(command.call_args,
                          (('svn co \'http://www.test.com/s v n/trunk\' \'downloads/django-trunk\' -q',), {}))
-
 
     @mock.patch(Recipe, 'command')
     def test_install_broken_svn(self, command):
@@ -677,16 +683,18 @@ class TestRecipe(unittest.TestCase):
     def test_python_option(self):
         # The python option makes it possible to specify a specific Python
         # executable which is to be used for the generated scripts.
-        recipe = Recipe({'buildout': {'eggs-directory': self.eggs_dir,
-                                      'develop-eggs-directory': self.develop_eggs_dir,
-                                      'python': 'python-version',
-                                      'bin-directory': self.bin_dir,
-                                      'parts-directory': self.parts_dir,
-                                      'directory': self.buildout_dir,
-                                      'find-links': '',
-                                      'allow-hosts':'',
-                                      },
-                         'python-version': {'executable': '/python4k'}},
+        recipe = Recipe({
+                'buildout': {
+                    'eggs-directory': self.eggs_dir,
+                    'develop-eggs-directory': self.develop_eggs_dir,
+                    'python': 'python-version',
+                    'bin-directory': self.bin_dir,
+                    'parts-directory': self.parts_dir,
+                    'directory': self.buildout_dir,
+                    'find-links': '',
+                    'allow-hosts': '',
+                    },
+                'python-version': {'executable': '/python4k'}},
                         'django',
                         {'recipe': 'djangorecipe', 'version': 'trunk',
                          'wsgi': 'true'})
@@ -696,22 +704,77 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(open(wsgi_script).readlines()[0], '#!/python4k\n')
         # Changeing the option for only the part will change the used Python
         # version.
-        recipe = Recipe({'buildout': {'eggs-directory': self.eggs_dir,
-                                      'develop-eggs-directory': self.develop_eggs_dir,
-                                      'python': 'python-version',
-                                      'bin-directory': self.bin_dir,
-                                      'parts-directory': self.parts_dir,
-                                      'directory': self.buildout_dir,
-                                      'find-links': '',
-                                      'allow-hosts':'',
-                                     },
-                         'python-version': {'executable': '/python4k'},
-                         'py5k': {'executable': '/python5k'}},
+        recipe = Recipe({
+                'buildout': {'eggs-directory': self.eggs_dir,
+                             'develop-eggs-directory': self.develop_eggs_dir,
+                             'python': 'python-version',
+                             'bin-directory': self.bin_dir,
+                             'parts-directory': self.parts_dir,
+                             'directory': self.buildout_dir,
+                             'find-links': '',
+                             'allow-hosts': '',
+                             },
+                'python-version': {'executable': '/python4k'},
+                'py5k': {'executable': '/python5k'}},
                         'django',
                         {'recipe': 'djangorecipe', 'version': 'trunk',
                          'python': 'py5k', 'wsgi': 'true'})
         recipe.make_scripts([], [])
         self.assertEqual(open(wsgi_script).readlines()[0], '#!/python5k\n')
+
+    def test_boilerplate_trunk(self):
+        """Test the default boilerplate."""
+
+        project_dir = os.path.join(self.buildout_dir, 'project')
+
+        secret = '$55upfci7a#gi@&e9o1-hb*k+f$3+(&b$j=cn67h#22*0%-bj0'
+        self.recipe.generate_secret = lambda: secret
+
+        self.recipe.create_project(project_dir)
+        settings = open(os.path.join(project_dir, 'settings.py')).read()
+        settings_dict = {'project': self.recipe.options['project'],
+                         'secret': secret,
+                         'urlconf': self.recipe.options['urlconf'],
+                         }
+        from boilerplate import versions
+        self.assertEquals(versions['trunk']['settings'] % settings_dict,
+                          settings)
+
+    def test_boilerplate_1_2(self):
+        """Test the boilerplate for django 1.2."""
+
+        secret = '$55upfci7a#gi@&e9o1-hb*k+f$3+(&b$j=cn67h#22*0%-bj0'
+        self.recipe.generate_secret = lambda: secret
+
+        recipe = Recipe({
+                'buildout': {'eggs-directory': self.eggs_dir,
+                             'develop-eggs-directory': self.develop_eggs_dir,
+                             'python': 'python-version',
+                             'bin-directory': self.bin_dir,
+                             'parts-directory': self.parts_dir,
+                             'directory': self.buildout_dir,
+                             'find-links': '',
+                             'allow-hosts': '',
+                             },
+                'python-version': {'executable': '/python4k'},
+                'py5k': {'executable': '/python5k'}},
+                        'django',
+                        {'recipe': 'djangorecipe', 'version': '1.2.1',
+                         'python': 'py5k', 'wsgi': 'true'})
+        secret = '$55upfci7a#gi@&e9o1-hb*k+f$3+(&b$j=cn67h#22*0%-bj0'
+        recipe.generate_secret = lambda: secret
+
+        project_dir = os.path.join(self.buildout_dir, 'project')
+        recipe.create_project(project_dir)
+        settings = open(os.path.join(project_dir, 'settings.py')).read()
+        settings_dict = {'project': self.recipe.options['project'],
+                         'secret': secret,
+                         'urlconf': self.recipe.options['urlconf'],
+                         }
+        from boilerplate import versions
+        self.assertEquals(versions['1.2']['settings'] % settings_dict,
+                          settings)
+
 
 class ScriptTestCase(unittest.TestCase):
 
@@ -762,6 +825,7 @@ class TestTestScript(ScriptTestCase):
         test.main('cheeseshop.tilsit', 'stilton')
         self.assertEqual(sys_exit.call_args, ((1,), {}))
 
+
 class TestManageScript(ScriptTestCase):
 
     @mock.patch('django.core.management', 'execute_manager')
@@ -779,28 +843,6 @@ class TestManageScript(ScriptTestCase):
         # script it wil exit with a message and a specific exit code.
         manage.main('cheeseshop.tilsit')
         self.assertEqual(sys_exit.call_args, ((1,), {}))
-
-def setUp(test):
-    zc.buildout.testing.buildoutSetUp(test)
-
-    # Make a semi permanent download cache to speed up the test
-    tmp = tempfile.gettempdir()
-    cache_dir = os.path.join(tmp, 'djangorecipe-test-cache')
-    if not os.path.exists(cache_dir):
-        os.mkdir(cache_dir)
-
-    # Create the default.cfg which sets the download cache
-    home = test.globs['tmpdir']('home')
-    test.globs['mkdir'](home, '.buildout')
-    test.globs['write'](home, '.buildout', 'default.cfg',
-    """
-[buildout]
-download-cache = %(cache_dir)s
-    """ % dict(cache_dir=cache_dir))
-    os.environ['HOME'] = home
-
-    zc.buildout.testing.install('zc.recipe.egg', test)
-    zc.buildout.testing.install_develop('djangorecipe', test)
 
 
 def test_suite():
