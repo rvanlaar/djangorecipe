@@ -135,6 +135,7 @@ if settings.DEBUG:
     )
 '''
 
+
 class Recipe(object):
     def __init__(self, buildout, name, options):
         self.log = logging.getLogger(name)

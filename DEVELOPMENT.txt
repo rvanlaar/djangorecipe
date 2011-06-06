@@ -38,3 +38,10 @@ Uninstall
 
 Add uninstall option to djangorecipe.
 http://bazaar.launchpad.net/~jezdez/djangorecipe/djangorecipe-uninstall/revision/71
+
+Add unicode support for README.
+Jannis Leidel's talk.
+
+Version number:
+pep 386
+0.5a4 is okay.
