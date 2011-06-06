@@ -182,7 +182,7 @@ class Recipe(object):
                 working_set, self.options['executable'],
                 self.options['bin-directory'],
                 extra_paths=extra_paths,
-                arguments= "'%s.%s', %s" % (
+                arguments="'%s.%s', %s" % (
                     self.options['project'],
                     self.options['settings'],
                     ', '.join(["'%s'" % app for app in apps])))
@@ -195,7 +195,8 @@ class Recipe(object):
         version = self.options['version']
         #XXX: Build a re for numbers, if no match use 'trunk'
         version_re = re.compile("\d+\.\d+")
-        if version_re(version):
+        match = version_re.match(version)
+        if match:
             version = version_re.match(version).group()
         config = versions.get(version, versions['trunk'])
 
@@ -212,11 +213,11 @@ class Recipe(object):
 
         self.create_file(
             os.path.join(project_dir, 'urls.py'),
-            config['urls_template'], template_vars)
+            config['urls'], template_vars)
 
         self.create_file(
             os.path.join(project_dir, 'settings.py'),
-            config['settings_template'], template_vars)
+            config['settings'], template_vars)
 
         # Create the media and templates directories for our
         # project
