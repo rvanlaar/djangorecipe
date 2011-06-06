@@ -1,0 +1,10 @@
+Configuration Boilerplate
+=========================
+
+This development branch focuses on the configuration aspect of Djangorecipe.
+
+When djangorecipe is used for a new project, djangorecipe creates
+boilerplate configuration code. With new Django versions different settings
+are needed.
+
+
