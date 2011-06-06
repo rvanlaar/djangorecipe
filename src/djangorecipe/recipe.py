@@ -191,9 +191,10 @@ class Recipe(object):
 
     def create_project(self, project_dir):
         os.makedirs(project_dir)
-
         version = self.options['version']
-        #XXX: Build a re for numbers, if no match use 'trunk'
+
+        # Check the version to deploy the corresponding boilerplate
+        # settings/urlsconf.
         version_re = re.compile("\d+\.\d+")
         match = version_re.match(version)
         if match:

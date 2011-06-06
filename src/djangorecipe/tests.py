@@ -722,6 +722,59 @@ class TestRecipe(unittest.TestCase):
         recipe.make_scripts([], [])
         self.assertEqual(open(wsgi_script).readlines()[0], '#!/python5k\n')
 
+    def test_boilerplate_trunk(self):
+        """Test the default boilerplate."""
+
+        project_dir = os.path.join(self.buildout_dir, 'project')
+
+        secret = '$55upfci7a#gi@&e9o1-hb*k+f$3+(&b$j=cn67h#22*0%-bj0'
+        self.recipe.generate_secret = lambda: secret
+
+        self.recipe.create_project(project_dir)
+        settings = open(os.path.join(project_dir, 'settings.py')).read()
+        settings_dict = {'project': self.recipe.options['project'],
+                         'secret': secret,
+                         'urlconf': self.recipe.options['urlconf'],
+                         }
+        from boilerplate import versions
+        self.assertEquals(versions['trunk']['settings'] % settings_dict,
+                          settings)
+
+    def test_boilerplate_1_2(self):
+        """Test the boilerplate for django 1.2."""
+
+        secret = '$55upfci7a#gi@&e9o1-hb*k+f$3+(&b$j=cn67h#22*0%-bj0'
+        self.recipe.generate_secret = lambda: secret
+
+        recipe = Recipe({
+                'buildout': {'eggs-directory': self.eggs_dir,
+                             'develop-eggs-directory': self.develop_eggs_dir,
+                             'python': 'python-version',
+                             'bin-directory': self.bin_dir,
+                             'parts-directory': self.parts_dir,
+                             'directory': self.buildout_dir,
+                             'find-links': '',
+                             'allow-hosts': '',
+                             },
+                'python-version': {'executable': '/python4k'},
+                'py5k': {'executable': '/python5k'}},
+                        'django',
+                        {'recipe': 'djangorecipe', 'version': '1.2.1',
+                         'python': 'py5k', 'wsgi': 'true'})
+        secret = '$55upfci7a#gi@&e9o1-hb*k+f$3+(&b$j=cn67h#22*0%-bj0'
+        recipe.generate_secret = lambda: secret
+
+        project_dir = os.path.join(self.buildout_dir, 'project')
+        recipe.create_project(project_dir)
+        settings = open(os.path.join(project_dir, 'settings.py')).read()
+        settings_dict = {'project': self.recipe.options['project'],
+                         'secret': secret,
+                         'urlconf': self.recipe.options['urlconf'],
+                         }
+        from boilerplate import versions
+        self.assertEquals(versions['1.2']['settings'] % settings_dict,
+                          settings)
+
 
 class ScriptTestCase(unittest.TestCase):
 
