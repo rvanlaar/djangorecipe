@@ -63,6 +63,8 @@ if settings.DEBUG:
 """
 
 settings_template_1_2 = """
+# Django settings for %(project)s project.
+
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
@@ -160,10 +162,7 @@ INSTALLED_APPS = (
 """
 
 settings_template_1_3 = """
-# Django settings for {{ project_name }} project.
-
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+# Django settings for %(project)s project.
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
