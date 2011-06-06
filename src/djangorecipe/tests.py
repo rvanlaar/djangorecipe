@@ -792,30 +792,6 @@ class TestManageScript(ScriptTestCase):
         self.assertEqual(sys_exit.call_args, ((1,), {}))
 
 
-def setUp(test):
-    import pdb; pdb.set_trace()
-    zc.buildout.testing.buildoutSetUp(test)
-
-    # Make a semi permanent download cache to speed up the test
-    tmp = tempfile.gettempdir()
-    cache_dir = os.path.join(tmp, 'djangorecipe-test-cache')
-    if not os.path.exists(cache_dir):
-        os.mkdir(cache_dir)
-
-    # Create the default.cfg which sets the download cache
-    home = test.globs['tmpdir']('home')
-    test.globs['mkdir'](home, '.buildout')
-    test.globs['write'](home, '.buildout', 'default.cfg',
-    """
-[buildout]
-download-cache = %(cache_dir)s
-    """ % dict(cache_dir=cache_dir))
-    os.environ['HOME'] = home
-
-    zc.buildout.testing.install('zc.recipe.egg', test)
-    zc.buildout.testing.install_develop('djangorecipe', test)
-
-
 def test_suite():
     return unittest.TestSuite((
             unittest.makeSuite(TestRecipe),
