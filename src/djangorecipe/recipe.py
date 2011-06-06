@@ -169,8 +169,8 @@ class Recipe(object):
               'djangorecipe.manage', 'main')],
             ws, self.options['executable'], self.options['bin-directory'],
             extra_paths=extra_paths,
-            arguments= "'%s.%s'" % (project,
-                                    self.options['settings']))
+            arguments="'%s.%s'" % (project,
+                                   self.options['settings']))
 
     def create_test_runner(self, extra_paths, working_set):
         apps = self.options.get('test', '').split()
