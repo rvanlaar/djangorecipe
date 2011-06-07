@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.23.1
+------
+
+- Added a missing 'import os'
+
+
 0.23
 ----
 

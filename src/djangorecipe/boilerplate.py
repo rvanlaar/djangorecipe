@@ -65,6 +65,8 @@ if settings.DEBUG:
 settings_template_1_2 = """
 # Django settings for %(project)s project.
 
+import os
+
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
@@ -163,6 +165,8 @@ INSTALLED_APPS = (
 
 settings_template_1_3 = """
 # Django settings for %(project)s project.
+
+import os
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
