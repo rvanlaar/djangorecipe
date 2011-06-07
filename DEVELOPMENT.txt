@@ -1,10 +1,8 @@
-This is the django recipe development branch.
-Djangorecipe has grown
-
 Versions, VCS and Eggs
 ======================
-The main focus of the development branch is removal of the
+The main focus of the development branch was the removal of the
 subversion code and the start of using django eggs.
+This is now implemented. Read on for some of the rational for this change.
 
 Versions
 --------
@@ -41,7 +39,3 @@ http://bazaar.launchpad.net/~jezdez/djangorecipe/djangorecipe-uninstall/revision
 
 Add unicode support for README.
 Jannis Leidel's talk.
-
-Version number:
-pep 386
-0.5a4 is okay.
