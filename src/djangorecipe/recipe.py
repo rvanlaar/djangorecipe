@@ -107,9 +107,10 @@ class Recipe(object):
         b_versions = self.buildout.get('versions')
         if b_versions:
             django_version = b_versions.get('django')
-            version_re = re.compile("\d+\.\d+")
-            match = version_re.match(django_version)
-            version = match and match.group()
+            if django_version:
+                version_re = re.compile("\d+\.\d+")
+                match = version_re.match(django_version)
+                version = match and match.group()
 
         config = versions.get(version, versions['Newest'])
 
