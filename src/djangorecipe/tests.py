@@ -158,27 +158,6 @@ class TestRecipe(unittest.TestCase):
         self.assert_(len(set(
                     [self.recipe.generate_secret() for i in xrange(10)])) > 1)
 
-    def test_version_to_svn(self):
-        # Version specification that lead to a svn repository can be
-        # specified in different ways. Just specifying `trunk` should
-        # be enough to get the full url to the Django trunk.
-        self.assertEqual(self.recipe.version_to_svn('trunk'),
-                         'http://code.djangoproject.com/svn/django/trunk/')
-        # Any other specification should lead to the url it is given
-        self.assertEqual(self.recipe.version_to_svn('svn://somehost/trunk'),
-                         'svn://somehost/trunk')
-
-    def test_version_to_download_suffic(self):
-        # To create standard names for the download directory a method
-        # is provided which converts a version to a dir suffix. A
-        # simple pointer to trunk should return svn.
-        self.assertEqual(self.recipe.version_to_download_suffix('trunk'),
-                         'svn')
-        # Any other url should return the last path component. This
-        # works out nicely for branches or version pinned url's.
-        self.assertEqual(self.recipe.version_to_download_suffix(
-                'http://monty/branches/python'), 'python')
-
     def test_make_protocol_scripts(self):
         # To ease deployment a WSGI script can be generated. The
         # script adds any paths from the `extra_paths` option to the
@@ -308,12 +287,11 @@ class TestRecipe(unittest.TestCase):
     @mock.patch('shutil', 'copytree')
     @mock.patch(ZCRecipeEggScripts, 'working_set')
     @mock.patch('zc.buildout.easy_install', 'scripts')
-    @mock.patch(Recipe, 'install_release')
     @mock.patch(Recipe, 'create_manage_script')
     @mock.patch(Recipe, 'create_test_runner')
     @mock.patch('zc.recipe.egg', 'Develop')
     def test_fulfills_django_dependency(self, rmtree, path_exists,
-        urlretrieve, copytree, working_set, scripts, install_release,
+        urlretrieve, copytree, working_set, scripts,
         manage, testrunner, develop):
         # Test for https://bugs.launchpad.net/djangorecipe/+bug/397864
         # djangorecipe should always fulfil the 'Django' requirement.
@@ -345,14 +323,12 @@ class TestRecipe(unittest.TestCase):
     @mock.patch('shutil', 'copytree')
     @mock.patch(ZCRecipeEggScripts, 'working_set')
     @mock.patch('zc.buildout.easy_install', 'scripts')
-    @mock.patch(Recipe, 'install_release')
     @mock.patch(Recipe, 'create_manage_script')
     @mock.patch(Recipe, 'create_test_runner')
     @mock.patch('zc.recipe.egg', 'Develop')
     def test_extra_paths(self, rmtree, path_exists, urlretrieve,
                                    copytree, working_set, scripts,
-                                   install_release, manage, testrunner,
-                                   develop):
+                                   manage, testrunner, develop):
         # The recipe allows extra-paths to be specified. It uses these to
         # extend the Python path within it's generated scripts.
         self.recipe.options['version'] = '1.0'
@@ -373,15 +349,13 @@ class TestRecipe(unittest.TestCase):
     @mock.patch('shutil', 'copytree')
     @mock.patch(ZCRecipeEggScripts, 'working_set')
     @mock.patch('zc.buildout.easy_install', 'scripts')
-    @mock.patch(Recipe, 'install_release')
     @mock.patch(Recipe, 'create_manage_script')
     @mock.patch(Recipe, 'create_test_runner')
     @mock.patch('site', 'addsitedir')
     @mock.patch('zc.recipe.egg', 'Develop')
     def test_pth_files(self, rmtree, path_exists, urlretrieve,
                        copytree, working_set, scripts,
-                       install_release, manage, testrunner, addsitedir,
-                       develop):
+                       manage, testrunner, addsitedir, develop):
         # When a pth-files option is set the recipe will use that to add more
         # paths to extra-paths.
         self.recipe.options['version'] = '1.0'
@@ -454,126 +428,16 @@ class TestRecipe(unittest.TestCase):
         finally:
             shutil.rmtree(tmp)
 
-    @mock.patch('setuptools.archive_util', 'unpack_archive')
-    @mock.patch('shutil', 'move')
-    @mock.patch('shutil', 'rmtree')
-    @mock.patch('os', 'listdir')
-    def test_install_release(self, unpack, move, rmtree, listdir):
-        # To install a release the recipe uses a specific method. We
-        # have have mocked all the calls which interact with the
-        # filesystem.
-        listdir.return_value = ('Django-0.96-2',)
-        self.recipe.install_release('0.96.2', 'downloads',
-                                    'downloads/django-0.96.2.tar.gz',
-                                    'parts/django')
-        # Let's see what the mock's have been called with
-        self.assertEqual(listdir.call_args,
-                         (('downloads/django-archive',), {}))
-        self.assertEqual(unpack.call_args,
-                         (('downloads/django-0.96.2.tar.gz',
-                           'downloads/django-archive'), {}))
-        self.assertEqual(move.call_args,
-                         (('downloads/django-archive/Django-0.96-2',
-                           'parts/django'), {}))
-        self.assertEqual(rmtree.call_args,
-                         (('downloads/django-archive',), {}))
-
-    @mock.patch('shutil', 'copytree')
-    @mock.patch(Recipe, 'command')
-    def test_install_svn_version(self, copytree, command):
-        # Installation from svn is handled by a method. We have mocked
-        # the command method to avoid actual checkouts of Django.
-        self.recipe.install_svn_version('trunk', 'downloads',
-                                        'parts/django', False)
-        # This should have tried to do a checkout of the Django trunk
-        self.assertEqual(command.call_args,
-                         (('svn co \'http://code.djangoproject.com/svn/django/trunk/\' \'downloads/django-svn\' -q',), {}))
-        # A copy command to the parts directory should also have been
-        # issued
-        self.assertEqual(copytree.call_args,
-                         (('downloads/django-svn', 'parts/django'), {}))
-
-    @mock.patch('shutil', 'copytree')
-    @mock.patch('os.path', 'exists')
-    @mock.patch(Recipe, 'command')
-    def test_install_and_update_svn_version(self, copytree, exists, command):
-        # When an checkout has been done of a svn based installation
-        # is already done the recipe should just update it.
-        exists.return_value = True
-
-        self.recipe.install_svn_version('trunk', 'downloads',
-                                        'parts/django', False)
-        self.assertEqual(exists.call_args, (('downloads/django-svn',), {}))
-        self.assertEqual(command.call_args,
-                         (('svn up -q',), {'cwd': 'downloads/django-svn'}))
-
-    @mock.patch('shutil', 'copytree')
-    @mock.patch(Recipe, 'command')
-    def test_install_svn_with_space_in_svn_url(self, copytree, command):
-        self.recipe.install_svn_version('http://www.test.com/s v n/trunk',
-                                        'downloads', 'parts/django', False)
-        self.assertEqual(command.call_args,
-                         (('svn co \'http://www.test.com/s v n/trunk\' \'downloads/django-trunk\' -q',), {}))
-
-    @mock.patch(Recipe, 'command')
-    def test_install_broken_svn(self, command):
-        # When the checkout from svn fails during a svn build the
-        # installation method raises an error. We will simulate this
-        # failure by telling our mock what to do.
-        command.return_value = 1
-        # The line above should indicate a failure (non-zero exit
-        # code)
-        self.assertRaises(UserError, self.recipe.install_svn_version,
-                          'trunk', 'downloads', 'parts/django', False)
-
-    @mock.patch('shutil', 'copytree')
-    @mock.patch(Recipe, 'command')
-    def test_svn_install_from_cache(self, copytree, command):
-        # If the buildout is told to install from cache it will not do
-        # a checkout but instead an existing checkout
-        self.recipe.buildout['buildout']['install-from-cache'] = 'true'
-        # Now we can run the installation method
-        self.recipe.install_svn_version('trunk', 'downloads',
-                                        'parts/django', True)
-        # This should not have called the recipe's command method
-        self.failIf(command.called)
-        # A copy from the cache to the destination should have been
-        # made
-        self.assertEqual(copytree.call_args,
-                         (('downloads/django-svn', 'parts/django'), {}))
-
     @mock.patch('shutil', 'rmtree')
     @mock.patch('os.path', 'exists')
     @mock.patch('urllib', 'urlretrieve')
     @mock.patch('shutil', 'copytree')
     @mock.patch(ZCRecipeEggScripts, 'working_set')
     @mock.patch('zc.buildout.easy_install', 'scripts')
-    @mock.patch(Recipe, 'install_release')
-    @mock.patch(Recipe, 'command')
-    def test_update_svn(self, rmtree, path_exists, urlretrieve,
-                        copytree, working_set, scripts,
-                        install_release, command):
-        path_exists.return_value = True
-        working_set.return_value = (None, [])
-        # When the recipe is asked to do an update and the version is
-        # a svn version it just does an update on the parts folder.
-        self.recipe.update()
-        self.assertEqual('svn up -q', command.call_args[0][0])
-        # It changes the working directory so that the simple svn up
-        # command will work.
-        self.assertEqual(command.call_args[1].keys(), ['cwd'])
-
-    @mock.patch('shutil', 'rmtree')
-    @mock.patch('os.path', 'exists')
-    @mock.patch('urllib', 'urlretrieve')
-    @mock.patch('shutil', 'copytree')
-    @mock.patch(ZCRecipeEggScripts, 'working_set')
-    @mock.patch('zc.buildout.easy_install', 'scripts')
-    @mock.patch(Recipe, 'install_release')
     @mock.patch('subprocess', 'call')
     def test_update_with_cache(self, rmtree, path_exists, urlretrieve,
                                copytree, working_set, scripts,
-                               install_release, call_process):
+                               call_process):
         path_exists.return_value = True
         working_set.return_value = (None, [])
         # When the recipe is asked to do an update whilst in install
@@ -588,11 +452,10 @@ class TestRecipe(unittest.TestCase):
     @mock.patch('shutil', 'copytree')
     @mock.patch(ZCRecipeEggScripts, 'working_set')
     @mock.patch('zc.buildout.easy_install', 'scripts')
-    @mock.patch(Recipe, 'install_release')
     @mock.patch('subprocess', 'call')
     def test_update_with_newest_false(self, rmtree, path_exists, urlretrieve,
                                       copytree, working_set, scripts,
-                                      install_release, call_process):
+                                      call_process):
         path_exists.return_value = True
         working_set.return_value = (None, [])
         # When the recipe is asked to do an update whilst in install
@@ -607,11 +470,10 @@ class TestRecipe(unittest.TestCase):
     @mock.patch('shutil', 'copytree')
     @mock.patch(ZCRecipeEggScripts, 'working_set')
     @mock.patch('zc.buildout.easy_install', 'scripts')
-    @mock.patch(Recipe, 'install_release')
     @mock.patch('zc.recipe.egg', 'Develop')
     def test_clear_existing_django(self, rmtree, path_exists, urlretrieve,
                                    copytree, working_set, scripts,
-                                   install_release, develop):
+                                   develop):
         # When the recipe is executed and Django is already installed
         # within parts it should remove it. We will mock the exists
         # check to make it let the recipe think it has an existing
@@ -628,57 +490,6 @@ class TestRecipe(unittest.TestCase):
         # passed to rmtree are the ones we wanted to delete.
         self.assertEqual(rmtree.call_args[0][0].split('/')[-2:],
                          ['parts', 'django'])
-
-    @mock.patch('shutil', 'rmtree')
-    @mock.patch('os.path', 'exists')
-    @mock.patch('urllib', 'urlretrieve')
-    @mock.patch('shutil', 'copytree')
-    @mock.patch(ZCRecipeEggScripts, 'working_set')
-    @mock.patch('zc.buildout.easy_install', 'scripts')
-    @mock.patch(Recipe, 'install_release')
-    @mock.patch(Recipe, 'command')
-    def test_update_pinned_svn_url(self, rmtree, path_exists, urlretrieve,
-                                   copytree, working_set, scripts,
-                                   install_release, command):
-        path_exists.return_value = True
-        working_set.return_value = (None, [])
-        # Make sure that updating a pinned version is updated
-        # accordingly. It must not switch to updating beyond it's
-        # requested revision.
-        # The recipe does this by checking for an @ sign in the url /
-        # version.
-        self.recipe.is_svn_url = lambda version: True
-
-        self.recipe.options['version'] = 'http://testing/trunk@2531'
-        self.recipe.update()
-        self.assertEqual(command.call_args[0], ('svn up -r 2531 -q',))
-
-    @mock.patch('shutil', 'rmtree')
-    @mock.patch('os.path', 'exists')
-    @mock.patch('urllib', 'urlretrieve')
-    @mock.patch('shutil', 'copytree')
-    @mock.patch(ZCRecipeEggScripts, 'working_set')
-    @mock.patch('zc.buildout.easy_install', 'scripts')
-    @mock.patch(Recipe, 'install_release')
-    @mock.patch(Recipe, 'command')
-    def test_update_username_in_svn_url(self, rmtree, path_exists, urlretrieve,
-                                        copytree, working_set, scripts,
-                                        install_release, command):
-        path_exists.return_value = True
-        working_set.return_value = (None, [])
-        # Make sure that updating a version with a username
-        # in the URL works
-        self.recipe.is_svn_url = lambda version: True
-
-        # First test with both a revision and a username in the url
-        self.recipe.options['version'] = 'http://user@testing/trunk@2531'
-        self.recipe.update()
-        self.assertEqual(command.call_args[0], ('svn up -r 2531 -q',))
-
-        # Now test with only the username
-        self.recipe.options['version'] = 'http://user@testing/trunk'
-        self.recipe.update()
-        self.assertEqual(command.call_args[0], ('svn up -q',))
 
     def test_python_option(self):
         # The python option makes it possible to specify a specific Python

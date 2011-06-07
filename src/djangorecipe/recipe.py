@@ -100,7 +100,7 @@ class Recipe(object):
 
     def create_project(self, project_dir):
         os.makedirs(project_dir)
-        version = self.options['version']
+        version = self.buildout['versions']['django']
 
         # Check the version to deploy the corresponding boilerplate
         # settings/urlsconf.
