@@ -1,17 +1,28 @@
 Changes
 =======
 
+0.99
+----
+
+- Djangorecipe now depends on Django. The use of the `version =` statement
+  is deprecated. Specify the django version in the
+  `[versions]` section. Install django via mr.developer if you need to use
+  an svn/git/hg repository. For other uses
+  Versionpin djangorecipe to 0.23.1 if you don't want to upgrade.
+  Thanks to Reinout van Rees for help with this release.
+
+- Removed subversion and download support.
+
 0.23.1
 ------
 
 - Added a missing 'import os'
 
-
 0.23
 ----
 
 - Support for settings/urls boilerplate for django 1.2 and django 1.3.
-  It defaults to 1.3 when the version isn't 1.2. 
+  It defaults to 1.3 when the version isn't 1.2.
 
 0.22
 ----

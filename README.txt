@@ -1,16 +1,34 @@
+UGRADE NOTICE
+=============
+
+The use of `version =` is deprecated. Define the django version
+in the `[versions]` section. The first example shows how to do this.
+This change also drops support for svn urls. Please use mr.developer_
+to install django from a svn, hg or git repository.
+
+.. _mr.developer: http://pypi.python.org/pypi/mr.developer
+
+Version pin djangorecipe to 0.23.1 to continue using the `version` option.
+
+
 Description
 ===========
 
 This buildout recipe can be used to create a setup for Django. It will
 automatically download Django and install it in the buildout's
-sandbox. You can use either a release version of Django or a
-subversion checkout (by using `trunk` instead of a version number.
+sandbox.
 
 You can see an example of how to use the recipe below::
 
   [buildout]
   parts = satchmo django
-  eggs = ipython
+  eggs =
+    ipython
+  versions = versions
+
+  [versions]
+  django = 1.2.5
+
 
   [satchmo]
   recipe = gocept.download
@@ -19,7 +37,6 @@ You can see an example of how to use the recipe below::
 
   [django]
   recipe = djangorecipe
-  version = trunk
   settings = development
   eggs = ${buildout:eggs}
   extra-paths =
@@ -45,25 +62,11 @@ python
   This option can be used to specify a specific Python version which can be a
   different version from the one used to run the buildout.
 
-version
-  The version argument can accept a few different types of
-  arguments. You can specify `trunk`. In this case it will do a
-  checkout of the Django trunk. Another option is to specify a release
-  number like `0.96.2`. This will download the release
-  tarball. Finally you can specify a full svn url (including the
-  revision number). An example of this would be
-  `http://code.djangoproject.com/svn/django/branches/newforms-admin@7833`.
-
 settings
   You can set the name of the settings file which is to be used with
   this option. This is useful if you want to have a different
   production setup from your development setup. It defaults to
   `development`.
-
-download-cache
-  Set this to a folder somewhere on you system to speed up
-  installation. The recipe will use this folder as a cache for a
-  downloaded version of Django.
 
 extra-paths
   All paths specified here will be used to extend the default Python
@@ -143,7 +146,6 @@ The next example shows you how to use some more of the options::
 
   [django]
   recipe = djangorecipe
-  version = trunk
   settings = development
   project = exampleproject
   wsgi = true
@@ -164,6 +166,10 @@ path::
   parts	= PIL
 	  svncode
 	  myproject
+  versions=versions
+
+  [versions]
+  django	= 1.3
 
   [PIL]
   recipe	= zc.recipe.egg:custom
@@ -176,8 +182,8 @@ path::
 
   [myproject]
   recipe	= djangorecipe
-  version	= 1.0.2
-  eggs		= PIL
+  eggs		=
+    PIL
   project	= myproject
   settings	= settings
   extra-paths	= ${buildout:directory}/myproject/apps
@@ -205,10 +211,8 @@ generated script use something like::
 
   [myproject]
   recipe	= djangorecipe
-  version	= 1.0.2
   project	= myproject
   python	= special-python
-
 
 Example configuration for mod_wsgi
 ==================================
