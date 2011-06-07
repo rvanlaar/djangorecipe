@@ -5,7 +5,6 @@ import sys
 import shutil
 
 import mock
-from zc.buildout import UserError
 from zc.recipe.egg.egg import Scripts as ZCRecipeEggScripts
 
 from djangorecipe.recipe import Recipe
@@ -50,8 +49,7 @@ class TestRecipe(unittest.TestCase):
                     },
                 'python-version': {'executable': sys.executable}},
                              'django',
-                             {'recipe': 'djangorecipe',
-                              'version': 'trunk'})
+                             {'recipe': 'djangorecipe'})
 
     def tearDown(self):
         # Remove our test dir
@@ -77,58 +75,8 @@ class TestRecipe(unittest.TestCase):
                             },
                         'python-version': {'executable': sys.executable}},
                        'django',
-                       {'recipe': 'djangorecipe',
-                        'version': 'trunk'}).options.copy() for i in range(2)])
-
-    def test_svn_url(self):
-        # Make sure that only a few specific type of url's are
-        # considered svn url's
-
-        # This is a plain release version so it should indicate it is
-        # not a svn url
-        self.failIf(self.recipe.is_svn_url('0.96.2'))
-        # The next line specifies a proper link with the trunk
-        self.assert_(self.recipe.is_svn_url('trunk'))
-        # A url looking like trunk should also fail
-        self.failIf(self.recipe.is_svn_url('trunka'))
-        # A full svn url including version should work
-        self.assert_(self.recipe.is_svn_url(
-            'http://code.djangoproject.com/svn/django/branches/newforms-admin@7833'))
-        # HTTPS should work too
-        self.assert_(self.recipe.is_svn_url(
-            'https://code.djangoproject.com/svn/django/branches/newforms-admin@7833'))
-        # Svn+ssh should work
-        self.assert_(self.recipe.is_svn_url(
-            'svn+ssh://myserver/newforms-admin@7833'))
-        # Svn protocol through any custom tunnel defined in ~/.subversion/config should work
-        self.assert_(self.recipe.is_svn_url(
-            'svn+MY_Custom-tunnel://myserver/newforms-admin@7833'))
-        # Using a non existent protocol should not be a svn url?
-        self.failIf(self.recipe.is_svn_url(
-            'unknown://myserver/newforms-admin@7833'))
-        # Using a svn url with spaces
-        self.assert_(self.recipe.is_svn_url(
-            'http://code.djangoproject.com/svn/branches/branch with '
-            'spaces@123'))
-
-    def test_command(self):
-        # The command method is a wrapper for subprocess which excutes
-        # a command and return's it's status code. We will demonstrate
-        # this with a simple test of running `dir`.
-        self.failIf(self.recipe.command('echo'))
-        # Executing a non existing command should return an error code
-        self.assert_(self.recipe.command('spamspamspameggs'))
-
-    @mock.patch('subprocess', 'Popen')
-    def test_command_verbose_mode(self, popen):
-        # When buildout is put into verbose mode the command methode
-        # should stop capturing the ouput of it's commands.
-        popen.return_value = mock.Mock()
-        self.recipe.buildout['buildout']['verbosity'] = 'verbose'
-        self.recipe.command('silly-command')
-        self.assertEqual(
-            popen.call_args,
-            (('silly-command',), {'shell': True, 'stdout': None}))
+                       {'recipe': 'djangorecipe'}).options.copy()
+                for i in range(2)])
 
     def test_create_file(self):
         # The create file helper should create a file at a certain
@@ -174,7 +122,8 @@ class TestRecipe(unittest.TestCase):
         self.assert_('project.development' in contents)
         # and a line which set's up the WSGI app
         self.assert_("application = "
-                     "djangorecipe.wsgi.main('project.development', logfile='')"
+                     "djangorecipe.wsgi.main('project.development', "
+                     "logfile='')"
                      in contents)
         self.assert_("class logger(object)" not in contents)
 
@@ -187,7 +136,8 @@ class TestRecipe(unittest.TestCase):
         # It should also have a reference to our settings module
         self.assert_('project.development' in contents)
         # and a line which set's up the WSGI app
-        self.assert_("djangorecipe.fcgi.main('project.development', logfile='')"
+        self.assert_("djangorecipe.fcgi.main('project.development', "
+                     "logfile='')"
                      in contents)
         self.assert_("class logger(object)" not in contents)
 
@@ -211,8 +161,6 @@ class TestRecipe(unittest.TestCase):
         scripts.return_value = ['some-path']
         self.assertEqual(self.recipe.make_scripts([], []),
                          ['some-path', 'some-path'])
-
-
 
     def test_create_project(self):
         # If a project does not exist already the recipe will create
@@ -280,42 +228,6 @@ class TestRecipe(unittest.TestCase):
         # Check that we have 'spameggs' as the project
         self.assert_("djangorecipe.manage.main('spameggs.development')"
                      in open(manage).read())
-
-    @mock.patch('shutil', 'rmtree')
-    @mock.patch('os.path', 'exists')
-    @mock.patch('urllib', 'urlretrieve')
-    @mock.patch('shutil', 'copytree')
-    @mock.patch(ZCRecipeEggScripts, 'working_set')
-    @mock.patch('zc.buildout.easy_install', 'scripts')
-    @mock.patch(Recipe, 'create_manage_script')
-    @mock.patch(Recipe, 'create_test_runner')
-    @mock.patch('zc.recipe.egg', 'Develop')
-    def test_fulfills_django_dependency(self, rmtree, path_exists,
-        urlretrieve, copytree, working_set, scripts,
-        manage, testrunner, develop):
-        # Test for https://bugs.launchpad.net/djangorecipe/+bug/397864
-        # djangorecipe should always fulfil the 'Django' requirement.
-        self.recipe.options['version'] = '1.0'
-        path_exists.return_value = True
-        working_set.return_value = (None, [])
-        manage.return_value = []
-        scripts.return_value = []
-        testrunner.return_value = []
-        develop_install = mock.Mock()
-        develop.return_value = develop_install
-        self.recipe.install()
-
-        # We should see that Django was added as a develop egg.
-        options = develop.call_args[0][2]
-        self.assertEqual(options['location'], os.path.join(self.parts_dir,
-                                                           'django'))
-
-        # Check that the install() method for the develop egg was called
-        # with no args
-        first_method_name, args, kwargs = develop_install.method_calls[0]
-        self.assertEqual('install', first_method_name)
-        self.assertEqual(0, len(args))
-        self.assertEqual(0, len(kwargs))
 
     @mock.patch('shutil', 'rmtree')
     @mock.patch('os.path', 'exists')
@@ -400,34 +312,6 @@ class TestRecipe(unittest.TestCase):
         self.assert_("djangorecipe.manage.main('project.spameggs')"
                      in open(manage).read())
 
-    @mock.patch('urllib2', 'urlopen')
-    def test_get_release(self, mock):
-        # The get_release method fecthes a release tarball and
-        # extracts it. We have setup a mock so that it won't actually
-        # download the release. Let's call the code.
-        class FakeFile(object):
-            def read(self):
-                return 'Django tarball'
-
-            def close(self):
-                self.closed = True
-
-        tmp = tempfile.mkdtemp()
-        filename = os.path.join(tmp, 'django-0.96.2.tar.gz')
-        mock.return_value = FakeFile()
-        try:
-            self.assertEqual(
-                self.recipe.get_release('0.96.2', tmp),
-                filename)
-            # It tried to download the release through our mock
-            mock.assert_called_with(
-                'http://www.djangoproject.com/download/0.96.2/tarball/')
-            # The file should have been filled with the contents from the
-            # handle it got.
-            self.assertEqual(open(filename).read(), 'Django tarball')
-        finally:
-            shutil.rmtree(tmp)
-
     @mock.patch('shutil', 'rmtree')
     @mock.patch('os.path', 'exists')
     @mock.patch('urllib', 'urlretrieve')
@@ -464,33 +348,6 @@ class TestRecipe(unittest.TestCase):
         self.recipe.update()
         self.assertFalse(call_process.called)
 
-    @mock.patch('shutil', 'rmtree')
-    @mock.patch('os.path', 'exists')
-    @mock.patch('urllib', 'urlretrieve')
-    @mock.patch('shutil', 'copytree')
-    @mock.patch(ZCRecipeEggScripts, 'working_set')
-    @mock.patch('zc.buildout.easy_install', 'scripts')
-    @mock.patch('zc.recipe.egg', 'Develop')
-    def test_clear_existing_django(self, rmtree, path_exists, urlretrieve,
-                                   copytree, working_set, scripts,
-                                   develop):
-        # When the recipe is executed and Django is already installed
-        # within parts it should remove it. We will mock the exists
-        # check to make it let the recipe think it has an existing
-        # Django install.
-        self.recipe.options['version'] = '1.0'
-        path_exists.return_value = True
-        working_set.return_value = (None, [])
-        scripts.return_value = []
-        develop.return_value = mock.Mock()
-        self.recipe.install()
-        # This should have called remove tree
-        self.assert_(rmtree.called)
-        # We will assert that the last two compontents of the path
-        # passed to rmtree are the ones we wanted to delete.
-        self.assertEqual(rmtree.call_args[0][0].split('/')[-2:],
-                         ['parts', 'django'])
-
     def test_python_option(self):
         # The python option makes it possible to specify a specific Python
         # executable which is to be used for the generated scripts.
@@ -507,7 +364,7 @@ class TestRecipe(unittest.TestCase):
                     },
                 'python-version': {'executable': '/python4k'}},
                         'django',
-                        {'recipe': 'djangorecipe', 'version': 'trunk',
+                        {'recipe': 'djangorecipe',
                          'wsgi': 'true'})
         recipe.make_scripts([], [])
         # This should have created a script in the bin dir
@@ -528,12 +385,12 @@ class TestRecipe(unittest.TestCase):
                 'python-version': {'executable': '/python4k'},
                 'py5k': {'executable': '/python5k'}},
                         'django',
-                        {'recipe': 'djangorecipe', 'version': 'trunk',
+                        {'recipe': 'djangorecipe',
                          'python': 'py5k', 'wsgi': 'true'})
         recipe.make_scripts([], [])
         self.assertEqual(open(wsgi_script).readlines()[0], '#!/python5k\n')
 
-    def test_boilerplate_trunk(self):
+    def test_boilerplate_newest(self):
         """Test the default boilerplate."""
 
         project_dir = os.path.join(self.buildout_dir, 'project')
@@ -548,7 +405,7 @@ class TestRecipe(unittest.TestCase):
                          'urlconf': self.recipe.options['urlconf'],
                          }
         from boilerplate import versions
-        self.assertEquals(versions['trunk']['settings'] % settings_dict,
+        self.assertEquals(versions['Newest']['settings'] % settings_dict,
                           settings)
 
     def test_boilerplate_1_2(self):
@@ -566,11 +423,12 @@ class TestRecipe(unittest.TestCase):
                              'directory': self.buildout_dir,
                              'find-links': '',
                              'allow-hosts': '',
+                             'versions': 'django==1.2.5',
                              },
                 'python-version': {'executable': '/python4k'},
                 'py5k': {'executable': '/python5k'}},
                         'django',
-                        {'recipe': 'djangorecipe', 'version': '1.2.1',
+                        {'recipe': 'djangorecipe',
                          'python': 'py5k', 'wsgi': 'true'})
         secret = '$55upfci7a#gi@&e9o1-hb*k+f$3+(&b$j=cn67h#22*0%-bj0'
         recipe.generate_secret = lambda: secret

@@ -100,15 +100,20 @@ class Recipe(object):
 
     def create_project(self, project_dir):
         os.makedirs(project_dir)
-        version = self.buildout['versions']['django']
 
-        # Check the version to deploy the corresponding boilerplate
-        # settings/urlsconf.
-        version_re = re.compile("\d+\.\d+")
-        match = version_re.match(version)
-        if match:
-            version = version_re.match(version).group()
-        config = versions.get(version, versions['trunk'])
+        import pdb; pdb.set_trace()
+
+        # Find the current Django versions in the buildout versions.
+        # Assume the newest Django when no version is found.
+        version = None
+        b_versions = self.buildout.get('versions')
+        if b_versions:
+            django_version = b_versions.get('django')
+            version_re = re.compile("\d+\.\d+")
+            match = version_re.match(django_version)
+            version = match and match.group()
+
+        config = versions.get(version, versions['Newest'])
 
         template_vars = {'secret': self.generate_secret()}
         template_vars.update(self.options)

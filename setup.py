@@ -33,6 +33,7 @@ setup(name='djangorecipe',
       install_requires=[
         'zc.buildout',
         'zc.recipe.egg',
+        'django',
       ],
       entry_points="""
       # -*- Entry points: -*-
