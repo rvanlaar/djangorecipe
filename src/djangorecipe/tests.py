@@ -413,7 +413,6 @@ class TestRecipe(unittest.TestCase):
 
         secret = '$55upfci7a#gi@&e9o1-hb*k+f$3+(&b$j=cn67h#22*0%-bj0'
         self.recipe.generate_secret = lambda: secret
-
         recipe = Recipe({
                 'buildout': {'eggs-directory': self.eggs_dir,
                              'develop-eggs-directory': self.develop_eggs_dir,
@@ -423,8 +422,9 @@ class TestRecipe(unittest.TestCase):
                              'directory': self.buildout_dir,
                              'find-links': '',
                              'allow-hosts': '',
-                             'versions': 'django==1.2.5',
+                             'versions': 'versions',
                              },
+                'versions': {'django': '1.2.5'},
                 'python-version': {'executable': '/python4k'},
                 'py5k': {'executable': '/python5k'}},
                         'django',

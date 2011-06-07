@@ -101,8 +101,6 @@ class Recipe(object):
     def create_project(self, project_dir):
         os.makedirs(project_dir)
 
-        import pdb; pdb.set_trace()
-
         # Find the current Django versions in the buildout versions.
         # Assume the newest Django when no version is found.
         version = None
