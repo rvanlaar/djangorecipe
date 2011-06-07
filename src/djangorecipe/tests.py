@@ -444,6 +444,13 @@ class TestRecipe(unittest.TestCase):
         self.assertEquals(versions['1.2']['settings'] % settings_dict,
                           settings)
 
+    def test_versions_deprecation(self):
+        from zc.buildout import UserError
+        options = {'recipe': 'djangorecipe',
+                   'version': 'trunk',
+                   'python': 'py5k', 'wsgi': 'true'}
+        self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
+
 
 class ScriptTestCase(unittest.TestCase):
 

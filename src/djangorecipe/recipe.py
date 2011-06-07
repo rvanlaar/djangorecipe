@@ -3,6 +3,7 @@ import os
 import logging
 import re
 
+from zc.buildout import UserError
 import zc.recipe.egg
 
 from boilerplate import script_template, versions
@@ -10,6 +11,11 @@ from boilerplate import script_template, versions
 
 class Recipe(object):
     def __init__(self, buildout, name, options):
+        # The use of version is deprecated.
+        if 'version' in options:
+            raise UserError('The version option is deprecated. '
+                            'Read about the change on '
+                            'http://pypi.python.org/pypi/djangorecipe')
         self.log = logging.getLogger(name)
         self.egg = zc.recipe.egg.Egg(buildout, options['recipe'], options)
 
