@@ -13,6 +13,7 @@ def get_version():
 
 env.version = get_version()
 
+
 def release_djangorecipe():
     """Release Djangorecipe to PyPi."""
     version = get_version()
@@ -25,10 +26,12 @@ def release_djangorecipe():
     # Release the code.
     local('python setup.py sdist register upload')
 
+
 def release():
     """Release everything related to the project."""
     release_djangorecipe()
-    local('bzr tag release-%(version)s' % env )
+    local('bzr tag release-%(version)s' % env)
+
 
 def test():
     """Create an in-place installation and run the tests."""
