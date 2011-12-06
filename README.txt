@@ -1,16 +1,3 @@
-UGRADE NOTICE
-=============
-
-The use of `version =` is deprecated. Define the django version
-in the `[versions]` section. The first example shows how to do this.
-This change also drops support for svn urls. Please use mr.developer_
-to install django from a svn, hg or git repository.
-
-.. _mr.developer: http://pypi.python.org/pypi/mr.developer
-
-Version pin djangorecipe to 0.23.1 to continue using the `version` option.
-
-
 Description
 ===========
 
