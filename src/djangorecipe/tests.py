@@ -17,7 +17,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'testing'))
 # Now that we have a fake Django on the path we can import the
 # scripts. These are depenent on a Django install, hence the fake one.
 from djangorecipe import test
-from djangorecipe import manage
 
 
 class TestRecipe(unittest.TestCase):
@@ -509,6 +508,7 @@ class TestManageScript(ScriptTestCase):
         # The manage script is a replacement for the default manage.py
         # script. It has all the same bells and whistles since all it
         # does is call the normal Django stuff.
+        from djangorecipe import manage
         manage.main('cheeseshop.development')
         self.assertEqual(execute_manager.call_args,
                          ((self.settings,), {}))
@@ -517,6 +517,7 @@ class TestManageScript(ScriptTestCase):
     def test_settings_error(self, sys_exit):
         # When the settings file cannot be imported the management
         # script it wil exit with a message and a specific exit code.
+        from djangorecipe import manage
         manage.main('cheeseshop.tilsit')
         self.assertEqual(sys_exit.call_args, ((1,), {}))
 

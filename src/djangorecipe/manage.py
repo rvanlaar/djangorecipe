@@ -1,5 +1,6 @@
 from django.core import management
 
+
 def main(settings_file):
     try:
         mod = __import__(settings_file)
