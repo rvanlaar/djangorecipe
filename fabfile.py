@@ -28,7 +28,7 @@ def release_djangorecipe():
 
 
 def release():
-    """Release everything related to the project."""
+    """Release and tag djangorecipe."""
     release_djangorecipe()
     local('bzr tag release-%(version)s' % env)
 
