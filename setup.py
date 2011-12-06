@@ -2,7 +2,7 @@ import os
 
 from setuptools import setup, find_packages
 
-version = '0.99'
+version = '1.0'
 
 
 def read_file(name):

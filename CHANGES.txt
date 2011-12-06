@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.0
+---
+
+- Stable release with a real 1.0 version.
+- Made djangorecipe more pep08 compliant.
+
 0.99
 ----
 
