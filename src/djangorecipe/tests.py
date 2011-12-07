@@ -152,7 +152,7 @@ class TestRecipe(unittest.TestCase):
         contents = open(fcgi_script).read()
         self.assert_("logfile='/foo'" in contents)
 
-    @mock.patch('zc.buildout.easy_install', 'scripts')
+    @mock.patch('zc.buildout.easy_install.scripts')
     def test_make_protocol_scripts_return_value(self, scripts):
         # The return value of make scripts lists the generated scripts.
         self.recipe.options['wsgi'] = 'true'
@@ -228,15 +228,15 @@ class TestRecipe(unittest.TestCase):
         self.assert_("djangorecipe.manage.main('spameggs.development')"
                      in open(manage).read())
 
-    @mock.patch('shutil', 'rmtree')
-    @mock.patch('os.path', 'exists')
-    @mock.patch('urllib', 'urlretrieve')
-    @mock.patch('shutil', 'copytree')
-    @mock.patch(ZCRecipeEggScripts, 'working_set')
-    @mock.patch('zc.buildout.easy_install', 'scripts')
-    @mock.patch(Recipe, 'create_manage_script')
-    @mock.patch(Recipe, 'create_test_runner')
-    @mock.patch('zc.recipe.egg', 'Develop')
+    @mock.patch('shutil.rmtree')
+    @mock.patch('os.path.exists')
+    @mock.patch('urllib.urlretrieve')
+    @mock.patch('shutil.copytree')
+    @mock.patch('zc.recipe.egg.egg.Scripts.working_set')
+    @mock.patch('zc.buildout.easy_install.scripts')
+    @mock.patch('djangorecipe.recipe.Recipe.create_manage_script')
+    @mock.patch('djangorecipe.recipe.Recipe.create_test_runner')
+    @mock.patch('zc.recipe.egg.Develop')
     def test_extra_paths(self, rmtree, path_exists, urlretrieve,
                                    copytree, working_set, scripts,
                                    manage, testrunner, develop):
@@ -254,16 +254,16 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(manage.call_args[0][0][-2:],
                          ['somepackage', 'anotherpackage'])
 
-    @mock.patch('shutil', 'rmtree')
-    @mock.patch('os.path', 'exists')
-    @mock.patch('urllib', 'urlretrieve')
-    @mock.patch('shutil', 'copytree')
-    @mock.patch(ZCRecipeEggScripts, 'working_set')
-    @mock.patch('zc.buildout.easy_install', 'scripts')
-    @mock.patch(Recipe, 'create_manage_script')
-    @mock.patch(Recipe, 'create_test_runner')
-    @mock.patch('site', 'addsitedir')
-    @mock.patch('zc.recipe.egg', 'Develop')
+    @mock.patch('shutil.rmtree')
+    @mock.patch('os.path.exists')
+    @mock.patch('urllib.urlretrieve')
+    @mock.patch('shutil.copytree')
+    @mock.patch('zc.recipe.egg.egg.Scripts.working_set')
+    @mock.patch('zc.buildout.easy_install.scripts')
+    @mock.patch('djangorecipe.recipe.Recipe.create_manage_script')
+    @mock.patch('djangorecipe.recipe.Recipe.create_test_runner')
+    @mock.patch('site.addsitedir')
+    @mock.patch('zc.recipe.egg.Develop')
     def test_pth_files(self, rmtree, path_exists, urlretrieve,
                        copytree, working_set, scripts,
                        manage, testrunner, addsitedir, develop):
@@ -311,13 +311,13 @@ class TestRecipe(unittest.TestCase):
         self.assert_("djangorecipe.manage.main('project.spameggs')"
                      in open(manage).read())
 
-    @mock.patch('shutil', 'rmtree')
-    @mock.patch('os.path', 'exists')
-    @mock.patch('urllib', 'urlretrieve')
-    @mock.patch('shutil', 'copytree')
-    @mock.patch(ZCRecipeEggScripts, 'working_set')
-    @mock.patch('zc.buildout.easy_install', 'scripts')
-    @mock.patch('subprocess', 'call')
+    @mock.patch('shutil.rmtree')
+    @mock.patch('os.path.exists')
+    @mock.patch('urllib.urlretrieve')
+    @mock.patch('shutil.copytree')
+    @mock.patch('zc.recipe.egg.egg.Scripts.working_set')
+    @mock.patch('zc.buildout.easy_install.scripts')
+    @mock.patch('subprocess.call')
     def test_update_with_cache(self, rmtree, path_exists, urlretrieve,
                                copytree, working_set, scripts,
                                call_process):
@@ -329,13 +329,13 @@ class TestRecipe(unittest.TestCase):
         self.recipe.update()
         self.failIf(call_process.called)
 
-    @mock.patch('shutil', 'rmtree')
-    @mock.patch('os.path', 'exists')
-    @mock.patch('urllib', 'urlretrieve')
-    @mock.patch('shutil', 'copytree')
-    @mock.patch(ZCRecipeEggScripts, 'working_set')
-    @mock.patch('zc.buildout.easy_install', 'scripts')
-    @mock.patch('subprocess', 'call')
+    @mock.patch('shutil.rmtree')
+    @mock.patch('os.path.exists')
+    @mock.patch('urllib.urlretrieve')
+    @mock.patch('shutil.copytree')
+    @mock.patch('zc.recipe.egg.egg.Scripts.working_set')
+    @mock.patch('zc.buildout.easy_install.scripts')
+    @mock.patch('subprocess.call')
     def test_update_with_newest_false(self, rmtree, path_exists, urlretrieve,
                                       copytree, working_set, scripts,
                                       call_process):
@@ -468,7 +468,7 @@ class ScriptTestCase(unittest.TestCase):
 
 class TestTestScript(ScriptTestCase):
 
-    @mock.patch('django.core.management', 'execute_manager')
+    @mock.patch('django.core.management.execute_manager')
     def test_script(self, execute_manager):
         # The test script should execute the standard Django test
         # command with any apps given as its arguments.
@@ -477,7 +477,7 @@ class TestTestScript(ScriptTestCase):
         self.assertEqual(execute_manager.call_args[1],
                          {'argv': ['test', 'test', 'spamm', 'eggs']})
 
-    @mock.patch('django.core.management', 'execute_manager')
+    @mock.patch('django.core.management.execute_manager')
     def test_deeply_nested_settings(self, execute_manager):
         # Settings files can be more than two levels deep. We need to
         # make sure the test script can properly import those. To
@@ -493,7 +493,7 @@ class TestTestScript(ScriptTestCase):
         test.main('cheeseshop.nce.development',  'tilsit', 'stilton')
         self.assertEqual(execute_manager.call_args[0], (settings,))
 
-    @mock.patch('sys', 'exit')
+    @mock.patch('sys.exit')
     def test_settings_error(self, sys_exit):
         # When the settings file cannot be imported the test runner
         # wil exit with a message and a specific exit code.
@@ -503,7 +503,7 @@ class TestTestScript(ScriptTestCase):
 
 class TestManageScript(ScriptTestCase):
 
-    @mock.patch('django.core.management', 'execute_manager')
+    @mock.patch('django.core.management.execute_manager')
     def test_script(self, execute_manager):
         # The manage script is a replacement for the default manage.py
         # script. It has all the same bells and whistles since all it
@@ -513,7 +513,7 @@ class TestManageScript(ScriptTestCase):
         self.assertEqual(execute_manager.call_args,
                          ((self.settings,), {}))
 
-    @mock.patch('sys', 'exit')
+    @mock.patch('sys.exit')
     def test_settings_error(self, sys_exit):
         # When the settings file cannot be imported the management
         # script it wil exit with a message and a specific exit code.
@@ -528,3 +528,6 @@ def test_suite():
             unittest.makeSuite(TestTestScript),
             unittest.makeSuite(TestManageScript),
             ))
+
+if __name__ == '__main__':
+        unittest.main()
