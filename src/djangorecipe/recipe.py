@@ -191,7 +191,6 @@ class Recipe(object):
                          pth_file,))
                 else:
                     self.log.info("Adding *.pth libraries=%s" % pth_libs)
-                    import pdb; pdb.set_trace()
                     self.options['extra-paths'] += '\n' + '\n'.join(pth_libs)
 
         pythonpath = [p.replace('/', os.path.sep) for p in
