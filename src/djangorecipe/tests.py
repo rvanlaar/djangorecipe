@@ -237,9 +237,10 @@ class TestRecipe(unittest.TestCase):
     @mock.patch('djangorecipe.recipe.Recipe.create_manage_script')
     @mock.patch('djangorecipe.recipe.Recipe.create_test_runner')
     @mock.patch('zc.recipe.egg.Develop')
-    def test_extra_paths(self, rmtree, path_exists, urlretrieve,
-                                   copytree, working_set, scripts,
-                                   manage, testrunner, develop):
+    def test_extra_paths(self, develop, testrunner, manage, scripts,
+                         working_set, copytree, urlretrieve, path_exists,
+                         rmtree):
+
         # The recipe allows extra-paths to be specified. It uses these to
         # extend the Python path within it's generated scripts.
         self.recipe.options['version'] = '1.0'
@@ -264,9 +265,10 @@ class TestRecipe(unittest.TestCase):
     @mock.patch('djangorecipe.recipe.Recipe.create_test_runner')
     @mock.patch('site.addsitedir')
     @mock.patch('zc.recipe.egg.Develop')
-    def test_pth_files(self, rmtree, path_exists, urlretrieve,
-                       copytree, working_set, scripts,
-                       manage, testrunner, addsitedir, develop):
+    def test_pth_files(self, develop, addsitedir, testrunner, manage,
+                       scripts, working_set, copytree, urlretrieve,
+                       path_exists, rmtree):
+
         # When a pth-files option is set the recipe will use that to add more
         # paths to extra-paths.
         self.recipe.options['version'] = '1.0'
@@ -318,9 +320,8 @@ class TestRecipe(unittest.TestCase):
     @mock.patch('zc.recipe.egg.egg.Scripts.working_set')
     @mock.patch('zc.buildout.easy_install.scripts')
     @mock.patch('subprocess.call')
-    def test_update_with_cache(self, rmtree, path_exists, urlretrieve,
-                               copytree, working_set, scripts,
-                               call_process):
+    def test_update_with_cache(self, call_process, scripts, working_set,
+                               copytree, urlretrieve, path_exists, rmtree):
         path_exists.return_value = True
         working_set.return_value = (None, [])
         # When the recipe is asked to do an update whilst in install
@@ -336,9 +337,9 @@ class TestRecipe(unittest.TestCase):
     @mock.patch('zc.recipe.egg.egg.Scripts.working_set')
     @mock.patch('zc.buildout.easy_install.scripts')
     @mock.patch('subprocess.call')
-    def test_update_with_newest_false(self, rmtree, path_exists, urlretrieve,
-                                      copytree, working_set, scripts,
-                                      call_process):
+    def test_update_with_newest_false(self, call_process, scripts, working_set,
+                               copytree, urlretrieve, path_exists, rmtree):
+
         path_exists.return_value = True
         working_set.return_value = (None, [])
         # When the recipe is asked to do an update whilst in install
