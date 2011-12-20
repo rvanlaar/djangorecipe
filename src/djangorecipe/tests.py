@@ -5,18 +5,8 @@ import sys
 import shutil
 
 import mock
-from zc.recipe.egg.egg import Scripts as ZCRecipeEggScripts
 
 from djangorecipe.recipe import Recipe
-
-# Add the testing dir to the Python path so we can use a fake Django
-# install. This needs to be done so that we can use this as a base for
-# mock's with some of the tests.
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'testing'))
-
-# Now that we have a fake Django on the path we can import the
-# scripts. These are depenent on a Django install, hence the fake one.
-from djangorecipe import test
 
 
 class TestRecipe(unittest.TestCase):
@@ -473,6 +463,7 @@ class TestTestScript(ScriptTestCase):
     def test_script(self, execute_manager):
         # The test script should execute the standard Django test
         # command with any apps given as its arguments.
+        from djangorecipe import test
         test.main('cheeseshop.development',  'spamm', 'eggs')
         # We only care about the arguments given to execute_manager
         self.assertEqual(execute_manager.call_args[1],
@@ -490,7 +481,7 @@ class TestTestScript(ScriptTestCase):
         sys.modules['cheeseshop'].nce = nce
         sys.modules['cheeseshop.nce'] = nce
         sys.modules['cheeseshop.nce.development'] = settings
-
+        from djangorecipe import test
         test.main('cheeseshop.nce.development',  'tilsit', 'stilton')
         self.assertEqual(execute_manager.call_args[0], (settings,))
 
@@ -498,6 +489,7 @@ class TestTestScript(ScriptTestCase):
     def test_settings_error(self, sys_exit):
         # When the settings file cannot be imported the test runner
         # wil exit with a message and a specific exit code.
+        from djangorecipe import test
         test.main('cheeseshop.tilsit', 'stilton')
         self.assertEqual(sys_exit.call_args, ((1,), {}))
 
