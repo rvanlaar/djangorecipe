@@ -300,39 +300,6 @@ class TestRecipe(unittest.TestCase):
         self.assert_("djangorecipe.manage.main('project.spameggs')"
                      in open(manage).read())
 
-    @mock.patch('shutil.rmtree')
-    @mock.patch('os.path.exists')
-    @mock.patch('shutil.copytree')
-    @mock.patch('zc.recipe.egg.egg.Scripts.working_set')
-    @mock.patch('zc.buildout.easy_install.scripts')
-    @mock.patch('subprocess.call')
-    def test_update_with_cache(self, call_process, scripts, working_set,
-                               copytree, path_exists, rmtree):
-        path_exists.return_value = True
-        working_set.return_value = (None, [])
-        # When the recipe is asked to do an update whilst in install
-        # from cache mode it just ignores it
-        self.recipe.install_from_cache = True
-        self.recipe.update()
-        self.failIf(call_process.called)
-
-    @mock.patch('shutil.rmtree')
-    @mock.patch('os.path.exists')
-    @mock.patch('shutil.copytree')
-    @mock.patch('zc.recipe.egg.egg.Scripts.working_set')
-    @mock.patch('zc.buildout.easy_install.scripts')
-    @mock.patch('subprocess.call')
-    def test_update_with_newest_false(self, call_process, scripts, working_set,
-                               copytree, path_exists, rmtree):
-
-        path_exists.return_value = True
-        working_set.return_value = (None, [])
-        # When the recipe is asked to do an update whilst in install
-        # from cache mode it just ignores it
-        self.recipe.buildout['buildout']['newest'] = 'false'
-        self.recipe.update()
-        self.assertFalse(call_process.called)
-
     def test_python_option(self):
         # The python option makes it possible to specify a specific Python
         # executable which is to be used for the generated scripts.
