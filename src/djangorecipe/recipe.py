@@ -6,7 +6,7 @@ import re
 from zc.buildout import UserError
 import zc.recipe.egg
 
-from boilerplate import script_template, versions
+from djangorecipe.boilerplate import script_template, versions
 
 
 class Recipe(object):
