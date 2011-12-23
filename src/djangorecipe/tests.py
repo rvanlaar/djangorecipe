@@ -394,7 +394,7 @@ class TestRecipe(unittest.TestCase):
                          'secret': secret,
                          'urlconf': self.recipe.options['urlconf'],
                          }
-        from boilerplate import versions
+        from djangorecipe.boilerplate import versions
         self.assertEquals(versions['Newest']['settings'] % settings_dict,
                           settings)
 
