@@ -8,7 +8,7 @@ def main(settings_file, *apps):
         components = settings_file.split('.')
         for comp in components[1:]:
             settings = getattr(settings, comp)
-    except ImportError, e:
+    except ImportError as e:
         import sys
         sys.stderr.write("Error loading the settings module '%s': %s"
                             % (settings_file, e))
