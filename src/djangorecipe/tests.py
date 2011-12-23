@@ -220,7 +220,6 @@ class TestRecipe(unittest.TestCase):
 
     @mock.patch('shutil.rmtree')
     @mock.patch('os.path.exists')
-    @mock.patch('urllib.urlretrieve')
     @mock.patch('shutil.copytree')
     @mock.patch('zc.recipe.egg.egg.Scripts.working_set')
     @mock.patch('zc.buildout.easy_install.scripts')
@@ -228,7 +227,7 @@ class TestRecipe(unittest.TestCase):
     @mock.patch('djangorecipe.recipe.Recipe.create_test_runner')
     @mock.patch('zc.recipe.egg.Develop')
     def test_extra_paths(self, develop, testrunner, manage, scripts,
-                         working_set, copytree, urlretrieve, path_exists,
+                         working_set, copytree, path_exists,
                          rmtree):
 
         # The recipe allows extra-paths to be specified. It uses these to
@@ -247,7 +246,6 @@ class TestRecipe(unittest.TestCase):
 
     @mock.patch('shutil.rmtree')
     @mock.patch('os.path.exists')
-    @mock.patch('urllib.urlretrieve')
     @mock.patch('shutil.copytree')
     @mock.patch('zc.recipe.egg.egg.Scripts.working_set')
     @mock.patch('zc.buildout.easy_install.scripts')
@@ -256,8 +254,7 @@ class TestRecipe(unittest.TestCase):
     @mock.patch('site.addsitedir')
     @mock.patch('zc.recipe.egg.Develop')
     def test_pth_files(self, develop, addsitedir, testrunner, manage,
-                       scripts, working_set, copytree, urlretrieve,
-                       path_exists, rmtree):
+                       scripts, working_set, copytree, path_exists, rmtree):
 
         # When a pth-files option is set the recipe will use that to add more
         # paths to extra-paths.
@@ -305,13 +302,12 @@ class TestRecipe(unittest.TestCase):
 
     @mock.patch('shutil.rmtree')
     @mock.patch('os.path.exists')
-    @mock.patch('urllib.urlretrieve')
     @mock.patch('shutil.copytree')
     @mock.patch('zc.recipe.egg.egg.Scripts.working_set')
     @mock.patch('zc.buildout.easy_install.scripts')
     @mock.patch('subprocess.call')
     def test_update_with_cache(self, call_process, scripts, working_set,
-                               copytree, urlretrieve, path_exists, rmtree):
+                               copytree, path_exists, rmtree):
         path_exists.return_value = True
         working_set.return_value = (None, [])
         # When the recipe is asked to do an update whilst in install
@@ -322,13 +318,12 @@ class TestRecipe(unittest.TestCase):
 
     @mock.patch('shutil.rmtree')
     @mock.patch('os.path.exists')
-    @mock.patch('urllib.urlretrieve')
     @mock.patch('shutil.copytree')
     @mock.patch('zc.recipe.egg.egg.Scripts.working_set')
     @mock.patch('zc.buildout.easy_install.scripts')
     @mock.patch('subprocess.call')
     def test_update_with_newest_false(self, call_process, scripts, working_set,
-                               copytree, urlretrieve, path_exists, rmtree):
+                               copytree, path_exists, rmtree):
 
         path_exists.return_value = True
         working_set.return_value = (None, [])
