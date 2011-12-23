@@ -218,17 +218,13 @@ class TestRecipe(unittest.TestCase):
         self.assert_("djangorecipe.manage.main('spameggs.development')"
                      in open(manage).read())
 
-    @mock.patch('shutil.rmtree')
     @mock.patch('os.path.exists')
-    @mock.patch('shutil.copytree')
     @mock.patch('zc.recipe.egg.egg.Scripts.working_set')
     @mock.patch('zc.buildout.easy_install.scripts')
     @mock.patch('djangorecipe.recipe.Recipe.create_manage_script')
     @mock.patch('djangorecipe.recipe.Recipe.create_test_runner')
-    @mock.patch('zc.recipe.egg.Develop')
-    def test_extra_paths(self, develop, testrunner, manage, scripts,
-                         working_set, copytree, path_exists,
-                         rmtree):
+    def test_extra_paths(self, testrunner, manage, scripts,
+                         working_set, path_exists):
 
         # The recipe allows extra-paths to be specified. It uses these to
         # extend the Python path within it's generated scripts.
@@ -239,22 +235,18 @@ class TestRecipe(unittest.TestCase):
         manage.return_value = []
         scripts.return_value = []
         testrunner.return_value = []
-        develop.return_value = mock.Mock()
         self.recipe.install()
         self.assertEqual(manage.call_args[0][0][-2:],
                          ['somepackage', 'anotherpackage'])
 
-    @mock.patch('shutil.rmtree')
     @mock.patch('os.path.exists')
-    @mock.patch('shutil.copytree')
     @mock.patch('zc.recipe.egg.egg.Scripts.working_set')
     @mock.patch('zc.buildout.easy_install.scripts')
     @mock.patch('djangorecipe.recipe.Recipe.create_manage_script')
     @mock.patch('djangorecipe.recipe.Recipe.create_test_runner')
     @mock.patch('site.addsitedir')
-    @mock.patch('zc.recipe.egg.Develop')
-    def test_pth_files(self, develop, addsitedir, testrunner, manage,
-                       scripts, working_set, copytree, path_exists, rmtree):
+    def test_pth_files(self, addsitedir, testrunner, manage,
+                       scripts, working_set, path_exists,):
 
         # When a pth-files option is set the recipe will use that to add more
         # paths to extra-paths.
@@ -264,7 +256,6 @@ class TestRecipe(unittest.TestCase):
         scripts.return_value = []
         manage.return_value = []
         testrunner.return_value = []
-        develop.return_value = mock.Mock()
 
         # The mock values needed to demonstrate the pth-files option.
         addsitedir.return_value = ['extra', 'dirs']
