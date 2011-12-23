@@ -93,7 +93,7 @@ class TestRecipe(unittest.TestCase):
         # unlikely that it will generate the same key a few times in a
         # row we will test it with letting it generate a few keys.
         self.assert_(len(set(
-                    [self.recipe.generate_secret() for i in xrange(10)])) > 1)
+                    [self.recipe.generate_secret() for i in range(10)])) > 1)
 
     def test_make_protocol_scripts(self):
         # To ease deployment a WSGI script can be generated. The
