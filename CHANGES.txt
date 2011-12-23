@@ -1,6 +1,13 @@
 Changes
 =======
 
+***
+---
+
+- Support python3.
+- Changed buildout and the tests to run the tests under nose.
+- Removed some old pre 0.99 unittests that dealt with download support. 
+
 1.0
 ---
 
