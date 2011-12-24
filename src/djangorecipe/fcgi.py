@@ -8,8 +8,10 @@ def main(settings_file, logfile=None):
         for comp in components[1:]:
             mod = getattr(mod, comp)
 
-    except ImportError, e:
+    except ImportError:
         import sys
+        # XXX: Hack for python < 2.6
+        _, e, _ = sys.exc_info()
         sys.stderr.write("Error loading the settings module '%s': %s"
                             % (settings_file, e))
         sys.exit(1)
