@@ -2,7 +2,7 @@ import os
 
 from setuptools import setup, find_packages
 
-version = '1.0'
+version = '1.1-dev'
 
 
 def read_file(name):
@@ -22,6 +22,10 @@ setup(name='djangorecipe',
         'Topic :: Software Development :: Build Tools',
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: BSD License',
+        'Programming Language :: Python :: 2.5'
+        'Programming Language :: Python :: 2.6'
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         ],
       package_dir={'': 'src'},
       packages=find_packages('src'),
