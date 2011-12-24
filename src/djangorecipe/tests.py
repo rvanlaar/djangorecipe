@@ -354,8 +354,6 @@ class TestRecipe(unittest.TestCase):
     def test_boilerplate_1_2(self):
         """Test the boilerplate for django 1.2."""
 
-        secret = '$55upfci7a#gi@&e9o1-hb*k+f$3+(&b$j=cn67h#22*0%-bj0'
-        self.recipe.generate_secret = lambda: secret
         recipe = Recipe({
                 'buildout': {'eggs-directory': self.eggs_dir,
                              'develop-eggs-directory': self.develop_eggs_dir,
@@ -373,6 +371,7 @@ class TestRecipe(unittest.TestCase):
                         'django',
                         {'recipe': 'djangorecipe',
                          'python': 'py5k', 'wsgi': 'true'})
+
         secret = '$55upfci7a#gi@&e9o1-hb*k+f$3+(&b$j=cn67h#22*0%-bj0'
         recipe.generate_secret = lambda: secret
 
