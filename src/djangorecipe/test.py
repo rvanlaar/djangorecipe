@@ -14,6 +14,6 @@ def main(settings_file, *apps):
         _, e, _ = sys.exc_info()
         sys.stderr.write("Error loading the settings module '%s': %s"
                             % (settings_file, e))
-        return sys.exit(1)
+        sys.exit(1)
 
     management.execute_manager(settings, argv=argv)
