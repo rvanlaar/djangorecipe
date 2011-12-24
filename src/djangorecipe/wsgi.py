@@ -2,6 +2,7 @@ import sys
 
 from django.core import management
 
+
 def main(settings_file, logfile=None):
     try:
         mod = __import__(settings_file)
@@ -19,6 +20,7 @@ def main(settings_file, logfile=None):
 
     if logfile:
         import datetime
+
         class logger(object):
             def __init__(self, logfile):
                 self.logfile = logfile
