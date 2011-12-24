@@ -1,3 +1,4 @@
+import sys
 from django.core import management
 
 
@@ -8,10 +9,11 @@ def main(settings_file):
         for comp in components[1:]:
             mod = getattr(mod, comp)
 
-    except ImportError as e:
-        import sys
+    except ImportError:
+        # XXX: Hack for python < 2.6
+        _, e, _ = sys.exc_info()
         sys.stderr.write("Error loading the settings module '%s': %s"
                             % (settings_file, e))
-        return sys.exit(1)
+        sys.exit(1)
 
     management.execute_manager(mod)
