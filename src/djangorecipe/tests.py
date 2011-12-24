@@ -437,12 +437,18 @@ class TestTestScript(ScriptTestCase):
         test.main('cheeseshop.nce.development',  'tilsit', 'stilton')
         self.assertEqual(execute_manager.call_args[0], (settings,))
 
+    @mock.patch('sys.stderr.write')
     @mock.patch('sys.exit')
-    def test_settings_error(self, sys_exit):
+    def test_settings_error(self, sys_exit, stderr_write):
         # When the settings file cannot be imported the test runner
         # wil exit with a message and a specific exit code.
         from djangorecipe import test
-        test.main('cheeseshop.tilsit', 'stilton')
+        self.assertRaises(UnboundLocalError, test.main, 'cheeseshop.tilsit',
+                          'stilton')
+        self.assertEqual(stderr_write.call_args,
+                         (("Error loading the settings module "
+                           "'cheeseshop.tilsit': "
+                           "No module named tilsit",), {}))
         self.assertEqual(sys_exit.call_args, ((1,), {}))
 
 
