@@ -30,7 +30,7 @@ def release_djangorecipe():
 def release():
     """Release and tag djangorecipe."""
     release_djangorecipe()
-    local('bzr tag release-%(version)s' % env)
+    local('git tag -a release-%(version)s -m release-%(version)s' % env)
 
 
 def test():
