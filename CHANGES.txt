@@ -1,13 +1,22 @@
 Changes
 =======
 
+1.1.2
+-----
+
+- Added correct url to the deprecation warning
+
+1.1.1
+-----
+
+- Fixed Python3 Trove classifiers
+
 1.1
 ---
 
 - Support python3.
 - Changed buildout and the tests to run the tests under nose.
 - Removed some old pre 0.99 unittests that dealt with download support. 
-- Moved code to github: https://github.com/rvanlaar/djangorecipe
 
 1.0
 ---
