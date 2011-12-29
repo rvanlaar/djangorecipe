@@ -15,7 +15,7 @@ class Recipe(object):
         if 'version' in options:
             raise UserError('The version option is deprecated. '
                             'Read about the change on '
-                            'http://pypi.python.org/pypi/djangorecipe')
+                            'http://pypi.python.org/pypi/djangorecipe/0.99')
         self.log = logging.getLogger(name)
         self.egg = zc.recipe.egg.Egg(buildout, options['recipe'], options)
 
