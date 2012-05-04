@@ -1,0 +1,7 @@
+*.pyc
+.installed.cfg
+bin
+develop-eggs
+koe
+parts
+src/djangorecipe.egg-info
