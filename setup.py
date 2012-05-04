@@ -9,8 +9,8 @@ def read_file(name):
     return open(os.path.join(os.path.dirname(__file__),
                              name)).read()
 
-readme = read_file('README.txt')
-changes = read_file('CHANGES.txt')
+readme = read_file('README.rst')
+changes = read_file('CHANGES.rst')
 
 setup(name='djangorecipe',
       version=version,
