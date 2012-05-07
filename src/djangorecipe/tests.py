@@ -437,15 +437,15 @@ class TestTestScript(ScriptTestCase):
         test.main('cheeseshop.nce.development',  'tilsit', 'stilton')
         self.assertEqual(execute_manager.call_args[0], (settings,))
 
-    @mock.patch('sys.stderr.write')
+    @mock.patch('sys.stderr')
     @mock.patch('sys.exit')
-    def test_settings_error(self, sys_exit, stderr_write):
+    def test_settings_error(self, sys_exit, stderr):
         # When the settings file cannot be imported the test runner
         # wil exit with a message and a specific exit code.
         from djangorecipe import test
         self.assertRaises(UnboundLocalError, test.main, 'cheeseshop.tilsit',
                           'stilton')
-        self.assertEqual(stderr_write.call_args,
+        self.assertEqual(stderr.write.call_args,
                          (("Error loading the settings module "
                            "'cheeseshop.tilsit': "
                            "No module named tilsit",), {}))
@@ -464,14 +464,14 @@ class TestManageScript(ScriptTestCase):
         self.assertEqual(execute_manager.call_args,
                          ((self.settings,), {}))
 
-    @mock.patch('sys.stderr.write')
+    @mock.patch('sys.stderr')
     @mock.patch('sys.exit')
-    def test_settings_error(self, sys_exit, stderr_write):
+    def test_settings_error(self, sys_exit, stderr):
         # When the settings file cannot be imported the management
         # script it wil exit with a message and a specific exit code.
         from djangorecipe import manage
         self.assertRaises(UnboundLocalError, manage.main, 'cheeseshop.tilsit')
-        self.assertEqual(stderr_write.call_args,
+        self.assertEqual(stderr.write.call_args,
                          (("Error loading the settings module "
                            "'cheeseshop.tilsit': "
                            "No module named tilsit",), {}))
@@ -492,14 +492,14 @@ class TestFCGIScript(ScriptTestCase):
                          ((self.settings,), {}))
         self.assertEqual(runfastcgi.call_args, {})
 
-    @mock.patch('sys.stderr.write')
+    @mock.patch('sys.stderr')
     @mock.patch('sys.exit')
-    def test_settings_error(self, sys_exit, stderr_write):
+    def test_settings_error(self, sys_exit, stderr):
         # When the settings file cannot be imported the fcgi
         # script it wil exit with a message and a specific exit code.
         from djangorecipe import fcgi
         self.assertRaises(UnboundLocalError, fcgi.main, 'cheeseshop.tilsit')
-        self.assertEqual(stderr_write.call_args,
+        self.assertEqual(stderr.write.call_args,
                          (("Error loading the settings module "
                            "'cheeseshop.tilsit': "
                            "No module named tilsit",), {}))
@@ -516,16 +516,16 @@ class TestWSGIScript(ScriptTestCase):
         wsgi.main('cheeseshop.development', logfile=None)
         self.assertEqual(WSGIHandler.call_args, {})
 
-    @mock.patch('sys.stderr.write')
+    @mock.patch('sys.stderr')
     @mock.patch('sys.exit')
-    def test_settings_error(self, sys_exit, stderr_write):
+    def test_settings_error(self, sys_exit, stderr):
         # When the settings file cannot be imported the wsgi
         # script it wil exit with a message and an specific exit code.
         from djangorecipe import wsgi
         #Catch the error that has to occur because sys.exit is patched
         #and doesn't exit automatically.
         self.assertRaises(UnboundLocalError, wsgi.main, 'cheeseshop.tilsit')
-        self.assertEqual(stderr_write.call_args,
+        self.assertEqual(stderr.write.call_args,
                          (("Error loading the settings module "
                            "'cheeseshop.tilsit': "
                            "No module named tilsit",), {}))
