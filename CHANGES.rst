@@ -4,7 +4,8 @@ Changes
 1.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Fixed broken 1.2 release (missing *.rst files due to a recent txt-to-rst
+  rename action).
 
 
 1.2 (2012-05-14)
@@ -27,7 +28,7 @@ Changes
 
 - Support python3.
 - Changed buildout and the tests to run the tests under nose.
-- Removed some old pre 0.99 unittests that dealt with download support. 
+- Removed some old pre 0.99 unittests that dealt with download support.
 
 1.0
 ---

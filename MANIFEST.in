@@ -1,2 +1,2 @@
-include CHANGES.txt
-include README.txt
+# Include docs in the root.
+include *.rst
