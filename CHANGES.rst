@@ -1,8 +1,8 @@
 Changes
 =======
 
-1.3 (unreleased)
-----------------
+1.2.1 (2012-05-15)
+------------------
 
 - Fixed broken 1.2 release (missing *.rst files due to a recent txt-to-rst
   rename action).
