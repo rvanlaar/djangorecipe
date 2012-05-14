@@ -46,7 +46,6 @@ class Recipe(object):
         options.setdefault('logfile', '')
 
     def install(self):
-        location = self.options['location']
         base_dir = self.buildout['buildout']['directory']
 
         project_dir = os.path.join(base_dir, self.options['project'])
@@ -55,7 +54,6 @@ class Recipe(object):
         requirements, ws = self.egg.working_set(['djangorecipe'])
 
         script_paths = []
-
         # Create the Django management script
         script_paths.extend(self.create_manage_script(extra_paths, ws))
 
@@ -75,7 +73,7 @@ class Recipe(object):
                     'Skipping creating of project: %(project)s since '
                     'it exists' % self.options)
 
-        return script_paths + [location]
+        return script_paths
 
     def create_manage_script(self, extra_paths, ws):
         project = self.options.get('projectegg', self.options['project'])
@@ -176,9 +174,7 @@ class Recipe(object):
         return scripts
 
     def get_extra_paths(self):
-        extra_paths = [self.options['location'],
-                       self.buildout['buildout']['directory'],
-                       ]
+        extra_paths = [self.buildout['buildout']['directory']]
 
         # Add libraries found by a site .pth files to our extra-paths.
         if 'pth-files' in self.options:
