@@ -1,7 +1,7 @@
 Changes
 =======
 
-1.2 (Unreleased)
+1.2 (2012-05-14)
 ----------------
 
 - Removed location path from recipe. Thanks bleskes (fixes issue #50).
