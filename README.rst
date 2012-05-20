@@ -201,6 +201,26 @@ generated script use something like::
   project	= myproject
   python	= special-python
 
+Example with a Django version from a repository
+===============================================
+
+If you want to use a specific Django version from a source 
+repository you could use mr.developer: http://pypi.python.org/pypi/mr.developer
+Here is an example for using the Django development version::
+
+  [buildout]
+  parts = django
+  extensions = mr.developer
+  auto-checkout = *
+
+  [sources]
+  django = git https://github.com/django/django.git
+
+  [django]
+  recipe = djangorecipe
+  settings = settings
+  project = project
+
 Example configuration for mod_wsgi
 ==================================
 
