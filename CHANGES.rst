@@ -5,6 +5,7 @@ Changes
 ----------------
 
 - Added documentation for use with mr.developer. Thanks shagi (closes issue #45)
+- Added Travis support.
 
 
 1.2.1 (2012-05-15)

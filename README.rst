@@ -1,6 +1,9 @@
 Description
 ===========
 
+.. image:: https://secure.travis-ci.org/rvanlaar/djangorecipe.png?branch=master
+   :target: http://travis-ci.org/rvanlaar/djangorecipe/
+
 This buildout recipe can be used to create a setup for Django. It will
 automatically download Django and install it in the buildout's
 sandbox.
