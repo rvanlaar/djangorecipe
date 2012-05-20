@@ -1,6 +1,6 @@
 language: python
+# Don't build on 2.4 because 2.4 support is broken.
 python:
-  - 2.4
   - 2.5
   - 2.6
   - 2.7
