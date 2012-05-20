@@ -4,7 +4,7 @@ Changes
 1.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Added documentation for use with mr.developer. Thanks shagi (closes issue #45)
 
 
 1.2.1 (2012-05-15)
