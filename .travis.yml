@@ -1,0 +1,12 @@
+language: python
+python:
+  - 2.4
+  - 2.5
+  - 2.6
+  - 2.7
+install: 
+  - pip install mock --use-mirrors
+  - pip install .
+script:
+  - python src/djangorecipe/tests.py
+  
