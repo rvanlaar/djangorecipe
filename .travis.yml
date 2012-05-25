@@ -3,8 +3,14 @@ python:
   - 2.5
   - 2.6
   - 2.7
+  - 3.2
+  - pypy
 install: 
   - python bootstrap.py
   - bin/buildout -vn
 script:
   - bin/test
+matrix:
+  allow_failures:
+    - python: pypy
+    - python: 3.2
