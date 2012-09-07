@@ -1,7 +1,7 @@
 Changes
 =======
 
-1.3 (unreleased)
+1.3 (2012-09-07)
 ----------------
 
 - Removed deprecation warning in Django 1.4. Fixes #49, thanks Shagi.
