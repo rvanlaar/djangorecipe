@@ -455,22 +455,24 @@ class TestTestScript(ScriptTestCase):
 class TestManageScript(ScriptTestCase):
 
     @mock.patch('django.core.management.execute_manager')
-    def test_script(self, execute_manager):
+    def test_script_pre_14(self, execute_manager):
         # The manage script is a replacement for the default manage.py
         # script. It has all the same bells and whistles since all it
         # does is call the normal Django stuff.
         from djangorecipe import manage
-        manage.main('cheeseshop.development')
+        manage.main_pre_14('cheeseshop.development')
         self.assertEqual(execute_manager.call_args,
                          ((self.settings,), {}))
 
     @mock.patch('sys.stderr')
     @mock.patch('sys.exit')
-    def test_settings_error(self, sys_exit, stderr):
+    def test_settings_error_pre_14(self, sys_exit, stderr):
         # When the settings file cannot be imported the management
         # script it wil exit with a message and a specific exit code.
         from djangorecipe import manage
-        self.assertRaises(UnboundLocalError, manage.main, 'cheeseshop.tilsit')
+        self.assertRaises(UnboundLocalError,
+                          manage.main_pre_14,
+                          'cheeseshop.tilsit')
         self.assertEqual(stderr.write.call_args,
                          (("Error loading the settings module "
                            "'cheeseshop.tilsit': "
