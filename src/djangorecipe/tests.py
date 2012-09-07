@@ -464,11 +464,44 @@ class TestManageScript(ScriptTestCase):
         self.assertEqual(execute_manager.call_args,
                          ((self.settings,), {}))
 
+    @mock.patch('django.core.management.execute_from_command_line')
+    @mock.patch('os.environ.setdefault')
+    def test_script_14(self, mock_setdefault, mock_execute):
+        # The manage script is a replacement for the default manage.py
+        # script. It has all the same bells and whistles since all it
+        # does is call the normal Django stuff.
+        from djangorecipe import manage
+        manage.main_14('cheeseshop.development')
+        self.assertEqual(mock_execute.call_args,
+                         ((sys.argv,), {}))
+        self.assertEqual(
+            mock_setdefault.call_args,
+            (('DJANGO_SETTINGS_MODULE', 'cheeseshop.development'), {}))
+
+    @mock.patch('djangorecipe.manage.main_pre_14')
+    @mock.patch('djangorecipe.manage.main_14')
+    @mock.patch('django.VERSION', new=(1,3,0))
+    def test_django_pre_14_selection(self, mock_14, mock_pre_14):
+        from djangorecipe import manage
+        manage.main('cheeseshop.development')
+        self.assertTrue(mock_pre_14.called)
+        self.assertFalse(mock_14.called)
+
+    @mock.patch('djangorecipe.manage.main_pre_14')
+    @mock.patch('djangorecipe.manage.main_14')
+    @mock.patch('django.VERSION', new=(1,4,0))
+    def test_django_pre_14_selection(self, mock_14, mock_pre_14):
+        from djangorecipe import manage
+        manage.main('cheeseshop.development')
+        self.assertTrue(mock_14.called)
+        self.assertFalse(mock_pre_14.called)
+
     @mock.patch('sys.stderr')
     @mock.patch('sys.exit')
     def test_settings_error_pre_14(self, sys_exit, stderr):
         # When the settings file cannot be imported the management
         # script it wil exit with a message and a specific exit code.
+        # (Not on django 1.4, btw).
         from djangorecipe import manage
         self.assertRaises(UnboundLocalError,
                           manage.main_pre_14,
