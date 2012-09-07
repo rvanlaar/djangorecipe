@@ -1,4 +1,6 @@
+import os
 import sys
+
 import django
 from django.core import management
 
@@ -6,7 +8,6 @@ from django.core import management
 def main(settings_file):
     if django.VERSION[0:2] >= (1, 4):
         # In Django 1.4 manage.py changed a bit
-        import os
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings_file)
         management.execute_from_command_line(sys.argv)
     else:
