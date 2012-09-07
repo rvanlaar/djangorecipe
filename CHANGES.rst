@@ -4,7 +4,10 @@ Changes
 1.3 (unreleased)
 ----------------
 
+- Removed deprecation warning in Django 1.4. Fixes #49, thanks Shagi.
+
 - Added documentation for use with mr.developer. Thanks shagi (closes issue #45)
+
 - Added Travis support.
 
 
