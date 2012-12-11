@@ -474,7 +474,7 @@ class TestManageScript(ScriptTestCase):
     @mock.patch('djangorecipe.manage.main_pre_14')
     @mock.patch('djangorecipe.manage.main_14')
     @mock.patch('django.VERSION', new=(1, 3, 0))
-    def test_django_pre_14_selection(self, mock_14, mock_pre_14):
+    def test_django_pre_13_selection(self, mock_14, mock_pre_14):
         from djangorecipe import manage
         manage.main('cheeseshop.development')
         self.assertTrue(mock_pre_14.called)
