@@ -239,26 +239,16 @@ class TestRecipe(unittest.TestCase):
         self.assertEqual(manage.call_args[0][0][-2:],
                          ['somepackage', 'anotherpackage'])
 
-    @mock.patch('os.path.exists')
-    @mock.patch('zc.recipe.egg.egg.Scripts.working_set')
-    @mock.patch('zc.buildout.easy_install.scripts')
-    @mock.patch('djangorecipe.recipe.Recipe.create_manage_script')
-    @mock.patch('djangorecipe.recipe.Recipe.create_test_runner')
-    @mock.patch('site.addsitedir')
-    def test_pth_files(self, addsitedir, testrunner, manage,
-                       scripts, working_set, path_exists,):
+    @mock.patch('zc.recipe.egg.egg.Scripts.working_set',
+                return_value=(None, []))
+    @mock.patch('site.addsitedir', return_value=['extra', 'dirs'])
+    def test_pth_files(self, addsitedir, working_set):
 
         # When a pth-files option is set the recipe will use that to add more
         # paths to extra-paths.
         self.recipe.options['version'] = '1.0'
-        path_exists.return_value = True
-        working_set.return_value = (None, [])
-        scripts.return_value = []
-        manage.return_value = []
-        testrunner.return_value = []
 
         # The mock values needed to demonstrate the pth-files option.
-        addsitedir.return_value = ['extra', 'dirs']
         self.recipe.options['pth-files'] = 'somedir'
 
         self.recipe.install()
