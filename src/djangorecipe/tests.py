@@ -51,21 +51,22 @@ class TestRecipe(unittest.TestCase):
         # a uninstall & install. We need to make sure that we normally
         # do not trigger this. That means running the recipe with the
         # same options should give us the same results.
-        self.assertEqual(*[
-                Recipe({'buildout': {
-                            'eggs-directory': self.eggs_dir,
-                            'develop-eggs-directory': self.develop_eggs_dir,
-                            'python': 'python-version',
-                            'bin-directory': self.bin_dir,
-                            'parts-directory': self.parts_dir,
-                            'directory': self.buildout_dir,
-                            'find-links': '',
-                            'allow-hosts':'',
-                            },
-                        'python-version': {'executable': sys.executable}},
-                       'django',
-                       {'recipe': 'djangorecipe'}).options.copy()
-                for i in range(2)])
+        self.assertEqual(
+            *[Recipe({'buildout':
+                          {'eggs-directory': self.eggs_dir,
+                           'develop-eggs-directory': self.develop_eggs_dir,
+                           'python': 'python-version',
+                           'bin-directory': self.bin_dir,
+                           'parts-directory': self.parts_dir,
+                           'directory': self.buildout_dir,
+                           'find-links': '',
+                           'allow-hosts':'',
+                           },
+                      'python-version': {'executable': sys.executable}
+                      },
+                     'django',
+                     {'recipe': 'djangorecipe'}).options.copy()
+              for i in range(2)])
 
     def test_create_file(self):
         # The create file helper should create a file at a certain
@@ -92,8 +93,8 @@ class TestRecipe(unittest.TestCase):
         # random secret for the settings file. Since it should very
         # unlikely that it will generate the same key a few times in a
         # row we will test it with letting it generate a few keys.
-        self.assert_(len(set(
-                    [self.recipe.generate_secret() for i in range(10)])) > 1)
+        self.assertEqual(
+            10, len(set(self.recipe.generate_secret() for i in range(10))))
 
     def test_make_protocol_scripts(self):
         # To ease deployment a WSGI script can be generated. The
@@ -284,42 +285,42 @@ class TestRecipe(unittest.TestCase):
     def test_python_option(self):
         # The python option makes it possible to specify a specific Python
         # executable which is to be used for the generated scripts.
-        recipe = Recipe({
-                'buildout': {
-                    'eggs-directory': self.eggs_dir,
-                    'develop-eggs-directory': self.develop_eggs_dir,
-                    'python': 'python-version',
-                    'bin-directory': self.bin_dir,
-                    'parts-directory': self.parts_dir,
-                    'directory': self.buildout_dir,
-                    'find-links': '',
-                    'allow-hosts': '',
-                    },
-                'python-version': {'executable': '/python4k'}},
-                        'django',
-                        {'recipe': 'djangorecipe',
-                         'wsgi': 'true'})
+        recipe = Recipe(
+            {'buildout': {'eggs-directory': self.eggs_dir,
+                          'develop-eggs-directory': self.develop_eggs_dir,
+                          'python': 'python-version',
+                          'bin-directory': self.bin_dir,
+                          'parts-directory': self.parts_dir,
+                          'directory': self.buildout_dir,
+                          'find-links': '',
+                          'allow-hosts': '',
+                          },
+             'python-version': {'executable': '/python4k'}
+             },
+            'django',
+            {'recipe': 'djangorecipe',
+             'wsgi': 'true'})
         recipe.make_scripts([], [])
         # This should have created a script in the bin dir
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
         self.assertEqual(open(wsgi_script).readlines()[0], '#!/python4k\n')
-        # Changeing the option for only the part will change the used Python
+        # Changing the option for only the part will change the used Python
         # version.
-        recipe = Recipe({
-                'buildout': {'eggs-directory': self.eggs_dir,
-                             'develop-eggs-directory': self.develop_eggs_dir,
-                             'python': 'python-version',
-                             'bin-directory': self.bin_dir,
-                             'parts-directory': self.parts_dir,
-                             'directory': self.buildout_dir,
-                             'find-links': '',
-                             'allow-hosts': '',
-                             },
-                'python-version': {'executable': '/python4k'},
-                'py5k': {'executable': '/python5k'}},
-                        'django',
-                        {'recipe': 'djangorecipe',
-                         'python': 'py5k', 'wsgi': 'true'})
+        recipe = Recipe(
+            {'buildout': {'eggs-directory': self.eggs_dir,
+                          'develop-eggs-directory': self.develop_eggs_dir,
+                          'python': 'python-version',
+                          'bin-directory': self.bin_dir,
+                          'parts-directory': self.parts_dir,
+                          'directory': self.buildout_dir,
+                          'find-links': '',
+                          'allow-hosts': '',
+                          },
+             'python-version': {'executable': '/python4k'},
+             'py5k': {'executable': '/python5k'}},
+            'django',
+            {'recipe': 'djangorecipe',
+             'python': 'py5k', 'wsgi': 'true'})
         recipe.make_scripts([], [])
         self.assertEqual(open(wsgi_script).readlines()[0], '#!/python5k\n')
 
@@ -344,23 +345,25 @@ class TestRecipe(unittest.TestCase):
     def test_boilerplate_1_2(self):
         """Test the boilerplate for django 1.2."""
 
-        recipe = Recipe({
-                'buildout': {'eggs-directory': self.eggs_dir,
-                             'develop-eggs-directory': self.develop_eggs_dir,
-                             'python': 'python-version',
-                             'bin-directory': self.bin_dir,
-                             'parts-directory': self.parts_dir,
-                             'directory': self.buildout_dir,
-                             'find-links': '',
-                             'allow-hosts': '',
-                             'versions': 'versions',
-                             },
-                'versions': {'django': '1.2.5'},
-                'python-version': {'executable': '/python4k'},
-                'py5k': {'executable': '/python5k'}},
-                        'django',
-                        {'recipe': 'djangorecipe',
-                         'python': 'py5k', 'wsgi': 'true'})
+        recipe = Recipe(
+            {'buildout': {'eggs-directory': self.eggs_dir,
+                          'develop-eggs-directory': self.develop_eggs_dir,
+                          'python': 'python-version',
+                          'bin-directory': self.bin_dir,
+                          'parts-directory': self.parts_dir,
+                          'directory': self.buildout_dir,
+                          'find-links': '',
+                          'allow-hosts': '',
+                          'versions': 'versions',
+                          },
+             'versions': {'django': '1.2.5'},
+             'python-version': {'executable': '/python4k'},
+             'py5k': {'executable': '/python5k'}
+             },
+            'django',
+            {'recipe': 'djangorecipe',
+             'python': 'py5k', 'wsgi': 'true'}
+        )
 
         secret = '$55upfci7a#gi@&e9o1-hb*k+f$3+(&b$j=cn67h#22*0%-bj0'
         recipe.generate_secret = lambda: secret
@@ -470,7 +473,7 @@ class TestManageScript(ScriptTestCase):
 
     @mock.patch('djangorecipe.manage.main_pre_14')
     @mock.patch('djangorecipe.manage.main_14')
-    @mock.patch('django.VERSION', new=(1,3,0))
+    @mock.patch('django.VERSION', new=(1, 3, 0))
     def test_django_pre_14_selection(self, mock_14, mock_pre_14):
         from djangorecipe import manage
         manage.main('cheeseshop.development')
@@ -479,7 +482,7 @@ class TestManageScript(ScriptTestCase):
 
     @mock.patch('djangorecipe.manage.main_pre_14')
     @mock.patch('djangorecipe.manage.main_14')
-    @mock.patch('django.VERSION', new=(1,4,0))
+    @mock.patch('django.VERSION', new=(1, 4, 0))
     def test_django_pre_14_selection(self, mock_14, mock_pre_14):
         from djangorecipe import manage
         manage.main('cheeseshop.development')
@@ -558,13 +561,13 @@ class TestWSGIScript(ScriptTestCase):
 
 
 def test_suite():
-    return unittest.TestSuite((
-            unittest.makeSuite(TestRecipe),
-            unittest.makeSuite(TestTestScript),
-            unittest.makeSuite(TestManageScript),
-            unittest.makeSuite(TestFCGIScript),
-            unittest.makeSuite(TestWSGIScript),
-            ))
+    return unittest.TestSuite(
+        (unittest.makeSuite(TestRecipe),
+         unittest.makeSuite(TestTestScript),
+         unittest.makeSuite(TestManageScript),
+         unittest.makeSuite(TestFCGIScript),
+         unittest.makeSuite(TestWSGIScript),
+         ))
 
 if __name__ == '__main__':
         unittest.main()
