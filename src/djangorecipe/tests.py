@@ -143,12 +143,12 @@ class TestRecipe(unittest.TestCase):
         contents = open(fcgi_script).read()
         self.assert_("logfile='/foo'" in contents)
 
-    @mock.patch('zc.buildout.easy_install.scripts')
+    @mock.patch('zc.buildout.easy_install.scripts',
+                return_value=['some-path'])
     def test_make_protocol_scripts_return_value(self, scripts):
         # The return value of make scripts lists the generated scripts.
         self.recipe.options['wsgi'] = 'true'
         self.recipe.options['fcgi'] = 'true'
-        scripts.return_value = ['some-path']
         self.assertEqual(self.recipe.make_scripts([], []),
                          ['some-path', 'some-path'])
 
@@ -219,23 +219,16 @@ class TestRecipe(unittest.TestCase):
         self.assert_("djangorecipe.manage.main('spameggs.development')"
                      in open(manage).read())
 
-    @mock.patch('os.path.exists')
-    @mock.patch('zc.recipe.egg.egg.Scripts.working_set')
-    @mock.patch('zc.buildout.easy_install.scripts')
+    @mock.patch('zc.recipe.egg.egg.Scripts.working_set',
+                return_value=(None, []))
     @mock.patch('djangorecipe.recipe.Recipe.create_manage_script')
-    @mock.patch('djangorecipe.recipe.Recipe.create_test_runner')
-    def test_extra_paths(self, testrunner, manage, scripts,
-                         working_set, path_exists):
+    def test_extra_paths(self, manage, working_set):
 
         # The recipe allows extra-paths to be specified. It uses these to
         # extend the Python path within it's generated scripts.
         self.recipe.options['version'] = '1.0'
         self.recipe.options['extra-paths'] = 'somepackage\nanotherpackage'
-        path_exists.return_value = True
-        working_set.return_value = (None, [])
-        manage.return_value = []
-        scripts.return_value = []
-        testrunner.return_value = []
+
         self.recipe.install()
         self.assertEqual(manage.call_args[0][0][-2:],
                          ['somepackage', 'anotherpackage'])
