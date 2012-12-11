@@ -13,7 +13,7 @@ def main(settings_file, logfile=None):
         # XXX: Hack for python < 2.6
         _, e, _ = sys.exc_info()
         sys.stderr.write("Error loading the settings module '%s': %s"
-                            % (settings_file, e))
+                         % (settings_file, e))
         sys.exit(1)
 
     # Setup settings
