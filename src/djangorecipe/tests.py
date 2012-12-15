@@ -25,20 +25,21 @@ class TestRecipe(unittest.TestCase):
         # expect it exists
         os.mkdir(self.bin_dir)
 
-        self.recipe = Recipe({
-                'buildout': {
-                    'eggs-directory': self.eggs_dir,
-                    'develop-eggs-directory': self.develop_eggs_dir,
-                    'python': 'python-version',
-                    'bin-directory': self.bin_dir,
-                    'parts-directory': self.parts_dir,
-                    'directory': self.buildout_dir,
-                    'find-links': '',
-                    'allow-hosts': '',
-                    },
-                'python-version': {'executable': sys.executable}},
-                             'django',
-                             {'recipe': 'djangorecipe'})
+        self.recipe_initialisation = [
+            {'buildout': {
+                'eggs-directory': self.eggs_dir,
+                'develop-eggs-directory': self.develop_eggs_dir,
+                'python': 'python-version',
+                'bin-directory': self.bin_dir,
+                'parts-directory': self.parts_dir,
+                'directory': self.buildout_dir,
+                'find-links': '',
+                'allow-hosts': ''},
+             'python-version': {'executable': sys.executable}},
+            'django',
+            {'recipe': 'djangorecipe'}]
+
+        self.recipe = Recipe(*self.recipe_initialisation)
 
     def tearDown(self):
         # Remove our test dir
@@ -51,22 +52,8 @@ class TestRecipe(unittest.TestCase):
         # a uninstall & install. We need to make sure that we normally
         # do not trigger this. That means running the recipe with the
         # same options should give us the same results.
-        self.assertEqual(
-            *[Recipe({'buildout':
-                          {'eggs-directory': self.eggs_dir,
-                           'develop-eggs-directory': self.develop_eggs_dir,
-                           'python': 'python-version',
-                           'bin-directory': self.bin_dir,
-                           'parts-directory': self.parts_dir,
-                           'directory': self.buildout_dir,
-                           'find-links': '',
-                           'allow-hosts':'',
-                           },
-                      'python-version': {'executable': sys.executable}
-                      },
-                     'django',
-                     {'recipe': 'djangorecipe'}).options.copy()
-              for i in range(2)])
+        self.assertEqual(Recipe(*self.recipe_initialisation).options,
+                         Recipe(*self.recipe_initialisation).options)
 
     def test_create_file(self):
         # The create file helper should create a file at a certain
@@ -105,17 +92,17 @@ class TestRecipe(unittest.TestCase):
         self.recipe.make_scripts([], [])
         # This should have created a script in the bin dir
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
-        self.assert_(os.path.exists(wsgi_script))
+        self.assertTrue(os.path.exists(wsgi_script))
         # The contents should list our paths
         contents = open(wsgi_script).read()
         # It should also have a reference to our settings module
-        self.assert_('project.development' in contents)
+        self.assertTrue('project.development' in contents)
         # and a line which set's up the WSGI app
-        self.assert_("application = "
-                     "djangorecipe.wsgi.main('project.development', "
-                     "logfile='')"
-                     in contents)
-        self.assert_("class logger(object)" not in contents)
+        self.assertTrue("application = "
+                        "djangorecipe.wsgi.main('project.development', "
+                        "logfile='')"
+                        in contents)
+        self.assertTrue("class logger(object)" not in contents)
 
         # Another deployment options is FCGI. The recipe supports an option to
         # automatically create the required script.
@@ -551,16 +538,3 @@ class TestWSGIScript(ScriptTestCase):
                            "'cheeseshop.tilsit': "
                            "No module named tilsit",), {}))
         self.assertEqual(sys_exit.call_args, ((1,), {}))
-
-
-def test_suite():
-    return unittest.TestSuite(
-        (unittest.makeSuite(TestRecipe),
-         unittest.makeSuite(TestTestScript),
-         unittest.makeSuite(TestManageScript),
-         unittest.makeSuite(TestFCGIScript),
-         unittest.makeSuite(TestWSGIScript),
-         ))
-
-if __name__ == '__main__':
-        unittest.main()
