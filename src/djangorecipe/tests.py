@@ -263,22 +263,24 @@ class TestRecipe(BaseTestRecipe):
         self.assertTrue("djangorecipe.manage.main('project.spameggs')"
                         in open(manage).read())
 
-    def test_python_option(self):
+    def test_python_executable_option(self):
         # The python option makes it possible to specify a specific Python
         # executable which is to be used for the generated scripts.
-        recipe_args = copy.deepcopy(self.recipe_initialisation)
-        recipe_args[0]['python-version']['executable'] = '/python4k'
-        recipe_args[2]['wsgi'] = 'true'
-        recipe = Recipe(*recipe_args)
-        recipe.make_scripts([], [])
-        # This should have created a script in the bin dir
+        self.recipe.options.update({'executable': '/python4k',
+                                    'wsgi': 'true'})
+        self.recipe.make_scripts([], [])
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
         self.assertEqual(open(wsgi_script).readlines()[0], '#!/python4k\n')
+
+    def test_python_option(self):
         # Changing the option for only the part will change the used Python
         # version.
-        recipe_args[0]['py5k'] = {'executable': '/python5k'}
-        recipe_args[2]['python'] = 'py5k'
+        recipe_args = copy.deepcopy(self.recipe_initialisation)
+        recipe_args[0].update({'py5k': {'executable': '/python5k'}})
+        recipe_args[2].update({'python': 'py5k',
+                               'wsgi': 'true'})
         recipe = Recipe(*recipe_args)
+        wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
         recipe.make_scripts([], [])
         self.assertEqual(open(wsgi_script).readlines()[0], '#!/python5k\n')
 
