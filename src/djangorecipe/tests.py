@@ -350,7 +350,6 @@ class TestBoilerplate(BaseTestRecipe):
                           settings)
 
 
-
 class ScriptTestCase(unittest.TestCase):
 
     def setUp(self):
