@@ -87,6 +87,73 @@ class TestRecipe(BaseTestRecipe):
         self.assertEqual(
             10, len(set(self.recipe.generate_secret() for i in range(10))))
 
+    def test_versions_deprecation(self):
+        from zc.buildout import UserError
+        options = {'recipe': 'djangorecipe',
+                   'version': 'trunk',
+                   'python': 'py5k', 'wsgi': 'true'}
+        self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
+
+    @mock.patch('zc.recipe.egg.egg.Scripts.working_set',
+                return_value=(None, []))
+    @mock.patch('djangorecipe.recipe.Recipe.create_manage_script')
+    def test_extra_paths(self, manage, working_set):
+
+        # The recipe allows extra-paths to be specified. It uses these to
+        # extend the Python path within it's generated scripts.
+        self.recipe.options['version'] = '1.0'
+        self.recipe.options['extra-paths'] = 'somepackage\nanotherpackage'
+
+        self.recipe.install()
+        self.assertEqual(manage.call_args[0][0][-2:],
+                         ['somepackage', 'anotherpackage'])
+
+    @mock.patch('zc.recipe.egg.egg.Scripts.working_set',
+                return_value=(None, []))
+    @mock.patch('site.addsitedir', return_value=['extra', 'dirs'])
+    def test_pth_files(self, addsitedir, working_set):
+
+        # When a pth-files option is set the recipe will use that to add more
+        # paths to extra-paths.
+        self.recipe.options['version'] = '1.0'
+
+        # The mock values needed to demonstrate the pth-files option.
+        self.recipe.options['pth-files'] = 'somedir'
+        self.recipe.install()
+
+        self.assertEqual(addsitedir.call_args, (('somedir', set([])), {}))
+        # The extra-paths option has been extended.
+        self.assertEqual(self.recipe.options['extra-paths'], '\nextra\ndirs')
+
+    def test_settings_option(self):
+        # The settings option can be used to specify the settings file
+        # for Django to use. By default it uses `development`.
+        self.assertEqual(self.recipe.options['settings'], 'development')
+        # When we change it an generate a manage script it will use
+        # this var.
+        self.recipe.options['settings'] = 'spameggs'
+        self.recipe.create_manage_script([], [])
+        manage = os.path.join(self.bin_dir, 'django')
+        self.assertTrue("djangorecipe.manage.main('project.spameggs')"
+                        in open(manage).read())
+
+    def test_create_project(self):
+        # If a project does not exist already the recipe will create
+        # one.
+        project_dir = os.path.join(self.buildout_dir, 'project')
+        self.recipe.create_project(project_dir)
+
+        # This should have create a project directory
+        self.assertTrue(os.path.exists(project_dir))
+        # With this directory we should have a list of files.
+        for f in ('settings.py', 'development.py', 'production.py',
+                  '__init__.py', 'urls.py', 'media', 'templates'):
+            self.assertTrue(
+                os.path.exists(os.path.join(project_dir, f)))
+
+
+class TestRecipeScripts(BaseTestRecipe):
+
     def test_make_protocol_script_wsgi(self):
         # To ease deployment a WSGI script can be generated. The
         # script adds any paths from the `extra_paths` option to the
@@ -159,6 +226,64 @@ class TestRecipe(BaseTestRecipe):
         self.assertEqual(self.recipe.make_scripts([], []),
                          ['some-path', 'some-path'])
 
+    def test_create_manage_script(self):
+        # This buildout recipe creates a alternative for the standard
+        # manage.py script. It has all the same functionality as the
+        # original one but it sits in the bin dir instead of within
+        # the project.
+        manage = os.path.join(self.bin_dir, 'django')
+        self.recipe.create_manage_script([], [])
+        self.assertTrue(os.path.exists(manage))
+
+    def test_create_manage_script_projectegg(self):
+        # When a projectegg is specified, then the egg specified
+        # should get used as the project file.
+        manage = os.path.join(self.bin_dir, 'django')
+        self.recipe.options['projectegg'] = 'spameggs'
+        self.recipe.create_manage_script([], [])
+        self.assert_(os.path.exists(manage))
+        # Check that we have 'spameggs' as the project
+        self.assertTrue("djangorecipe.manage.main('spameggs.development')"
+                        in open(manage).read())
+
+    def test_create_wsgi_script_projectegg(self):
+        # When a projectegg is specified, then the egg specified
+        # should get used as the project in the wsgi script.
+        wsgi = os.path.join(self.bin_dir, 'django.wsgi')
+        recipe_dir = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), '..'))
+        self.recipe.options['projectegg'] = 'spameggs'
+        self.recipe.options['wsgi'] = 'true'
+        self.recipe.make_scripts([recipe_dir], [])
+
+        self.assertTrue(os.path.exists(wsgi))
+        # Check that we have 'spameggs' as the project
+        self.assertTrue('spameggs.development' in open(wsgi).read())
+
+    def test_python_executable_option(self):
+        # The python option makes it possible to specify a specific Python
+        # executable which is to be used for the generated scripts.
+        self.recipe.options.update({'executable': '/python4k',
+                                    'wsgi': 'true'})
+        self.recipe.make_scripts([], [])
+        wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
+        self.assertEqual(open(wsgi_script).readlines()[0], '#!/python4k\n')
+
+    def test_python_option(self):
+        # Changing the option for only the part will change the used Python
+        # version.
+        recipe_args = copy.deepcopy(self.recipe_initialisation)
+        recipe_args[0].update({'py5k': {'executable': '/python5k'}})
+        recipe_args[2].update({'python': 'py5k',
+                               'wsgi': 'true'})
+        recipe = Recipe(*recipe_args)
+        wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
+        recipe.make_scripts([], [])
+        self.assertEqual(open(wsgi_script).readlines()[0], '#!/python5k\n')
+
+
+class TestTesTRunner(BaseTestRecipe):
+
     def test_create_test_runner(self):
         # An executable script can be generated which will make it
         # possible to execute the Django test runner. This options
@@ -185,125 +310,6 @@ class TestRecipe(BaseTestRecipe):
 
         # Show it does not create a test runner by default
         self.failIf(os.path.exists(testrunner))
-
-    def test_create_manage_script(self):
-        # This buildout recipe creates a alternative for the standard
-        # manage.py script. It has all the same functionality as the
-        # original one but it sits in the bin dir instead of within
-        # the project.
-        manage = os.path.join(self.bin_dir, 'django')
-        self.recipe.create_manage_script([], [])
-        self.assertTrue(os.path.exists(manage))
-
-    def test_create_manage_script_projectegg(self):
-        # When a projectegg is specified, then the egg specified
-        # should get used as the project file.
-        manage = os.path.join(self.bin_dir, 'django')
-        self.recipe.options['projectegg'] = 'spameggs'
-        self.recipe.create_manage_script([], [])
-        self.assert_(os.path.exists(manage))
-        # Check that we have 'spameggs' as the project
-        self.assertTrue("djangorecipe.manage.main('spameggs.development')"
-                        in open(manage).read())
-
-    @mock.patch('zc.recipe.egg.egg.Scripts.working_set',
-                return_value=(None, []))
-    @mock.patch('djangorecipe.recipe.Recipe.create_manage_script')
-    def test_extra_paths(self, manage, working_set):
-
-        # The recipe allows extra-paths to be specified. It uses these to
-        # extend the Python path within it's generated scripts.
-        self.recipe.options['version'] = '1.0'
-        self.recipe.options['extra-paths'] = 'somepackage\nanotherpackage'
-
-        self.recipe.install()
-        self.assertEqual(manage.call_args[0][0][-2:],
-                         ['somepackage', 'anotherpackage'])
-
-    @mock.patch('zc.recipe.egg.egg.Scripts.working_set',
-                return_value=(None, []))
-    @mock.patch('site.addsitedir', return_value=['extra', 'dirs'])
-    def test_pth_files(self, addsitedir, working_set):
-
-        # When a pth-files option is set the recipe will use that to add more
-        # paths to extra-paths.
-        self.recipe.options['version'] = '1.0'
-
-        # The mock values needed to demonstrate the pth-files option.
-        self.recipe.options['pth-files'] = 'somedir'
-        self.recipe.install()
-
-        self.assertEqual(addsitedir.call_args, (('somedir', set([])), {}))
-        # The extra-paths option has been extended.
-        self.assertEqual(self.recipe.options['extra-paths'], '\nextra\ndirs')
-
-    def test_create_wsgi_script_projectegg(self):
-        # When a projectegg is specified, then the egg specified
-        # should get used as the project in the wsgi script.
-        wsgi = os.path.join(self.bin_dir, 'django.wsgi')
-        recipe_dir = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..'))
-        self.recipe.options['projectegg'] = 'spameggs'
-        self.recipe.options['wsgi'] = 'true'
-        self.recipe.make_scripts([recipe_dir], [])
-
-        self.assertTrue(os.path.exists(wsgi))
-        # Check that we have 'spameggs' as the project
-        self.assertTrue('spameggs.development' in open(wsgi).read())
-
-    def test_settings_option(self):
-        # The settings option can be used to specify the settings file
-        # for Django to use. By default it uses `development`.
-        self.assertEqual(self.recipe.options['settings'], 'development')
-        # When we change it an generate a manage script it will use
-        # this var.
-        self.recipe.options['settings'] = 'spameggs'
-        self.recipe.create_manage_script([], [])
-        manage = os.path.join(self.bin_dir, 'django')
-        self.assertTrue("djangorecipe.manage.main('project.spameggs')"
-                        in open(manage).read())
-
-    def test_python_executable_option(self):
-        # The python option makes it possible to specify a specific Python
-        # executable which is to be used for the generated scripts.
-        self.recipe.options.update({'executable': '/python4k',
-                                    'wsgi': 'true'})
-        self.recipe.make_scripts([], [])
-        wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
-        self.assertEqual(open(wsgi_script).readlines()[0], '#!/python4k\n')
-
-    def test_python_option(self):
-        # Changing the option for only the part will change the used Python
-        # version.
-        recipe_args = copy.deepcopy(self.recipe_initialisation)
-        recipe_args[0].update({'py5k': {'executable': '/python5k'}})
-        recipe_args[2].update({'python': 'py5k',
-                               'wsgi': 'true'})
-        recipe = Recipe(*recipe_args)
-        wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
-        recipe.make_scripts([], [])
-        self.assertEqual(open(wsgi_script).readlines()[0], '#!/python5k\n')
-
-    def test_create_project(self):
-        # If a project does not exist already the recipe will create
-        # one.
-        project_dir = os.path.join(self.buildout_dir, 'project')
-        self.recipe.create_project(project_dir)
-
-        # This should have create a project directory
-        self.assertTrue(os.path.exists(project_dir))
-        # With this directory we should have a list of files.
-        for f in ('settings.py', 'development.py', 'production.py',
-                  '__init__.py', 'urls.py', 'media', 'templates'):
-            self.assertTrue(
-                os.path.exists(os.path.join(project_dir, f)))
-
-    def test_versions_deprecation(self):
-        from zc.buildout import UserError
-        options = {'recipe': 'djangorecipe',
-                   'version': 'trunk',
-                   'python': 'py5k', 'wsgi': 'true'}
-        self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
 
 
 class TestBoilerplate(BaseTestRecipe):
