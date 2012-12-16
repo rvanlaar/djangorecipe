@@ -10,7 +10,7 @@ import mock
 from djangorecipe.recipe import Recipe
 
 
-class TestRecipe(unittest.TestCase):
+class BaseTestRecipe(unittest.TestCase):
 
     def setUp(self):
         # Create a directory for our buildout files created by the recipe
@@ -45,6 +45,9 @@ class TestRecipe(unittest.TestCase):
     def tearDown(self):
         # Remove our test dir
         shutil.rmtree(self.buildout_dir)
+
+
+class TestRecipe(BaseTestRecipe):
 
     def test_consistent_options(self):
         # Buildout is pretty clever in detecting changing options. If
@@ -293,6 +296,16 @@ class TestRecipe(unittest.TestCase):
             self.assertTrue(
                 os.path.exists(os.path.join(project_dir, f)))
 
+    def test_versions_deprecation(self):
+        from zc.buildout import UserError
+        options = {'recipe': 'djangorecipe',
+                   'version': 'trunk',
+                   'python': 'py5k', 'wsgi': 'true'}
+        self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
+
+
+class TestBoilerplate(BaseTestRecipe):
+
     def test_boilerplate_newest(self):
         """Test the default boilerplate."""
 
@@ -334,12 +347,6 @@ class TestRecipe(unittest.TestCase):
         self.assertEquals(versions['1.2']['settings'] % settings_dict,
                           settings)
 
-    def test_versions_deprecation(self):
-        from zc.buildout import UserError
-        options = {'recipe': 'djangorecipe',
-                   'version': 'trunk',
-                   'python': 'py5k', 'wsgi': 'true'}
-        self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
 
 
 class ScriptTestCase(unittest.TestCase):
