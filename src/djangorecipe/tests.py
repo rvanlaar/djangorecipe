@@ -115,12 +115,9 @@ class TestRecipe(unittest.TestCase):
         self.recipe.options['fcgi'] = 'true'
         self.recipe.make_scripts([], [])
 
-        # The recipe supports an option to
-        # automatically create the required script.
         fcgi_script = os.path.join(self.bin_dir, 'django.fcgi')
         self.assertTrue(os.path.exists(fcgi_script))
 
-         # The contents should list our paths
         contents = open(fcgi_script).read()
          # It should also have a reference to our settings module
         self.assertTrue('project.development' in contents)
@@ -158,20 +155,6 @@ class TestRecipe(unittest.TestCase):
         self.recipe.options['fcgi'] = 'true'
         self.assertEqual(self.recipe.make_scripts([], []),
                          ['some-path', 'some-path'])
-
-    def test_create_project(self):
-        # If a project does not exist already the recipe will create
-        # one.
-        project_dir = os.path.join(self.buildout_dir, 'project')
-        self.recipe.create_project(project_dir)
-
-        # This should have create a project directory
-        self.assertTrue(os.path.exists(project_dir))
-        # With this directory we should have a list of files.
-        for f in ('settings.py', 'development.py', 'production.py',
-                  '__init__.py', 'urls.py', 'media', 'templates'):
-            self.assertTrue(
-                os.path.exists(os.path.join(project_dir, f)))
 
     def test_create_test_runner(self):
         # An executable script can be generated which will make it
@@ -295,6 +278,20 @@ class TestRecipe(unittest.TestCase):
         recipe = Recipe(*recipe_args)
         recipe.make_scripts([], [])
         self.assertEqual(open(wsgi_script).readlines()[0], '#!/python5k\n')
+
+    def test_create_project(self):
+        # If a project does not exist already the recipe will create
+        # one.
+        project_dir = os.path.join(self.buildout_dir, 'project')
+        self.recipe.create_project(project_dir)
+
+        # This should have create a project directory
+        self.assertTrue(os.path.exists(project_dir))
+        # With this directory we should have a list of files.
+        for f in ('settings.py', 'development.py', 'production.py',
+                  '__init__.py', 'urls.py', 'media', 'templates'):
+            self.assertTrue(
+                os.path.exists(os.path.join(project_dir, f)))
 
     def test_boilerplate_newest(self):
         """Test the default boilerplate."""
