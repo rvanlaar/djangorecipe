@@ -470,7 +470,7 @@ class TestFCGIScript(ScriptTestCase):
     @mock.patch('django.core.management.setup_environ')
     @mock.patch('django.core.servers.fastcgi.runfastcgi')
     def test_script(self, runfastcgi, setup_environ, settings):
-        # The fcgi is a warpper for the django fcgi script.
+        # The fcgi is a wrapper for the django fcgi script.
         from djangorecipe import fcgi
         settings.FCGI_OPTIONS = {}
         fcgi.main('cheeseshop.development', logfile=None)
@@ -497,7 +497,7 @@ class TestWSGIScript(ScriptTestCase):
     @mock.patch('django.core.management.setup_environ')
     @mock.patch('django.core.handlers.wsgi.WSGIHandler')
     def test_script(self, WSGIHandler, setup_environ):
-        # The fcgi is a warpper for the django fcgi script.
+        # The wsgi is a wrapper for the django wsgi script.
         from djangorecipe import wsgi
         wsgi.main('cheeseshop.development', logfile=None)
         self.assertEqual(WSGIHandler.call_args, {})
