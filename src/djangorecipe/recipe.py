@@ -39,6 +39,8 @@ class Recipe(object):
         else:
             options.setdefault('extra-paths', options.get('pythonpath', ''))
 
+        options.setdefault('initialization', '')
+
         # mod_wsgi support script
         options.setdefault('wsgi', 'false')
         options.setdefault('fcgi', 'false')
@@ -82,8 +84,8 @@ class Recipe(object):
               'djangorecipe.manage', 'main')],
             ws, self.options['executable'], self.options['bin-directory'],
             extra_paths=extra_paths,
-            arguments="'%s.%s'" % (project,
-                                   self.options['settings']))
+            arguments="'%s.%s'" % (project, self.options['settings']),
+            initialization=self.options['initialization'])
 
     def create_test_runner(self, extra_paths, working_set):
         apps = self.options.get('test', '').split()

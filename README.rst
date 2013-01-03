@@ -71,6 +71,11 @@ control-script
   equivalent of the `manage.py` Django normally creates. By default it
   uses the name of the section (the part between the `[ ]`).
 
+initialization
+  Specify some Python initialization code to be inserted into the
+  `control-script`. This is very limited. In particular, be aware that
+  leading whitespace is stripped from the code given.
+
 wsgi
   An extra script is generated in the bin folder when this is set to
   `true`. This can be used with mod_wsgi to deploy the project. The
@@ -240,3 +245,34 @@ example as a starting point::
          ErrorLog        /var/log/apache2/my.rocking.server/error.log
          WSGIScriptAlias / /path/to/buildout/bin/django.wsgi
   </VirtualHost>
+
+Generating a control script for PyDev
+=====================================
+
+Running Django with auto-reload in PyDev requires adding a small snippet
+of code::
+
+  import pydevd
+  pydevd.patch_django_autoreload(patch_remote_debugger=False, patch_show_console=True)
+
+just before the `if __name__ == "__main__":` in the `manage.py` module
+(or in this case the control script that is generated). This example
+buildout generates two control scripts: one for command-line usage and
+one for PyDev, with the required snippet, using the recipe's
+`initialization` option::
+
+  [buildout]
+  parts = django pydev
+  eggs =
+    mock
+
+  [django]
+  recipe = djangorecipe
+  eggs = ${buildout:eggs}
+  project = dummyshop
+
+  [pydev]
+  <= django
+  initialization =
+    import pydevd
+    pydevd.patch_django_autoreload(patch_remote_debugger=False, patch_show_console=True)
