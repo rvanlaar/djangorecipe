@@ -4,7 +4,7 @@ Changes
 1.4 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Added (pydev) initialization support. Thanks to anshumanb. (Closes #58).
 
 
 1.3 (2012-09-07)
