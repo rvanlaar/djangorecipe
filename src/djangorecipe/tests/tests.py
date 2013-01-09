@@ -246,6 +246,13 @@ class TestRecipeScripts(BaseTestRecipe):
         self.assertTrue("djangorecipe.manage.main('spameggs.development')"
                         in open(manage).read())
 
+    def test_create_manage_script_with_initialization(self):
+        manage = os.path.join(self.bin_dir, 'django')
+        self.recipe.options['initialization'] = 'import os\nassert True'
+        self.recipe.create_manage_script([], [])
+        self.assertTrue('import os\nassert True\n\nimport djangorecipe'
+                        in open(manage).read())
+
     def test_create_wsgi_script_projectegg(self):
         # When a projectegg is specified, then the egg specified
         # should get used as the project in the wsgi script.
