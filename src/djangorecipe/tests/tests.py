@@ -181,6 +181,14 @@ class TestRecipeScripts(BaseTestRecipe):
                         in contents)
         self.assertTrue("class logger(object)" not in contents)
 
+    def test_contents_protocol_script_wsgi_with_initialization(self):
+        self.recipe.options['wsgi'] = 'true'
+        self.recipe.options['initialization'] = 'import os\nassert True'
+        self.recipe.make_scripts([], [])
+        wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
+        self.assertTrue('import os\nassert True\n\nimport djangorecipe'
+                        in open(wsgi_script).read())
+
     def test_make_protocol_script_fcgi(self):
         self.recipe.options['fcgi'] = 'true'
         self.recipe.make_scripts([], [])
@@ -317,6 +325,19 @@ class TestTesTRunner(BaseTestRecipe):
 
         # Show it does not create a test runner by default
         self.failIf(os.path.exists(testrunner))
+
+    def test_create_test_runner_with_initialization(self):
+        recipe_dir = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), '..'))
+        testrunner = os.path.join(self.bin_dir, 'test')
+
+        # When we specify an app to test it should create the the
+        # testrunner
+        self.recipe.options['test'] = 'knight'
+        self.recipe.options['initialization'] = 'import os\nassert True'
+        self.recipe.create_test_runner([recipe_dir], [])
+        self.assertTrue('import os\nassert True\n\nimport djangorecipe'
+                        in open(testrunner).read())
 
 
 class TestBoilerplate(BaseTestRecipe):
