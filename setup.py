@@ -2,7 +2,7 @@ import os
 
 from setuptools import setup, find_packages
 
-version = '1.4.dev0'
+version = '1.4'
 
 
 def read_file(name):

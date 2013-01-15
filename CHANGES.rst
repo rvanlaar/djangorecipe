@@ -1,7 +1,7 @@
 Changes
 =======
 
-1.4 (unreleased)
+1.4 (2013-01-15)
 ----------------
 
 - Added initialization code support. Thanks to anshumanb, jjmurre. (Closes #58).
