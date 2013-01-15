@@ -100,7 +100,8 @@ class Recipe(object):
                 arguments="'%s.%s', %s" % (
                     self.options['project'],
                     self.options['settings'],
-                    ', '.join(["'%s'" % app for app in apps])))
+                    ', '.join(["'%s'" % app for app in apps])),
+                initialization=self.options['initialization'])
         else:
             return []
 
@@ -171,7 +172,8 @@ class Recipe(object):
                         extra_paths=extra_paths,
                         arguments="'%s.%s', logfile='%s'" % (
                             project, self.options['settings'],
-                            self.options.get('logfile'))))
+                            self.options.get('logfile')),
+                        initialization=self.options['initialization']))
         zc.buildout.easy_install.script_template = _script_template
         return scripts
 
