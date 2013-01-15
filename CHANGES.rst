@@ -4,7 +4,7 @@ Changes
 1.4 (unreleased)
 ----------------
 
-- Added initialization code support. Thanks to anshumanb. jjmurre. (Closes #58).
+- Added initialization code support. Thanks to anshumanb, jjmurre. (Closes #58).
 
 
 1.3 (2012-09-07)
