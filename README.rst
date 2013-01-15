@@ -276,3 +276,21 @@ one for PyDev, with the required snippet, using the recipe's
   initialization =
     import pydevd
     pydevd.patch_django_autoreload(patch_remote_debugger=False, patch_show_console=True)
+
+Several wsgi scripts for one Apache virtual host instance
+=========================================================
+
+There is a problem when several wsgi scripts are combined in a single virtual
+host instance of Apache. This is due to the fact that Django uses the
+environment variable DJANGO_SETTINGS_MODULE. This variable  gets set once when
+the first wsgi script loads. The rest of the wsgi scripts will fail, because
+they need a different settings modules. However the environment variable
+DJANGO_SETTINGS_MODULE is only set once. The new `initialization` option that has
+been added to djangorecipe can be used to remedy this problem as shown below::
+
+    [django]
+    settings = acceptance
+    initialization =
+        import os
+        os.environ['DJANGO_SETTINGS_MODULE'] = '${django:project}.${django:settings}'
+
