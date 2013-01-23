@@ -1,12 +1,11 @@
 language: python
 python:
-  - 2.5
   - 2.6
   - 2.7
   - 3.2
   - pypy
 install: 
-  - python bootstrap.py
+  - python bootstrap.py -t
   - bin/buildout -vn
 script:
   - bin/test
