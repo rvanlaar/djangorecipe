@@ -33,6 +33,8 @@ class BaseTestRecipe(unittest.TestCase):
                 'bin-directory': self.bin_dir,
                 'parts-directory': self.parts_dir,
                 'directory': self.buildout_dir,
+                'python': 'buildout',
+                'executable': sys.executable,
                 'find-links': '',
                 'allow-hosts': ''},
              },
