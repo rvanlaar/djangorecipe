@@ -2,6 +2,7 @@ from random import choice
 import os
 import logging
 import re
+import sys
 
 from zc.buildout import UserError
 import zc.recipe.egg
@@ -23,7 +24,6 @@ class Recipe(object):
         options['location'] = os.path.join(
             buildout['buildout']['parts-directory'], name)
         options['bin-directory'] = buildout['buildout']['bin-directory']
-        options['executable'] = buildout['buildout']['executable']
 
         options.setdefault('project', 'project')
         options.setdefault('settings', 'development')
@@ -83,7 +83,7 @@ class Recipe(object):
         return zc.buildout.easy_install.scripts(
             [(self.options.get('control-script', self.name),
               'djangorecipe.manage', 'main')],
-            ws, self.options['executable'], self.options['bin-directory'],
+            ws, sys.executable, self.options['bin-directory'],
             extra_paths=extra_paths,
             arguments="'%s.%s'" % (project, self.options['settings']),
             initialization=self.options['initialization'])
@@ -95,7 +95,7 @@ class Recipe(object):
             return zc.buildout.easy_install.scripts(
                 [(self.options.get('testrunner', 'test'),
                   'djangorecipe.test', 'main')],
-                working_set, self.options['executable'],
+                working_set, sys.executable,
                 self.options['bin-directory'],
                 extra_paths=extra_paths,
                 arguments="'%s.%s', %s" % (
@@ -168,7 +168,7 @@ class Recipe(object):
                                      protocol),
                           'djangorecipe.%s' % protocol, 'main')],
                         ws,
-                        self.options['executable'],
+                        sys.executable,
                         self.options['bin-directory'],
                         extra_paths=extra_paths,
                         arguments="'%s.%s', logfile='%s'" % (
