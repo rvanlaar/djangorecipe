@@ -23,6 +23,7 @@ class Recipe(object):
         options['location'] = os.path.join(
             buildout['buildout']['parts-directory'], name)
         options['bin-directory'] = buildout['buildout']['bin-directory']
+        options['executable'] = buildout['buildout']['executable']
 
         options.setdefault('project', 'project')
         options.setdefault('settings', 'development')
