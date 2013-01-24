@@ -1,11 +1,14 @@
 language: python
+env:
+  - BUILDOUT_VERSION=1
+  - BUILDOUT_VERSION=2
 python:
   - 2.5
   - 2.6
   - 2.7
   - 3.2
   - pypy
-install: 
+install:
   - python bootstrap.py
   - bin/buildout -vn
 script:
@@ -14,3 +17,4 @@ matrix:
   allow_failures:
     - python: pypy
     - python: 3.2
+    - python: 2.5
