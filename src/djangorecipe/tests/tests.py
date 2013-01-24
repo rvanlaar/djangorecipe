@@ -88,11 +88,11 @@ class TestRecipe(BaseTestRecipe):
         self.assertEqual(
             10, len(set(self.recipe.generate_secret() for i in range(10))))
 
-    def test_versions_deprecation(self):
+    def test_version_option_deprecation(self):
         from zc.buildout import UserError
         options = {'recipe': 'djangorecipe',
                    'version': 'trunk',
-                   'python': 'py5k', 'wsgi': 'true'}
+                   'wsgi': 'true'}
         self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
 
     @mock.patch('zc.recipe.egg.egg.Scripts.working_set',
