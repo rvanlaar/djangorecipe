@@ -30,14 +30,12 @@ class BaseTestRecipe(unittest.TestCase):
             {'buildout': {
                 'eggs-directory': self.eggs_dir,
                 'develop-eggs-directory': self.develop_eggs_dir,
-                'executable': sys.executable,
-                'python': 'python-version',
                 'bin-directory': self.bin_dir,
                 'parts-directory': self.parts_dir,
                 'directory': self.buildout_dir,
                 'find-links': '',
                 'allow-hosts': ''},
-             'python-version': {'executable': sys.executable}},
+             },
             'django',
             {'recipe': 'djangorecipe'}]
 
@@ -275,27 +273,6 @@ class TestRecipeScripts(BaseTestRecipe):
         self.assertTrue(os.path.exists(wsgi))
         # Check that we have 'spameggs' as the project
         self.assertTrue('spameggs.development' in open(wsgi).read())
-
-    def test_python_executable_option(self):
-        # The python option makes it possible to specify a specific Python
-        # executable which is to be used for the generated scripts.
-        self.recipe.options.update({'executable': '/python4k',
-                                    'wsgi': 'true'})
-        self.recipe.make_scripts([], [])
-        wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
-        self.assertEqual(open(wsgi_script).readlines()[0], '#!/python4k\n')
-
-    def test_python_option(self):
-        # Changing the option for only the part will change the used Python
-        # version.
-        recipe_args = copy.deepcopy(self.recipe_initialisation)
-        recipe_args[0].update({'py5k': {'executable': '/python5k'}})
-        recipe_args[2].update({'python': 'py5k',
-                               'wsgi': 'true'})
-        recipe = Recipe(*recipe_args)
-        wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
-        recipe.make_scripts([], [])
-        self.assertEqual(open(wsgi_script).readlines()[0], '#!/python5k\n')
 
 
 class TestTesTRunner(BaseTestRecipe):
