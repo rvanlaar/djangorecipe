@@ -48,10 +48,6 @@ projectegg
   as the project. This disables the generation of the project
   structure.
 
-python
-  This option can be used to specify a specific Python version which can be a
-  different version from the one used to run the buildout.
-
 settings
   You can set the name of the settings file which is to be used with
   this option. This is useful if you want to have a different
@@ -192,27 +188,11 @@ apps, and our own project for the path that will be found first in the
 list.  Note that we expect our project to be checked out (e.g., by
 svn:external) directly under this directory in to 'myproject'.
 
-Example with a different Python version
-=======================================
-
-To use a different Python version from the one that ran buildout in the
-generated script use something like::
-
-  [buildout]
-  parts	= myproject
-
-  [special-python]
-  executable = /some/special/python
-
-  [myproject]
-  recipe	= djangorecipe
-  project	= myproject
-  python	= special-python
 
 Example with a Django version from a repository
 ===============================================
 
-If you want to use a specific Django version from a source 
+If you want to use a specific Django version from a source
 repository you could use mr.developer: http://pypi.python.org/pypi/mr.developer
 Here is an example for using the Django development version::
 
@@ -293,4 +273,3 @@ been added to djangorecipe can be used to remedy this problem as shown below::
     initialization =
         import os
         os.environ['DJANGO_SETTINGS_MODULE'] = '${django:project}.${django:settings}'
-

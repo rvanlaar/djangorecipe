@@ -4,7 +4,10 @@ Changes
 1.5 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Removed support for a different python version than the one you use to run
+  buildout with. Previously, you could run your buildout with 2.6 but get
+  Django to use 2.7 instead. zc.buildout 2.0 doesn't allow it anymore, so we
+  removed it too.
 
 
 1.4 (2013-01-15)

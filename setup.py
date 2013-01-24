@@ -40,6 +40,8 @@ setup(name='djangorecipe',
         'zc.recipe.egg',
         'Django',
       ],
+      extras_require={'test': ['coverage',
+                               'mock']},
       entry_points="""
       # -*- Entry points: -*-
       [zc.buildout]

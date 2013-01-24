@@ -5,3 +5,5 @@ develop-eggs
 koe
 parts
 src/djangorecipe.egg-info
+.coverage
+htmlcov
