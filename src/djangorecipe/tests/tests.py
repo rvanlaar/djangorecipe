@@ -30,6 +30,7 @@ class BaseTestRecipe(unittest.TestCase):
             {'buildout': {
                 'eggs-directory': self.eggs_dir,
                 'develop-eggs-directory': self.develop_eggs_dir,
+                'executable': sys.executable,
                 'python': 'python-version',
                 'bin-directory': self.bin_dir,
                 'parts-directory': self.parts_dir,
