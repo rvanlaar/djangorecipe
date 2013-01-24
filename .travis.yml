@@ -16,4 +16,4 @@ matrix:
   allow_failures:
     - python: pypy
     - python: 3.2
-    - python: 2.5, BUILDOUT_VERSION=2
+    - python: 2.5
