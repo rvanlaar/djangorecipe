@@ -1,7 +1,7 @@
 Changes
 =======
 
-1.5 (unreleased)
+1.5 (2013-01-25)
 ----------------
 
 - Removed support for a different python version than the one you use to run
