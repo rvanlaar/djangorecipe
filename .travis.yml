@@ -1,7 +1,4 @@
 language: python
-env:
-  - BUILDOUT_VERSION=1
-  - BUILDOUT_VERSION=2
 python:
   - 2.6
   - 2.7
