@@ -4,8 +4,7 @@ Changes
 1.6 (unreleased)
 ----------------
 
-- Nothing changed yet.
-
+- Moved to buildout 2 support only.
 
 1.5 (2013-01-25)
 ----------------
