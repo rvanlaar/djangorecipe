@@ -114,7 +114,10 @@ class Recipe(object):
         version = None
         b_versions = self.buildout.get('versions')
         if b_versions:
-            django_version = b_versions.get('django')
+            django_version = (
+                b_versions.get('django') or
+                b_versions.get('Django')
+            )
             if django_version:
                 version_re = re.compile("\d+\.\d+")
                 match = version_re.match(django_version)
