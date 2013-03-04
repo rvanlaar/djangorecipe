@@ -1,3 +1,4 @@
+import os
 import sys
 import unittest
 
@@ -17,13 +18,16 @@ class ScriptTestCase(unittest.TestCase):
         # We will clear out sys.modules again to clean up
         for m in ['cheeseshop', 'cheeseshop.development']:
             del sys.modules[m]
+        # And we need to clean up os.environ.
+        if 'DJANGO_SETTINGS_MODULE' in os.environ:
+            del os.environ['DJANGO_SETTINGS_MODULE']
 
     @mock.patch('sys.stderr')
     @mock.patch('sys.exit')
     def check_settings_error(self, module, sys_exit, stderr):
         # When the settings file cannot be imported the management
         # script it wil exit with a message and a specific exit code.
-        self.assertRaises(UnboundLocalError, module.main, 'cheeseshop.tilsit')
+        self.assertRaises(ImportError, module.main, 'cheeseshop.tilsit')
         self.assertEqual(stderr.write.call_args,
                          (("Error loading the settings module "
                            "'cheeseshop.tilsit': "
