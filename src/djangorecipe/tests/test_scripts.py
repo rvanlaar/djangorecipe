@@ -24,10 +24,8 @@ class ScriptTestCase(unittest.TestCase):
         # When the settings file cannot be imported the management
         # script it wil exit with a message and a specific exit code.
         self.assertRaises(UnboundLocalError, module.main, 'cheeseshop.tilsit')
-        self.assertEqual(stderr.write.call_args,
-                         (("Error loading the settings module "
-                           "'cheeseshop.tilsit': "
-                           "No module named tilsit",), {}))
+        self.assertTrue(stderr.write.call_args[0][0].startswith(
+            "Error loading the settings module 'cheeseshop.tilsit': "))
         self.assertEqual(sys_exit.call_args, ((1,), {}))
 
 
