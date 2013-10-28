@@ -1,5 +1,9 @@
+Djangorecipe: easy install of Django with buildout
+==================================================
+
+
 Description
-===========
+-----------
 
 .. image:: https://secure.travis-ci.org/rvanlaar/djangorecipe.png?branch=master
    :target: http://travis-ci.org/rvanlaar/djangorecipe/
@@ -17,8 +21,7 @@ You can see an example of how to use the recipe below::
   versions = versions
 
   [versions]
-  django = 1.2.5
-
+  Django = 1.5.5
 
   [satchmo]
   recipe = gocept.download
@@ -35,7 +38,7 @@ You can see an example of how to use the recipe below::
 
 
 Supported options
-=================
+-----------------
 
 The recipe supports the following options.
 
@@ -82,10 +85,6 @@ wsgilog
   you can set this variable to a filesystem path - all stdout/stderr data
   is redirected to the log instead of printed
 
-fcgi
-  Like `wsgi` this creates an extra script within the bin folder. This
-  script can be used with an FCGI deployment.
-
 test
   If you want a script in the bin folder to run all the tests for a
   specific set of apps this is the option you would use. Set this to
@@ -107,20 +106,8 @@ secret
   string by default.
 
 
-FCGI specific settings
-======================
-
-Options for FCGI can be set within a settings file (`settings.py`). The options
-is `FCGI_OPTIONS`. It should be set to a dictionary. The part below is an
-example::
-
-  FCGI_OPTIONS = {
-      'method': 'threaded',
-  }
-
-
 Another example
-===============
+-----------------
 
 The next example shows you how to use some more of the options::
 
@@ -147,7 +134,7 @@ The next example shows you how to use some more of the options::
     anotherapp
 
 Example using .pth files
-========================
+-------------------------
 
 Pinax uses a .pth file to add a bunch of libraries to its path; we can
 specify it's directory to get the libraries it specified added to our
@@ -190,7 +177,7 @@ svn:external) directly under this directory in to 'myproject'.
 
 
 Example with a Django version from a repository
-===============================================
+---------------------------------------------------
 
 If you want to use a specific Django version from a source
 repository you could use mr.developer: http://pypi.python.org/pypi/mr.developer
@@ -210,7 +197,7 @@ Here is an example for using the Django development version::
   project = project
 
 Example configuration for mod_wsgi
-==================================
+---------------------------------------------------
 
 If you want to deploy a project using mod_wsgi you could use this
 example as a starting point::
@@ -227,7 +214,7 @@ example as a starting point::
   </VirtualHost>
 
 Generating a control script for PyDev
-=====================================
+---------------------------------------------------
 
 Running Django with auto-reload in PyDev requires adding a small snippet
 of code::
@@ -258,7 +245,7 @@ one for PyDev, with the required snippet, using the recipe's
     pydevd.patch_django_autoreload(patch_remote_debugger=False, patch_show_console=True)
 
 Several wsgi scripts for one Apache virtual host instance
-=========================================================
+----------------------------------------------------------
 
 There is a problem when several wsgi scripts are combined in a single virtual
 host instance of Apache. This is due to the fact that Django uses the
