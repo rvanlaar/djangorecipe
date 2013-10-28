@@ -1,7 +1,7 @@
 Changes
 =======
 
-1.6 (unreleased)
+1.6 (2013-10-28)
 ----------------
 
 - Djangorecipe works with django 1.6 now.
