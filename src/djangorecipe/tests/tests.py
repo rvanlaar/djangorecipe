@@ -190,22 +190,6 @@ class TestRecipeScripts(BaseTestRecipe):
         self.assertTrue('import os\nassert True\n\nimport djangorecipe'
                         in open(wsgi_script).read())
 
-    def test_make_protocol_script_fcgi(self):
-        self.recipe.options['fcgi'] = 'true'
-        self.recipe.make_scripts([], [])
-
-        fcgi_script = os.path.join(self.bin_dir, 'django.fcgi')
-        self.assertTrue(os.path.exists(fcgi_script))
-
-        contents = open(fcgi_script).read()
-         # It should also have a reference to our settings module
-        self.assertTrue('project.development' in contents)
-         # and a line which set's up the FCGI app
-        self.assertTrue("djangorecipe.fcgi.main('project.development', "
-                        "logfile='')"
-                        in contents)
-        self.assertTrue("class logger(object)" not in contents)
-
     def test_contents_log_protocol_script_wsgi(self):
         self.recipe.options['wsgi'] = 'true'
         self.recipe.options['logfile'] = '/foo'
@@ -216,22 +200,11 @@ class TestRecipeScripts(BaseTestRecipe):
 
         self.assertTrue("logfile='/foo'" in contents)
 
-    def test_contents_log_protocol_script_fcgi(self):
-        self.recipe.options['fcgi'] = 'true'
-        self.recipe.options['logfile'] = '/foo'
-        self.recipe.make_scripts([], [])
-
-        fcgi_script = os.path.join(self.bin_dir, 'django.fcgi')
-        contents = open(fcgi_script).read()
-
-        self.assertTrue("logfile='/foo'" in contents)
-
     @mock.patch('zc.buildout.easy_install.scripts',
                 return_value=['some-path'])
     def test_make_protocol_scripts_return_value(self, scripts):
         # The return value of make scripts lists the generated scripts.
         self.recipe.options['wsgi'] = 'true'
-        self.recipe.options['fcgi'] = 'true'
         self.assertEqual(self.recipe.make_scripts([], []),
                          ['some-path', 'some-path'])
 

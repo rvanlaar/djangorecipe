@@ -1,22 +1,11 @@
+import os
 import sys
 
-from django.core import management
+from django.core.wsgi import get_wsgi_application
 
 
 def main(settings_file, logfile=None):
-    try:
-        mod = __import__(settings_file)
-        components = settings_file.split('.')
-        for comp in components[1:]:
-            mod = getattr(mod, comp)
-
-    except ImportError as e:
-        sys.stderr.write("Error loading the settings module '%s': %s"
-                         % (settings_file, e))
-        sys.exit(1)
-
-    # Setup settings
-    management.setup_environ(mod)
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings_file)
 
     if logfile:
         import datetime
@@ -41,7 +30,5 @@ def main(settings_file, logfile=None):
                     fp.close()
         sys.stdout = sys.stderr = logger(logfile)
 
-    from django.core.handlers.wsgi import WSGIHandler
-
     # Run WSGI handler for the application
-    return WSGIHandler()
+    return get_wsgi_application()

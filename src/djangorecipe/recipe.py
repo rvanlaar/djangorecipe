@@ -44,7 +44,6 @@ class Recipe(object):
 
         # mod_wsgi support script
         options.setdefault('wsgi', 'false')
-        options.setdefault('fcgi', 'false')
         options.setdefault('wsgilog', '')
         options.setdefault('logfile', '')
 
@@ -157,27 +156,27 @@ class Recipe(object):
     def make_scripts(self, extra_paths, ws):
         scripts = []
         _script_template = zc.buildout.easy_install.script_template
-        for protocol in ('wsgi', 'fcgi'):
-            zc.buildout.easy_install.script_template = \
-                zc.buildout.easy_install.script_header + \
-                    script_template[protocol]
-            if self.options.get(protocol, '').lower() == 'true':
-                project = self.options.get('projectegg',
-                                           self.options['project'])
-                scripts.extend(
-                    zc.buildout.easy_install.scripts(
-                        [('%s.%s' % (self.options.get('control-script',
-                                                      self.name),
-                                     protocol),
-                          'djangorecipe.%s' % protocol, 'main')],
-                        ws,
-                        sys.executable,
-                        self.options['bin-directory'],
-                        extra_paths=extra_paths,
-                        arguments="'%s.%s', logfile='%s'" % (
-                            project, self.options['settings'],
-                            self.options.get('logfile')),
-                        initialization=self.options['initialization']))
+        protocol = 'wsgi'
+        zc.buildout.easy_install.script_template = \
+            zc.buildout.easy_install.script_header + \
+                script_template[protocol]
+        if self.options.get(protocol, '').lower() == 'true':
+            project = self.options.get('projectegg',
+                                       self.options['project'])
+            scripts.extend(
+                zc.buildout.easy_install.scripts(
+                    [('%s.%s' % (self.options.get('control-script',
+                                                  self.name),
+                                 protocol),
+                      'djangorecipe.%s' % protocol, 'main')],
+                    ws,
+                    sys.executable,
+                    self.options['bin-directory'],
+                    extra_paths=extra_paths,
+                    arguments="'%s.%s', logfile='%s'" % (
+                        project, self.options['settings'],
+                        self.options.get('logfile')),
+                    initialization=self.options['initialization']))
         zc.buildout.easy_install.script_template = _script_template
         return scripts
 
