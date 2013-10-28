@@ -16,3 +16,7 @@ script:
 matrix:
   allow_failures:
     - python: pypy
+    - python: 3.2
+      DJANGO_VERSION: 1.4
+    - python: 3.3
+      DJANGO_VERSION: 1.4
