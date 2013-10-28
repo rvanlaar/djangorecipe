@@ -4,7 +4,16 @@ Changes
 1.6 (unreleased)
 ----------------
 
+- Djangorecipe works with django 1.6 now.
+
+- Tested with Django 1.4, 1.5 and 1.6. Pre-1.4 support is gone, now. Also
+  tested on Python 2.6/2.7, 3.2/3.3.
+
 - Moved to buildout 2 support only.
+
+- Removed generation of fastcgi script. You can run it easily as ``bin/django
+  runfcgi`` and it will be deprecated in Django 1.7 anway.
+
 
 1.5 (2013-01-25)
 ----------------
