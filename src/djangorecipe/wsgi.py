@@ -1,12 +1,9 @@
 import os
 import sys
 
-from django.core.wsgi import get_wsgi_application
-
 
 def main(settings_file, logfile=None):
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings_file)
-
     if logfile:
         import datetime
 
@@ -31,4 +28,5 @@ def main(settings_file, logfile=None):
         sys.stdout = sys.stderr = logger(logfile)
 
     # Run WSGI handler for the application
+    from django.core.wsgi import get_wsgi_application
     return get_wsgi_application()

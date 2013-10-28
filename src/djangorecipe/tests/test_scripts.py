@@ -1,3 +1,4 @@
+import os
 import sys
 import unittest
 
@@ -9,20 +10,16 @@ class ScriptTestCase(unittest.TestCase):
     def setUp(self):
         # We will also need to fake the settings file's module
         self.settings = mock.sentinel.Settings
-        #self.settings.SECRET_KEY = 'I mock your secret key'
+        self.settings.SECRET_KEY = 'I mock your secret key'
         sys.modules['cheeseshop'] = mock.sentinel.CheeseShop
         sys.modules['cheeseshop.development'] = self.settings
         sys.modules['cheeseshop'].development = self.settings
+        print("DJANGO ENV: %s" % os.environ.get('DJANGO_SETTINGS_MODULE'))
 
     def tearDown(self):
         # We will clear out sys.modules again to clean up
         for m in ['cheeseshop', 'cheeseshop.development']:
             del sys.modules[m]
-
-    def check_settings_error(self, module):
-        # When the settings file cannot be imported the management
-        # script will exit with a message and a specific exit code.
-        self.assertRaises(ImportError, module.main, 'cheeseshop.tilsit')
 
 
 class TestTestScript(ScriptTestCase):
@@ -59,10 +56,6 @@ class TestTestScript(ScriptTestCase):
         self.assertEqual(mock_setdefault.call_args[0],
                          ('DJANGO_SETTINGS_MODULE', 'cheeseshop.nce.development'))
 
-    def test_settings_error(self):
-        from djangorecipe import test
-        self.check_settings_error(test)
-
 
 class TestManageScript(ScriptTestCase):
 
@@ -83,15 +76,15 @@ class TestManageScript(ScriptTestCase):
 
 class TestWSGIScript(ScriptTestCase):
 
-    @mock.patch('django.core.management.setup_environ')
-    @mock.patch('django.core.handlers.wsgi.WSGIHandler')
-    def test_script(self, WSGIHandler, setup_environ):
-        # The wsgi is a wrapper for the django wsgi script.
-        from djangorecipe import wsgi
-        wsgi.main('cheeseshop.development', logfile=None)
-        self.assertEqual(WSGIHandler.call_args, {})
-
-    # Skipping because returning the wsgi runner
-    # def test_settings_error(self):
-    #     from djangorecipe import wsgi
-    #     self.check_settings_error(wsgi)
+    def test_script(self):
+        settings_dotted_path = 'cheeseshop.development'
+        # ^^^ Our regular os.environ.setdefault patching doesn't help.
+        # Patching get_wsgi_application already imports the DB layer, so the
+        # settings are already needed there!
+        with mock.patch('os.environ',
+                        {'DJANGO_SETTINGS_MODULE': settings_dotted_path}):
+            with mock.patch('django.core.wsgi.get_wsgi_application') \
+                 as patched_method:
+                from djangorecipe import wsgi
+                wsgi.main(settings_dotted_path, logfile=None)
+                self.assertTrue(patched_method.called)
