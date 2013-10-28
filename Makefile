@@ -1,10 +1,13 @@
-# Makefile mainly for testing on travis with both buildout 1.x and 2.x.
-# See .travis.yml, it uses the BUILDOUT_VERSION environment variable.
+# Makefile for testing on travis with multiple django versions
+# See .travis.yml, it uses the DJANGO_VERSION environment variable.
+# ^^^ TODO: not yet.
 
 all: build
 
 build:
 	@echo Running bootstrap and buildout
+	pip install -U setuptools
+	# ^^^ This updates setuptools, necessary for bootstrap.
 	python bootstrap.py
 	bin/buildout
 
