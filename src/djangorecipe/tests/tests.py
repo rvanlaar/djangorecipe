@@ -206,7 +206,7 @@ class TestRecipeScripts(BaseTestRecipe):
         # The return value of make scripts lists the generated scripts.
         self.recipe.options['wsgi'] = 'true'
         self.assertEqual(self.recipe.make_scripts([], []),
-                         ['some-path', 'some-path'])
+                         ['some-path'])
 
     def test_create_manage_script(self):
         # This buildout recipe creates a alternative for the standard
