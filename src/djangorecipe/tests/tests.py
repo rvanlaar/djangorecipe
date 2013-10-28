@@ -250,7 +250,7 @@ class TestRecipeScripts(BaseTestRecipe):
         manage = os.path.join(self.bin_dir, 'django')
         self.recipe.options['projectegg'] = 'spameggs'
         self.recipe.create_manage_script([], [])
-        self.assert_(os.path.exists(manage))
+        self.assertTrue(os.path.exists(manage))
         # Check that we have 'spameggs' as the project
         self.assertTrue("djangorecipe.manage.main('spameggs.development')"
                         in open(manage).read())
@@ -304,7 +304,7 @@ class TestTesTRunner(BaseTestRecipe):
         testrunner = os.path.join(self.bin_dir, 'test')
 
         # Show it does not create a test runner by default
-        self.failIf(os.path.exists(testrunner))
+        self.assertFalse(os.path.exists(testrunner))
 
     def test_create_test_runner_with_initialization(self):
         recipe_dir = os.path.abspath(
@@ -337,7 +337,7 @@ class TestBoilerplate(BaseTestRecipe):
                          'urlconf': self.recipe.options['urlconf'],
                          }
         from djangorecipe.boilerplate import versions
-        self.assertEquals(versions['Newest']['settings'] % settings_dict,
+        self.assertEqual(versions['Newest']['settings'] % settings_dict,
                           settings)
 
     def test_boilerplate_1_2(self):
@@ -360,5 +360,5 @@ class TestBoilerplate(BaseTestRecipe):
                          }
         from djangorecipe.boilerplate import versions
 
-        self.assertEquals(versions['1.2']['settings'] % settings_dict,
+        self.assertEqual(versions['1.2']['settings'] % settings_dict,
                           settings)
