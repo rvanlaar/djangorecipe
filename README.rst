@@ -260,3 +260,29 @@ been added to djangorecipe can be used to remedy this problem as shown below::
     initialization =
         import os
         os.environ['DJANGO_SETTINGS_MODULE'] = '${django:project}.${django:settings}'
+
+Example usage of django-configurations
+--------------------------------------
+
+django-configurations (http://django-configurations.readthedocs.org/en/latest/)
+is an application that helps you organize your Django settings into classes.
+Using it requires modifying the manage.py file.  This is done easily using the 
+recipe's `initialization` option::
+
+    [buildout]
+    parts = django
+    eggs =
+        hashlib
+
+    [django]
+    recipe = djangorecipe
+    eggs = ${buildout:eggs}
+    project = myproject
+    initialization =
+        # Patch the manage file for django-configurations
+        import os
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myproject.settings')
+        os.environ.setdefault('DJANGO_CONFIGURATION', 'Development')
+        from configurations.management import execute_from_command_line
+        import django
+        django.core.management.execute_from_command_line = execute_from_command_line
