@@ -159,7 +159,7 @@ class Recipe(object):
         protocol = 'wsgi'
         zc.buildout.easy_install.script_template = \
             zc.buildout.easy_install.script_header + \
-                script_template[protocol]
+            script_template[protocol]
         if self.options.get(protocol, '').lower() == 'true':
             project = self.options.get('projectegg',
                                        self.options['project'])
@@ -191,7 +191,7 @@ class Recipe(object):
                 if not pth_libs:
                     self.log.warning(
                         "No site *.pth libraries found for pth_file=%s" % (
-                         pth_file,))
+                            pth_file,))
                 else:
                     self.log.info("Adding *.pth libraries=%s" % pth_libs)
                     self.options['extra-paths'] += '\n' + '\n'.join(pth_libs)
