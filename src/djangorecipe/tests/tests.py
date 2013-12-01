@@ -200,6 +200,14 @@ class TestRecipeScripts(BaseTestRecipe):
 
         self.assertTrue("logfile='/foo'" in contents)
 
+    def test_make_protocol_named_script_wsgi(self):
+        # A wsgi-script name option is specified
+        self.recipe.options['wsgi'] = 'true'
+        self.recipe.options['wsgi-script'] = 'foo-wsgi.py'
+        self.recipe.make_scripts([], [])
+        wsgi_script = os.path.join(self.bin_dir, 'foo-wsgi.py')
+        self.assertTrue(os.path.exists(wsgi_script))
+
     @mock.patch('zc.buildout.easy_install.scripts',
                 return_value=['some-path'])
     def test_make_protocol_scripts_return_value(self, scripts):

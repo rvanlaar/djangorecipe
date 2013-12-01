@@ -165,7 +165,8 @@ class Recipe(object):
                                        self.options['project'])
             scripts.extend(
                 zc.buildout.easy_install.scripts(
-                    [('%s.%s' % (self.options.get('control-script',
+                    [(self.options.get('wsgi-script') or
+                      '%s.%s' % (self.options.get('control-script',
                                                   self.name),
                                  protocol),
                       'djangorecipe.%s' % protocol, 'main')],

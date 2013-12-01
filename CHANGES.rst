@@ -4,7 +4,7 @@ Changes
 1.7 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Add option to change the wsgi script name.
 
 
 1.6 (2013-10-28)
