@@ -18,7 +18,7 @@ Changes
 - Moved to buildout 2 support only.
 
 - Removed generation of fastcgi script. You can run it easily as ``bin/django
-  runfcgi`` and it will be deprecated in Django 1.7 anway.
+  runfcgi`` and it will be deprecated in Django 1.7 anyway.
 
 
 1.5 (2013-01-25)
