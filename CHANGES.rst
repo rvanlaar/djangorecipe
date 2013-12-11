@@ -1,7 +1,7 @@
 Changes
 =======
 
-1.7 (unreleased)
+1.7 (2013-12-11)
 ----------------
 
 - Add option to change the wsgi script name. Thanks hedleyroos (Fixes pull #74)  
