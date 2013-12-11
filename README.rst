@@ -80,6 +80,10 @@ wsgi
   `true`. This can be used with mod_wsgi to deploy the project. The
   name of the script is `control-script.wsgi`.
 
+wsgi-script
+  The name of the wsgi-script that is generated. This can be useful for
+  gunicorn.
+
 wsgilog
   In case the WSGI server you're using does not allow printing to stdout,
   you can set this variable to a filesystem path - all stdout/stderr data
@@ -266,7 +270,7 @@ Example usage of django-configurations
 
 django-configurations (http://django-configurations.readthedocs.org/en/latest/)
 is an application that helps you organize your Django settings into classes.
-Using it requires modifying the manage.py file.  This is done easily using the 
+Using it requires modifying the manage.py file.  This is done easily using the
 recipe's `initialization` option::
 
     [buildout]
