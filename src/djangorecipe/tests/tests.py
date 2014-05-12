@@ -300,6 +300,47 @@ class TestTesTRunner(BaseTestRecipe):
         self.assertTrue('import os\nassert True\n\nimport djangorecipe'
                         in open(testrunner).read())
 
+    def test_relative_paths_default(self):
+        self.recipe.options['wsgi'] = 'true'
+
+        self.recipe.make_scripts([], [])
+        self.recipe.create_manage_script([], [])
+
+        manage = os.path.join(self.bin_dir, 'django')
+        wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
+
+        expected = base = 'base = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))'
+        self.assertFalse(expected in open(manage).read())
+        self.assertFalse(expected in open(wsgi_script).read())
+
+    def test_relative_paths_true(self):
+        recipe = Recipe({
+                'buildout': {
+                    'eggs-directory': self.eggs_dir,
+                    'develop-eggs-directory': self.develop_eggs_dir,
+                    'python': 'python-version',
+                    'bin-directory': self.bin_dir,
+                    'parts-directory': self.parts_dir,
+                    'directory': self.buildout_dir,
+                    'find-links': '',
+                    'allow-hosts': '',
+                    'develop': '.',
+                    'relative-paths': 'true'
+                    },
+                'python-version': {'executable': sys.executable}},
+                             'django',
+                             {'recipe': 'djangorecipe',
+                              'wsgi': 'true'})
+        recipe.make_scripts([], [])
+        recipe.create_manage_script([], [])
+
+        manage = os.path.join(self.bin_dir, 'django')
+        wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
+
+        expected = base = 'base = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))'
+        self.assertTrue(expected in open(manage).read())
+        self.assertTrue(expected in open(wsgi_script).read())
+
 
 class TestBoilerplate(BaseTestRecipe):
 
