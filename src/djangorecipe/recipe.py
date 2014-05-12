@@ -47,6 +47,16 @@ class Recipe(object):
         options.setdefault('wsgilog', '')
         options.setdefault('logfile', '')
 
+        # respect relative-paths (from zc.recipe.egg)
+        relative_paths = options.get(
+            'relative-paths', buildout['buildout'].get('relative-paths', 'false'))
+        if relative_paths == 'true':
+            options['buildout-directory'] = buildout['buildout']['directory']
+            self._relative_paths = options['buildout-directory']
+        else:
+            self._relative_paths = ''
+            assert relative_paths == 'false'
+
     def install(self):
         base_dir = self.buildout['buildout']['directory']
 
@@ -84,6 +94,7 @@ class Recipe(object):
               'djangorecipe.manage', 'main')],
             ws, sys.executable, self.options['bin-directory'],
             extra_paths=extra_paths,
+            relative_paths=self._relative_paths,
             arguments="'%s.%s'" % (project, self.options['settings']),
             initialization=self.options['initialization'])
 
@@ -97,6 +108,7 @@ class Recipe(object):
                 working_set, sys.executable,
                 self.options['bin-directory'],
                 extra_paths=extra_paths,
+                relative_paths=self._relative_paths,
                 arguments="'%s.%s', %s" % (
                     self.options['project'],
                     self.options['settings'],
@@ -174,6 +186,7 @@ class Recipe(object):
                     sys.executable,
                     self.options['bin-directory'],
                     extra_paths=extra_paths,
+                    relative_paths=self._relative_paths,
                     arguments="'%s.%s', logfile='%s'" % (
                         project, self.options['settings'],
                         self.options.get('logfile')),
