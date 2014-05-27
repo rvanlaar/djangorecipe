@@ -28,13 +28,28 @@ class TestTestScript(ScriptTestCase):
     @mock.patch('os.environ.setdefault')
     def test_script(self, mock_setdefault, execute_from_command_line):
         with mock.patch.object(sys, 'argv', ['bin/test']):
-            # The test script should execute the standard Django test
-            # command with any apps given as its arguments.
+            # The test script should execute the standard Django test command
+            # with any apps configured in djangorecipe given as its arguments.
             from djangorecipe import test
             test.main('cheeseshop.development',  'spamm', 'eggs')
-            # We only care about the arguments given to execute_from_command_line
+            self.assertTrue(execute_from_command_line.called)
             self.assertEqual(execute_from_command_line.call_args[0],
                              (['bin/test', 'test', 'spamm', 'eggs'],))
+            self.assertEqual(mock_setdefault.call_args[0],
+                             ('DJANGO_SETTINGS_MODULE', 'cheeseshop.development'))
+
+    @mock.patch('django.core.management.execute_from_command_line')
+    @mock.patch('os.environ.setdefault')
+    def test_script_with_args(self, mock_setdefault, execute_from_command_line):
+        with mock.patch.object(sys, 'argv', ['bin/test', '--verbose']):
+            # The test script should execute the standard Django test command
+            # with any apps given as its arguments. It should also pass along
+            # command line arguments so that the actual test machinery can
+            # pick them up (like '--verbose' or '--tests=xyz').
+            from djangorecipe import test
+            test.main('cheeseshop.development',  'spamm', 'eggs')
+            self.assertEqual(execute_from_command_line.call_args[0],
+                             (['bin/test', 'test', 'spamm', 'eggs', '--verbose'],))
             self.assertEqual(mock_setdefault.call_args[0],
                              ('DJANGO_SETTINGS_MODULE', 'cheeseshop.development'))
 
