@@ -75,6 +75,12 @@ initialization
   `control-script`. This is very limited. In particular, be aware that
   leading whitespace is stripped from the code given.
 
+deploy_script_extra
+  In the `wsgi` deployment script, you sometimes need to wrap the application
+  in a custom wrapper for some cloud providers. This setting allows extra
+  content to be appended to the end of the wsgi script. The limits described
+  above for `initialization` also apply here.
+
 wsgi
   An extra script is generated in the bin folder when this is set to
   `true`. This can be used with mod_wsgi to deploy the project. The

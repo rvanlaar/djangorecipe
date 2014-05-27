@@ -208,6 +208,15 @@ class TestRecipeScripts(BaseTestRecipe):
         wsgi_script = os.path.join(self.bin_dir, 'foo-wsgi.py')
         self.assertTrue(os.path.exists(wsgi_script))
 
+    def test_deploy_script_extra(self):
+        extra_val = '#--deploy_script_extra--'
+        self.recipe.options['wsgi'] = 'true'
+        self.recipe.options['deploy_script_extra'] = extra_val
+        self.recipe.make_scripts([], [])
+        wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
+        contents = open(wsgi_script).read()
+        self.assertTrue(extra_val in contents)
+
     @mock.patch('zc.buildout.easy_install.scripts',
                 return_value=['some-path'])
     def test_make_protocol_scripts_return_value(self, scripts):

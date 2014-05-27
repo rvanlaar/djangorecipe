@@ -10,6 +10,10 @@ Changes
   list_of_apps`` would be done. Now command line arguments are passed as-is
   after the list of apps.
 
+- Added ``deploy_script_extra`` option. It is appended to the wsgi script.
+  Useful for instance for a cloud hoster where you need to wrap your wsgi
+  application object in a custom call.
+
 
 1.8 (2014-05-27)
 ----------------
