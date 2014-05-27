@@ -2,7 +2,7 @@ Changes
 =======
 
 
-1.8 (unreleased)
+1.8 (2014-05-27)
 ----------------
 
 - Supporting buildout's relative-paths setting now.
