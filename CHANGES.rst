@@ -5,7 +5,10 @@ Changes
 1.9 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- ``bin/test`` now passes along command line arguments to the underlying
+  management command. Previously, only the equivalent of ``manage.py test
+  list_of_apps`` would be done. Now command line arguments are passed as-is
+  after the list of apps.
 
 
 1.8 (2014-05-27)
