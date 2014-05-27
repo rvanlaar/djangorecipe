@@ -1,16 +1,17 @@
 Changes
 =======
 
+
 1.8 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Supporting buildout's relative-paths setting now.
 
 
 1.7 (2013-12-11)
 ----------------
 
-- Add option to change the wsgi script name. Thanks hedleyroos (Fixes pull #74)  
+- Add option to change the wsgi script name. Thanks hedleyroos (Fixes pull #74)
 
 1.6 (2013-10-28)
 ----------------
