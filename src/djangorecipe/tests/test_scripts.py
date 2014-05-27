@@ -27,15 +27,16 @@ class TestTestScript(ScriptTestCase):
     @mock.patch('django.core.management.execute_from_command_line')
     @mock.patch('os.environ.setdefault')
     def test_script(self, mock_setdefault, execute_from_command_line):
-        # The test script should execute the standard Django test
-        # command with any apps given as its arguments.
-        from djangorecipe import test
-        test.main('cheeseshop.development',  'spamm', 'eggs')
-        # We only care about the arguments given to execute_from_command_line
-        self.assertEqual(execute_from_command_line.call_args[0],
-                         (['test', 'test', 'spamm', 'eggs'],))
-        self.assertEqual(mock_setdefault.call_args[0],
-                         ('DJANGO_SETTINGS_MODULE', 'cheeseshop.development'))
+        with mock.patch.object(sys, 'argv', ['bin/test']):
+            # The test script should execute the standard Django test
+            # command with any apps given as its arguments.
+            from djangorecipe import test
+            test.main('cheeseshop.development',  'spamm', 'eggs')
+            # We only care about the arguments given to execute_from_command_line
+            self.assertEqual(execute_from_command_line.call_args[0],
+                             (['bin/test', 'test', 'spamm', 'eggs'],))
+            self.assertEqual(mock_setdefault.call_args[0],
+                             ('DJANGO_SETTINGS_MODULE', 'cheeseshop.development'))
 
     @mock.patch('django.core.management.execute_from_command_line')
     @mock.patch('os.environ.setdefault')
