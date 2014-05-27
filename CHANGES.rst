@@ -2,7 +2,7 @@ Changes
 =======
 
 
-1.9 (unreleased)
+1.9 (2014-05-27)
 ----------------
 
 - ``bin/test`` now passes along command line arguments to the underlying
