@@ -91,15 +91,9 @@ class Recipe(object):
     def create_manage_script(self, extra_paths, ws):
         project = self.options.get('projectegg', self.options['project'])
 
-        # By default, it's "project.settings".
-        default_arguments = '%s.%s' % (project,
-                                       self.options['settings'])
-
-        # Setting the 'management_custom_args' field allows you to have
-        # custom arguments when calling the management.main(), which might
-        # be useful to projects with poor folder structure.
-        arguments = self.options.get('management_custom_args',
-                                     default_arguments)
+        settings_path = '%s.%s' % (project, self.options['settings'])
+        arguments = self.options.get('dotted-settings-path', 
+                                     settings_path)
 
         return zc.buildout.easy_install.scripts(
             [(self.options.get('control-script', self.name),
