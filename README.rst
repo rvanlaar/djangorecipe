@@ -115,6 +115,10 @@ secret
   The secret to use for the `settings.py`, it generates a random
   string by default.
 
+dotted-settings-path
+  Use this option to specify a custom settings path to be used by the
+  `manage.main()` command.
+
 
 Another example
 -----------------
@@ -142,6 +146,7 @@ The next example shows you how to use some more of the options::
   test =
     someapp
     anotherapp
+  dotted-settings-path = src.project.settings
 
 Example using .pth files
 -------------------------

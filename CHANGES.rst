@@ -20,6 +20,9 @@ Changes
   Useful for instance for a cloud hoster where you need to wrap your wsgi
   application object in a custom call.
 
+- Added ``dotted-settings-path`` option. Useful when you want to specify a
+  custom settings path to be used by the ``manage.main()`` command.
+
 
 1.8 (2014-05-27)
 ----------------
