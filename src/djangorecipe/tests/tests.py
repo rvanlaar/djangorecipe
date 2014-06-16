@@ -138,6 +138,14 @@ class TestRecipe(BaseTestRecipe):
         self.assertTrue("djangorecipe.manage.main('project.spameggs')"
                         in open(manage).read())
 
+    def test_dotted_settings_path_option(self):
+        self.assertEqual(self.recipe.options['settings'], 'development')
+        self.recipe.options['dotted-settings-path'] = 'myproj.conf.production'
+        self.recipe.create_manage_script([], [])
+        manage = os.path.join(self.bin_dir, 'django')
+        self.assertTrue("djangorecipe.manage.main('myproj.conf.production')"
+                        in open(manage).read())
+
     def test_create_project(self):
         # If a project does not exist already the recipe will create
         # one.
