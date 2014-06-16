@@ -57,6 +57,12 @@ settings
   production setup from your development setup. It defaults to
   `development`.
 
+dotted-settings-path
+  Use this option to specify a custom settings path to be used. By default,
+  the ``project`` and ``settings`` option values are used, so for instance
+  ``myproject.development``. ``dotted-settings-path =
+  somewhere.else.production`` allows you to customize it.
+
 extra-paths
   All paths specified here will be used to extend the default Python
   path for the `bin/*` scripts.
@@ -115,10 +121,6 @@ secret
   The secret to use for the `settings.py`, it generates a random
   string by default.
 
-dotted-settings-path
-  Use this option to specify a custom settings path to be used by the
-  `manage.main()` command.
-
 
 Another example
 -----------------
@@ -146,7 +148,8 @@ The next example shows you how to use some more of the options::
   test =
     someapp
     anotherapp
-  dotted-settings-path = src.project.settings
+  dotted-settings-path = projectconfig.production.settings
+
 
 Example using .pth files
 -------------------------
