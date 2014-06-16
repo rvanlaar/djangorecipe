@@ -2,7 +2,7 @@ Changes
 =======
 
 
-1.10 (unreleased)
+1.10 (2014-06-16)
 -----------------
 
 - Added ``dotted-settings-path`` option. Useful when you want to specify a
