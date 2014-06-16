@@ -5,7 +5,12 @@ Changes
 1.10 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Added ``dotted-settings-path`` option. Useful when you want to specify a
+  custom settings path to be used by the ``manage.main()`` command.
+
+- Renamed ``deploy_script_extra`` (with underscores) to
+  ``deploy-script-extra`` (with dashes) for consistency with the other
+  options. If the underscore version is found, an exception is raised.
 
 
 1.9 (2014-05-27)
@@ -19,9 +24,6 @@ Changes
 - Added ``deploy_script_extra`` option. It is appended to the wsgi script.
   Useful for instance for a cloud hoster where you need to wrap your wsgi
   application object in a custom call.
-
-- Added ``dotted-settings-path`` option. Useful when you want to specify a
-  custom settings path to be used by the ``manage.main()`` command.
 
 
 1.8 (2014-05-27)

@@ -41,7 +41,7 @@ class Recipe(object):
             options.setdefault('extra-paths', options.get('pythonpath', ''))
 
         options.setdefault('initialization', '')
-        options.setdefault('deploy_script_extra', '')
+        options.setdefault('deploy-script-extra', '')
 
         # mod_wsgi support script
         options.setdefault('wsgi', 'false')
@@ -92,7 +92,7 @@ class Recipe(object):
         project = self.options.get('projectegg', self.options['project'])
 
         settings_path = '%s.%s' % (project, self.options['settings'])
-        arguments = self.options.get('dotted-settings-path', 
+        arguments = self.options.get('dotted-settings-path',
                                      settings_path)
 
         return zc.buildout.easy_install.scripts(
@@ -175,10 +175,15 @@ class Recipe(object):
         scripts = []
         _script_template = zc.buildout.easy_install.script_template
         protocol = 'wsgi'
+        if 'deploy_script_extra' in self.options:
+            # Renamed between 1.9 and 1.10
+            raise ValueError(
+                "'deploy_script_extra' option found (with underscores). " +
+                "This has been renamed to 'deploy-script-extra'.")
         zc.buildout.easy_install.script_template = (
             zc.buildout.easy_install.script_header +
             script_template[protocol] +
-            self.options['deploy_script_extra']
+            self.options['deploy-script-extra']
         )
         if self.options.get(protocol, '').lower() == 'true':
             project = self.options.get('projectegg',
