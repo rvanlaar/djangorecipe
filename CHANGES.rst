@@ -2,7 +2,7 @@ Changes
 =======
 
 
-1.11 (unreleased)
+1.11 (2014-11-21)
 -----------------
 
 - The ``dotted-settings-path`` options was only used in management script. Now
