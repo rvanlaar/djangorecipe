@@ -89,22 +89,18 @@ class Recipe(object):
         return script_paths
 
     def create_manage_script(self, extra_paths, ws):
-        project = self.options.get('projectegg', self.options['project'])
-
-        settings_path = '%s.%s' % (project, self.options['settings'])
-        arguments = self.options.get('dotted-settings-path',
-                                     settings_path)
-
+        settings = self.get_settings()
         return zc.buildout.easy_install.scripts(
             [(self.options.get('control-script', self.name),
               'djangorecipe.manage', 'main')],
             ws, sys.executable, self.options['bin-directory'],
             extra_paths=extra_paths,
             relative_paths=self._relative_paths,
-            arguments="'%s'" % arguments,
+            arguments="'%s'" % settings,
             initialization=self.options['initialization'])
 
     def create_test_runner(self, extra_paths, working_set):
+        settings = self.get_settings()
         apps = self.options.get('test', '').split()
         # Only create the testrunner if the user requests it
         if apps:
@@ -115,10 +111,8 @@ class Recipe(object):
                 self.options['bin-directory'],
                 extra_paths=extra_paths,
                 relative_paths=self._relative_paths,
-                arguments="'%s.%s', %s" % (
-                    self.options['project'],
-                    self.options['settings'],
-                    ', '.join(["'%s'" % app for app in apps])),
+                arguments="'%s', %s" % (
+                    settings, ', '.join(["'%s'" % app for app in apps])),
                 initialization=self.options['initialization'])
         else:
             return []
@@ -175,6 +169,7 @@ class Recipe(object):
         scripts = []
         _script_template = zc.buildout.easy_install.script_template
         protocol = 'wsgi'
+        settings = self.get_settings()
         if 'deploy_script_extra' in self.options:
             # Renamed between 1.9 and 1.10
             raise ValueError(
@@ -186,8 +181,6 @@ class Recipe(object):
             self.options['deploy-script-extra']
         )
         if self.options.get(protocol, '').lower() == 'true':
-            project = self.options.get('projectegg',
-                                       self.options['project'])
             scripts.extend(
                 zc.buildout.easy_install.scripts(
                     [(self.options.get('wsgi-script') or
@@ -200,9 +193,8 @@ class Recipe(object):
                     self.options['bin-directory'],
                     extra_paths=extra_paths,
                     relative_paths=self._relative_paths,
-                    arguments="'%s.%s', logfile='%s'" % (
-                        project, self.options['settings'],
-                        self.options.get('logfile')),
+                    arguments="'%s', logfile='%s'" % (
+                        settings, self.options.get('logfile')),
                     initialization=self.options['initialization'],
                 ))
         zc.buildout.easy_install.script_template = _script_template
@@ -253,3 +245,9 @@ class Recipe(object):
     def generate_secret(self):
         chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
         return ''.join([choice(chars) for i in range(50)])
+
+    def get_settings(self):
+        project = self.options.get('projectegg', self.options['project'])
+        settings = '%s.%s' % (project, self.options['settings'])
+        settings = self.options.get('dotted-settings-path', settings)
+        return settings
