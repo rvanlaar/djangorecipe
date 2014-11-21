@@ -5,7 +5,8 @@ Changes
 1.11 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- The ``dotted-settings-path`` options was only used in management script. Now
+  it is also used for the generated wsgi file and the test scripts.
 
 
 1.10 (2014-06-16)
