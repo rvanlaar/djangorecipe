@@ -274,6 +274,17 @@ class TestRecipeScripts(BaseTestRecipe):
         # Check that we have 'spameggs' as the project
         self.assertTrue('spameggs.development' in open(wsgi).read())
 
+    def test_dotted_settings_path_option(self):
+        self.assertEqual(self.recipe.options['settings'], 'development')
+        self.recipe.options['wsgi'] = 'true'
+        self.recipe.options['dotted-settings-path'] = 'myproj.conf.production'
+        self.recipe.make_scripts([], [])
+        wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
+        self.assertTrue("application = "
+                        "djangorecipe.wsgi.main('myproj.conf.production', "
+                        "logfile='')"
+                        in open(wsgi_script).read())
+
 
 class TestTesTRunner(BaseTestRecipe):
 
