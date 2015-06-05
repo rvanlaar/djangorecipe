@@ -187,10 +187,6 @@ class Recipe(object):
         f.write(template % options)
         f.close()
 
-    def generate_secret(self):
-        chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
-        return ''.join([choice(chars) for i in range(50)])
-
     def get_settings(self):
         settings = '%s.%s' % (self.options['project'], self.options['settings'])
         settings = self.options.get('dotted-settings-path', settings)

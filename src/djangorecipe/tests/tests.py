@@ -79,14 +79,6 @@ class TestRecipe(BaseTestRecipe):
         # Now remove our temp file
         os.remove(name)
 
-    def test_generate_secret(self):
-        # To create a basic skeleton the recipe also generates a
-        # random secret for the settings file. Since it should very
-        # unlikely that it will generate the same key a few times in a
-        # row we will test it with letting it generate a few keys.
-        self.assertEqual(
-            10, len(set(self.recipe.generate_secret() for i in range(10))))
-
     def test_version_option_deprecation(self):
         from zc.buildout import UserError
         options = {'recipe': 'djangorecipe',
