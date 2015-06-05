@@ -36,11 +36,13 @@ class TestTestScript(ScriptTestCase):
             self.assertEqual(execute_from_command_line.call_args[0],
                              (['bin/test', 'test', 'spamm', 'eggs'],))
             self.assertEqual(mock_setdefault.call_args[0],
-                             ('DJANGO_SETTINGS_MODULE', 'cheeseshop.development'))
+                             ('DJANGO_SETTINGS_MODULE',
+                              'cheeseshop.development'))
 
     @mock.patch('django.core.management.execute_from_command_line')
     @mock.patch('os.environ.setdefault')
-    def test_script_with_args(self, mock_setdefault, execute_from_command_line):
+    def test_script_with_args(self, mock_setdefault,
+                              execute_from_command_line):
         with mock.patch.object(sys, 'argv', ['bin/test', '--verbose']):
             # The test script should execute the standard Django test command
             # with any apps given as its arguments. It should also pass along
@@ -48,14 +50,17 @@ class TestTestScript(ScriptTestCase):
             # pick them up (like '--verbose' or '--tests=xyz').
             from djangorecipe import test
             test.main('cheeseshop.development',  'spamm', 'eggs')
-            self.assertEqual(execute_from_command_line.call_args[0],
-                             (['bin/test', 'test', 'spamm', 'eggs', '--verbose'],))
-            self.assertEqual(mock_setdefault.call_args[0],
-                             ('DJANGO_SETTINGS_MODULE', 'cheeseshop.development'))
+            self.assertEqual(
+                execute_from_command_line.call_args[0],
+                (['bin/test', 'test', 'spamm', 'eggs', '--verbose'],))
+            self.assertEqual(
+                mock_setdefault.call_args[0],
+                ('DJANGO_SETTINGS_MODULE', 'cheeseshop.development'))
 
     @mock.patch('django.core.management.execute_from_command_line')
     @mock.patch('os.environ.setdefault')
-    def test_deeply_nested_settings(self, mock_setdefault, execute_from_command_line):
+    def test_deeply_nested_settings(self, mock_setdefault,
+                                    execute_from_command_line):
         # Settings files can be more than two levels deep. We need to
         # make sure the test script can properly import those. To
         # demonstrate this we need to add another level to our
@@ -69,8 +74,9 @@ class TestTestScript(ScriptTestCase):
         sys.modules['cheeseshop.nce.development'] = settings
         from djangorecipe import test
         test.main('cheeseshop.nce.development',  'tilsit', 'stilton')
-        self.assertEqual(mock_setdefault.call_args[0],
-                         ('DJANGO_SETTINGS_MODULE', 'cheeseshop.nce.development'))
+        self.assertEqual(
+            mock_setdefault.call_args[0],
+            ('DJANGO_SETTINGS_MODULE', 'cheeseshop.nce.development'))
 
 
 class TestManageScript(ScriptTestCase):

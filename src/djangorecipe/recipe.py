@@ -1,7 +1,6 @@
 from random import choice
 import os
 import logging
-import re
 import sys
 
 from zc.buildout import UserError
@@ -50,7 +49,8 @@ class Recipe(object):
 
         # respect relative-paths (from zc.recipe.egg)
         relative_paths = options.get(
-            'relative-paths', buildout['buildout'].get('relative-paths', 'false'))
+            'relative-paths', buildout['buildout'].get('relative-paths',
+                                                       'false'))
         if relative_paths == 'true':
             options['buildout-directory'] = buildout['buildout']['directory']
             self._relative_paths = options['buildout-directory']
@@ -59,10 +59,6 @@ class Recipe(object):
             assert relative_paths == 'false'
 
     def install(self):
-        base_dir = self.buildout['buildout']['directory']
-
-        project_dir = os.path.join(base_dir, self.options['project'])
-
         extra_paths = self.get_extra_paths()
         requirements, ws = self.egg.working_set(['djangorecipe'])
 
@@ -109,7 +105,8 @@ class Recipe(object):
 
     def create_project(self, project_dir):
         raise UserError(
-            'Creating projects is deprecated. Just use bin/django startproject. See '
+            'Creating projects is deprecated. '
+            'Just use bin/django startproject. See '
             'https://docs.djangoproject.com/en/1.8/ref/django-admin/#django-admin-startproject'
             )
 

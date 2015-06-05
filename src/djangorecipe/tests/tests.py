@@ -1,4 +1,3 @@
-import copy
 import os
 import shutil
 import sys
@@ -167,9 +166,9 @@ class TestRecipeScripts(BaseTestRecipe):
 
         # The contents should list our paths
         contents = open(wsgi_script).read()
-         # It should also have a reference to our settings module
+        # It should also have a reference to our settings module
         self.assertTrue('project.development' in contents)
-         # and a line which set's up the WSGI app
+        # and a line which set's up the WSGI app
         self.assertTrue("application = "
                         "djangorecipe.wsgi.main('project.development', "
                         "logfile='')"
@@ -328,23 +327,23 @@ class TestTesTRunner(BaseTestRecipe):
         self.assertFalse(expected in open(wsgi_script).read())
 
     def test_relative_paths_true(self):
-        recipe = Recipe({
-                'buildout': {
-                    'eggs-directory': self.eggs_dir,
-                    'develop-eggs-directory': self.develop_eggs_dir,
-                    'python': 'python-version',
-                    'bin-directory': self.bin_dir,
-                    'parts-directory': self.parts_dir,
-                    'directory': self.buildout_dir,
-                    'find-links': '',
-                    'allow-hosts': '',
-                    'develop': '.',
-                    'relative-paths': 'true'
-                    },
-                'python-version': {'executable': sys.executable}},
-                             'django',
-                             {'recipe': 'djangorecipe',
-                              'wsgi': 'true'})
+        recipe = Recipe(
+            {'buildout': {
+                'eggs-directory': self.eggs_dir,
+                'develop-eggs-directory': self.develop_eggs_dir,
+                'python': 'python-version',
+                'bin-directory': self.bin_dir,
+                'parts-directory': self.parts_dir,
+                'directory': self.buildout_dir,
+                'find-links': '',
+                'allow-hosts': '',
+                'develop': '.',
+                'relative-paths': 'true'},
+             'python-version': {'executable': sys.executable}
+         },
+            'django',
+            {'recipe': 'djangorecipe',
+             'wsgi': 'true'})
         recipe.make_scripts([], [])
         recipe.create_manage_script([], [])
 
