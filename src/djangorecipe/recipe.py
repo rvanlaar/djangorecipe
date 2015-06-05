@@ -192,7 +192,6 @@ class Recipe(object):
         return ''.join([choice(chars) for i in range(50)])
 
     def get_settings(self):
-        project = self.options.get('projectegg', self.options['project'])
-        settings = '%s.%s' % (project, self.options['settings'])
+        settings = '%s.%s' % (self.options['project'], self.options['settings'])
         settings = self.options.get('dotted-settings-path', settings)
         return settings

@@ -227,37 +227,12 @@ class TestRecipeScripts(BaseTestRecipe):
         self.recipe.create_manage_script([], [])
         self.assertTrue(os.path.exists(manage))
 
-    def test_create_manage_script_projectegg(self):
-        # When a projectegg is specified, then the egg specified
-        # should get used as the project file.
-        manage = os.path.join(self.bin_dir, 'django')
-        self.recipe.options['projectegg'] = 'spameggs'
-        self.recipe.create_manage_script([], [])
-        self.assertTrue(os.path.exists(manage))
-        # Check that we have 'spameggs' as the project
-        self.assertTrue("djangorecipe.manage.main('spameggs.development')"
-                        in open(manage).read())
-
     def test_create_manage_script_with_initialization(self):
         manage = os.path.join(self.bin_dir, 'django')
         self.recipe.options['initialization'] = 'import os\nassert True'
         self.recipe.create_manage_script([], [])
         self.assertTrue('import os\nassert True\n\nimport djangorecipe'
                         in open(manage).read())
-
-    def test_create_wsgi_script_projectegg(self):
-        # When a projectegg is specified, then the egg specified
-        # should get used as the project in the wsgi script.
-        wsgi = os.path.join(self.bin_dir, 'django.wsgi')
-        recipe_dir = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..'))
-        self.recipe.options['projectegg'] = 'spameggs'
-        self.recipe.options['wsgi'] = 'true'
-        self.recipe.make_scripts([recipe_dir], [])
-
-        self.assertTrue(os.path.exists(wsgi))
-        # Check that we have 'spameggs' as the project
-        self.assertTrue('spameggs.development' in open(wsgi).read())
 
     def test_dotted_settings_path_option(self):
         self.assertEqual(self.recipe.options['settings'], 'development')
