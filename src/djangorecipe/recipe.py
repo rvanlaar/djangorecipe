@@ -56,8 +56,15 @@ class Recipe(object):
             self._relative_paths = ''
             assert relative_paths == 'false'
 
-
     def install(self):
+        if self.options['project'] not in os.listdir(
+                self.buildout['buildout']['directory']):
+            # Only warn for this upon install, not on update.
+            self.log.warn(
+                "There's no directory named after our project. "
+                "Probably you want to run 'bin/django startproject %s'",
+                self.options['project'])
+
         extra_paths = self.get_extra_paths()
         ws = self.egg.working_set(['djangorecipe'])[1]
         # ^^^ working_set returns (requirements, ws)
