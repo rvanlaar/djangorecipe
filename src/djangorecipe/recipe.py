@@ -180,11 +180,10 @@ class Recipe(object):
         # Make the wsgi script if enabled
         self.make_wsgi_script(extra_paths, ws)
 
-    def create_file(self, file, template, options):
-        if os.path.exists(file):
+    def create_file(self, filename, template, options):
+        if os.path.exists(filename):
             return
-
-        f = open(file, 'w')
+        f = open(filename, 'w')
         f.write(template % options)
         f.close()
 
