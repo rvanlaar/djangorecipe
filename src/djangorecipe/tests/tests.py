@@ -146,20 +146,6 @@ class TestRecipe(BaseTestRecipe):
         self.assertTrue("djangorecipe.manage.main('myproj.conf.production')"
                         in open(manage).read())
 
-    def test_create_project(self):
-        # If a project does not exist already the recipe will create
-        # one.
-        project_dir = os.path.join(self.buildout_dir, 'project')
-        self.recipe.create_project(project_dir)
-
-        # This should have create a project directory
-        self.assertTrue(os.path.exists(project_dir))
-        # With this directory we should have a list of files.
-        for f in ('settings.py', 'development.py', 'production.py',
-                  '__init__.py', 'urls.py', 'media', 'templates'):
-            self.assertTrue(
-                os.path.exists(os.path.join(project_dir, f)))
-
 
 class TestRecipeScripts(BaseTestRecipe):
 
@@ -337,7 +323,7 @@ class TestTesTRunner(BaseTestRecipe):
         manage = os.path.join(self.bin_dir, 'django')
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
 
-        expected = base = 'base = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))'
+        expected = 'base = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))'
         self.assertFalse(expected in open(manage).read())
         self.assertFalse(expected in open(wsgi_script).read())
 
@@ -368,47 +354,3 @@ class TestTesTRunner(BaseTestRecipe):
         expected = base = 'base = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))'
         self.assertTrue(expected in open(manage).read())
         self.assertTrue(expected in open(wsgi_script).read())
-
-
-class TestBoilerplate(BaseTestRecipe):
-
-    def test_boilerplate_newest(self):
-        """Test the default boilerplate."""
-
-        project_dir = os.path.join(self.buildout_dir, 'project')
-
-        secret = '$55upfci7a#gi@&e9o1-hb*k+f$3+(&b$j=cn67h#22*0%-bj0'
-        self.recipe.generate_secret = lambda: secret
-
-        self.recipe.create_project(project_dir)
-        settings = open(os.path.join(project_dir, 'settings.py')).read()
-        settings_dict = {'project': self.recipe.options['project'],
-                         'secret': secret,
-                         'urlconf': self.recipe.options['urlconf'],
-                         }
-        from djangorecipe.boilerplate import versions
-        self.assertEqual(versions['Newest']['settings'] % settings_dict,
-                          settings)
-
-    def test_boilerplate_1_2(self):
-        """Test the boilerplate for django 1.2."""
-
-        recipe_args = copy.deepcopy(self.recipe_initialisation)
-
-        recipe_args[0]['versions'] = {'django': '1.2.5'}
-        recipe = Recipe(*recipe_args)
-
-        secret = '$55upfci7a#gi@&e9o1-hb*k+f$3+(&b$j=cn67h#22*0%-bj0'
-        recipe.generate_secret = lambda: secret
-
-        project_dir = os.path.join(self.buildout_dir, 'project')
-        recipe.create_project(project_dir)
-        settings = open(os.path.join(project_dir, 'settings.py')).read()
-        settings_dict = {'project': self.recipe.options['project'],
-                         'secret': secret,
-                         'urlconf': self.recipe.options['urlconf'],
-                         }
-        from djangorecipe.boilerplate import versions
-
-        self.assertEqual(versions['1.2']['settings'] % settings_dict,
-                          settings)

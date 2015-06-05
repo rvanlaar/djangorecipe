@@ -7,7 +7,7 @@ import sys
 from zc.buildout import UserError
 import zc.recipe.egg
 
-from djangorecipe.boilerplate import script_template, versions
+from djangorecipe.boilerplate import script_template
 
 
 class Recipe(object):
@@ -76,16 +76,6 @@ class Recipe(object):
         # Make the wsgi and fastcgi scripts if enabled
         script_paths.extend(self.make_scripts(extra_paths, ws))
 
-        # Create default settings if we haven't got a project
-        # egg specified, and if it doesn't already exist
-        if not self.options.get('projectegg'):
-            if not os.path.exists(project_dir):
-                self.create_project(project_dir)
-            else:
-                self.log.info(
-                    'Skipping creating of project: %(project)s since '
-                    'it exists' % self.options)
-
         return script_paths
 
     def create_manage_script(self, extra_paths, ws):
@@ -118,52 +108,10 @@ class Recipe(object):
             return []
 
     def create_project(self, project_dir):
-        os.makedirs(project_dir)
-
-        # Find the current Django versions in the buildout versions.
-        # Assume the newest Django when no version is found.
-        version = None
-        b_versions = self.buildout.get('versions')
-        if b_versions:
-            django_version = (
-                b_versions.get('django') or
-                b_versions.get('Django')
+        raise UserError(
+            'Creating projects is deprecated. Just use bin/django startproject. See '
+            'https://docs.djangoproject.com/en/1.8/ref/django-admin/#django-admin-startproject'
             )
-            if django_version:
-                version_re = re.compile("\d+\.\d+")
-                match = version_re.match(django_version)
-                version = match and match.group()
-
-        config = versions.get(version, versions['Newest'])
-
-        template_vars = {'secret': self.generate_secret()}
-        template_vars.update(self.options)
-
-        self.create_file(
-            os.path.join(project_dir, 'development.py'),
-            config['development_settings'], template_vars)
-
-        self.create_file(
-            os.path.join(project_dir, 'production.py'),
-            config['production_settings'], template_vars)
-
-        self.create_file(
-            os.path.join(project_dir, 'urls.py'),
-            config['urls'], template_vars)
-
-        self.create_file(
-            os.path.join(project_dir, 'settings.py'),
-            config['settings'], template_vars)
-
-        # Create the media and templates directories for our
-        # project
-        os.mkdir(os.path.join(project_dir, 'media'))
-        os.mkdir(os.path.join(project_dir, 'templates'))
-
-        # Make the settings dir a Python package so that Django
-        # can load the settings from it. It will act like the
-        # project dir.
-        open(os.path.join(project_dir, '__init__.py'), 'w').close()
 
     def make_scripts(self, extra_paths, ws):
         scripts = []
