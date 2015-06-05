@@ -11,6 +11,13 @@ from djangorecipe.boilerplate import script_template
 
 class Recipe(object):
     def __init__(self, buildout, name, options):
+        self.log = logging.getLogger(name)
+        self.egg = zc.recipe.egg.Egg(buildout, options['recipe'], options)
+        self.buildout, self.name, self.options = buildout, name, options
+        options['location'] = os.path.join(
+            buildout['buildout']['parts-directory'], name)
+        options['bin-directory'] = buildout['buildout']['bin-directory']
+
         # Deprecations
         if 'version' in options:
             raise UserError('The version option is deprecated. '
@@ -21,16 +28,7 @@ class Recipe(object):
                           "See the changelog for 2.0 at "
                           "http://pypi.python.org/pypi/djangorecipe/2.0")
 
-        # TODO: Check if dir exists, otherwise hint at bin/django
-
-        self.log = logging.getLogger(name)
-        self.egg = zc.recipe.egg.Egg(buildout, options['recipe'], options)
-
-        self.buildout, self.name, self.options = buildout, name, options
-        options['location'] = os.path.join(
-            buildout['buildout']['parts-directory'], name)
-        options['bin-directory'] = buildout['buildout']['bin-directory']
-
+        # Option defaults.
         options.setdefault('project', 'project')
         options.setdefault('settings', 'development')
 
