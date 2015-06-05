@@ -1,4 +1,3 @@
-from random import choice
 import os
 import logging
 import sys
