@@ -5,6 +5,7 @@ import tempfile
 import unittest
 
 import mock
+from zc.buildout import UserError
 
 from djangorecipe.recipe import Recipe
 
@@ -79,11 +80,20 @@ class TestRecipe(BaseTestRecipe):
         # Now remove our temp file
         os.remove(name)
 
-    def test_version_option_deprecation(self):
-        from zc.buildout import UserError
+    def test_version_option_deprecation1(self):
         options = {'recipe': 'djangorecipe',
                    'version': 'trunk',
                    'wsgi': 'true'}
+        self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
+
+    def test_version_option_deprecation2(self):
+        options = {'recipe': 'djangorecipe',
+                   'wsgilog': 'something'}
+        self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
+
+    def test_version_option_deprecation3(self):
+        options = {'recipe': 'djangorecipe',
+                   'projectegg': 'something'}
         self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
 
     @mock.patch('zc.recipe.egg.egg.Scripts.working_set',

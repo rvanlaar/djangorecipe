@@ -23,9 +23,9 @@ class Recipe(object):
                             'Read about the change on '
                             'http://pypi.python.org/pypi/djangorecipe/2.0')
         if 'projectegg' in options:
-            self.log.warn("The projectegg option is deprecated. "
-                          "See the changelog for 2.0 at "
-                          "http://pypi.python.org/pypi/djangorecipe/2.0")
+            raise UserError("The projectegg option is deprecated. "
+                            "See the changelog for 2.0 at "
+                            "http://pypi.python.org/pypi/djangorecipe/2.0")
 
         # Generic initialization.
         self.egg = zc.recipe.egg.Egg(buildout, options['recipe'], options)
