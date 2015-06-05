@@ -11,11 +11,18 @@ from djangorecipe.boilerplate import script_template
 
 class Recipe(object):
     def __init__(self, buildout, name, options):
-        # The use of version is deprecated.
+        # Deprecations
         if 'version' in options:
             raise UserError('The version option is deprecated. '
                             'Read about the change on '
                             'http://pypi.python.org/pypi/djangorecipe/0.99')
+        if 'projectegg' in options:
+            self.log.warn("The projectegg option is deprecated. "
+                          "See the changelog for 2.0 at "
+                          "http://pypi.python.org/pypi/djangorecipe/2.0")
+
+        # TODO: Check if dir exists, otherwise hint at bin/django
+
         self.log = logging.getLogger(name)
         self.egg = zc.recipe.egg.Egg(buildout, options['recipe'], options)
 
@@ -102,13 +109,6 @@ class Recipe(object):
                 initialization=self.options['initialization'])
         else:
             return []
-
-    def create_project(self, project_dir):
-        raise UserError(
-            'Creating projects is deprecated. '
-            'Just use bin/django startproject. See '
-            'https://docs.djangoproject.com/en/1.8/ref/django-admin/#django-admin-startproject'
-            )
 
     def make_scripts(self, extra_paths, ws):
         scripts = []

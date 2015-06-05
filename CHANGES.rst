@@ -2,10 +2,24 @@ Changes
 =======
 
 
-1.12 (unreleased)
+2.0 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Removed project generation. Previously, djangorecipe would generate a
+  directory for you from a template, but Django's own template is more than
+  good enough now. Especially: it generates a subdirectory for your project
+  now. Just run ``bin/django startproject <projectname>``.
+
+  See django's documentation for `startproject
+  <https://docs.djangoproject.com/en/1.8/ref/django-admin/#django-admin-startproject>`_.
+
+  You can also look at `cookiecutter <https://cookiecutter.readthedocs.org/>`_.
+
+  This also means the ``projectegg`` option is now deprecated, it isn't needed
+  anymore.
+
+- We aim at django 1.7 and 1.8 now. Django 1.4 still works, (except that that
+  one doesn't have a good startproject command).
 
 
 1.11 (2014-11-21)
