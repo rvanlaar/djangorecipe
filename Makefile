@@ -14,7 +14,7 @@ ifeq ($(DJANGO_VERSION),1.4)
 	bin/buildout -c buildout14.cfg
 endif
 ifeq ($(DJANGO_VERSION),1.7)
-	bin/buildout -c buildout16.cfg
+	bin/buildout -c buildout17.cfg
 endif
 ifeq ($(DJANGO_VERSION),1.8)
 	bin/buildout
