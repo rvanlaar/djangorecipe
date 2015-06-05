@@ -96,6 +96,11 @@ class TestRecipe(BaseTestRecipe):
                    'projectegg': 'something'}
         self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
 
+    def test_version_option_deprecation4(self):
+        options = {'recipe': 'djangorecipe',
+                   'deploy_script_extra': 'something'}
+        self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
+
     @mock.patch('zc.recipe.egg.egg.Scripts.working_set',
                 return_value=(None, []))
     @mock.patch('djangorecipe.recipe.Recipe.create_manage_script')

@@ -26,6 +26,11 @@ class Recipe(object):
             raise UserError("The projectegg option is deprecated. "
                             "See the changelog for 2.0 at "
                             "http://pypi.python.org/pypi/djangorecipe/2.0")
+        if 'deploy_script_extra' in options:
+            # Renamed between 1.9 and 1.10
+            raise UserError(
+                "'deploy_script_extra' option found (with underscores). "
+                "This has been renamed to 'deploy-script-extra'.")
 
         # Generic initialization.
         self.egg = zc.recipe.egg.Egg(buildout, options['recipe'], options)
@@ -114,11 +119,6 @@ class Recipe(object):
         scripts = []
         _script_template = zc.buildout.easy_install.script_template
         settings = self.get_settings()
-        if 'deploy_script_extra' in self.options:
-            # Renamed between 1.9 and 1.10
-            raise ValueError(
-                "'deploy_script_extra' option found (with underscores). " +
-                "This has been renamed to 'deploy-script-extra'.")
         zc.buildout.easy_install.script_template = (
             zc.buildout.easy_install.script_header +
             WSGI_TEMPLATE +
