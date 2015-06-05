@@ -155,10 +155,10 @@ class Recipe(object):
                 pth_libs = site.addsitedir(pth_file, set())
                 if not pth_libs:
                     self.log.warning(
-                        "No site *.pth libraries found for pth_file=%s" % (
-                            pth_file,))
+                        "No site *.pth libraries found for pth_file=%s",
+                        pth_file)
                 else:
-                    self.log.info("Adding *.pth libraries=%s" % pth_libs)
+                    self.log.info("Adding *.pth libraries=%s", pth_libs)
                     self.options['extra-paths'] += '\n' + '\n'.join(pth_libs)
 
         pythonpath = [p.replace('/', os.path.sep) for p in
