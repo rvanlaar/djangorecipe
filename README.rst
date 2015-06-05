@@ -85,11 +85,6 @@ wsgi-script
   The name of the wsgi-script that is generated. This can be useful for
   gunicorn.
 
-wsgilog
-  In case the WSGI server you're using does not allow printing to stdout,
-  you can set this variable to a filesystem path - all stdout/stderr data
-  is redirected to the log instead of printed
-
 test
   If you want a script in the bin folder to run all the tests for a
   specific set of apps this is the option you would use. Set this to

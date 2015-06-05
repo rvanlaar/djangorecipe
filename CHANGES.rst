@@ -21,6 +21,9 @@ Changes
 - We aim at django 1.7 and 1.8 now. Django 1.4 still works, (except that that
   one doesn't have a good startproject command).
 
+- The ``wsgilog`` option has been deprecated, the old apache mod_wsgi script
+  hasn't been used for a long time.
+
 
 1.11 (2014-11-21)
 -----------------

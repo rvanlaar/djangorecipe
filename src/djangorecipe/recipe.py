@@ -18,6 +18,10 @@ class Recipe(object):
             raise UserError('The version option is deprecated. '
                             'Read about the change on '
                             'http://pypi.python.org/pypi/djangorecipe/0.99')
+        if 'wsgilog' in options:
+            raise UserError('The wsgilog option is deprecated. '
+                            'Read about the change on '
+                            'http://pypi.python.org/pypi/djangorecipe/2.0')
         if 'projectegg' in options:
             self.log.warn("The projectegg option is deprecated. "
                           "See the changelog for 2.0 at "
@@ -33,17 +37,12 @@ class Recipe(object):
         # Option defaults.
         options.setdefault('project', 'project')
         options.setdefault('settings', 'development')
-        options.setdefault('urlconf', options['project'] + '.urls')
-        options.setdefault(
-            'media_root',
-            "os.path.join(os.path.dirname(__file__), 'media')")
         options.setdefault('extra-paths', '')
         options.setdefault('initialization', '')
         options.setdefault('deploy-script-extra', '')
 
         # mod_wsgi support script
         options.setdefault('wsgi', 'false')
-        options.setdefault('wsgilog', '')
         options.setdefault('logfile', '')
 
         # respect relative-paths (from zc.recipe.egg)
@@ -56,6 +55,7 @@ class Recipe(object):
         else:
             self._relative_paths = ''
             assert relative_paths == 'false'
+
 
     def install(self):
         extra_paths = self.get_extra_paths()
