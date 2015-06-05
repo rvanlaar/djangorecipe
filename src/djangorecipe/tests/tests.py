@@ -351,6 +351,6 @@ class TestTesTRunner(BaseTestRecipe):
         manage = os.path.join(self.bin_dir, 'django')
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
 
-        expected = base = 'base = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))'
+        expected = 'base = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))'
         self.assertTrue(expected in open(manage).read())
         self.assertTrue(expected in open(wsgi_script).read())
