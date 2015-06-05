@@ -21,19 +21,12 @@ You can see an example of how to use the recipe below::
   versions = versions
 
   [versions]
-  Django = 1.5.5
-
-  [satchmo]
-  recipe = gocept.download
-  url = http://www.satchmoproject.com/snapshots/satchmo-0.6.tar.gz
-  md5sum = 659a4845c1c731be5cfe29bfcc5d14b1
+  Django = 1.8.2
 
   [django]
   recipe = djangorecipe
   settings = development
   eggs = ${buildout:eggs}
-  extra-paths =
-    ${satchmo:location}
   project = dummyshop
 
 
