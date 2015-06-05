@@ -134,7 +134,7 @@ class TestRecipe(BaseTestRecipe):
         self.recipe.options['settings'] = 'spameggs'
         self.recipe.create_manage_script([], [])
         manage = os.path.join(self.bin_dir, 'django')
-        self.assertTrue("djangorecipe.manage.main('project.spameggs')"
+        self.assertTrue("djangorecipe.binscripts.manage('project.spameggs')"
                         in open(manage).read())
 
     def test_dotted_settings_path_option(self):
@@ -142,7 +142,7 @@ class TestRecipe(BaseTestRecipe):
         self.recipe.options['dotted-settings-path'] = 'myproj.conf.production'
         self.recipe.create_manage_script([], [])
         manage = os.path.join(self.bin_dir, 'django')
-        self.assertTrue("djangorecipe.manage.main('myproj.conf.production')"
+        self.assertTrue("djangorecipe.binscripts.manage('myproj.conf.production')"
                         in open(manage).read())
 
 
@@ -153,7 +153,7 @@ class TestRecipeScripts(BaseTestRecipe):
         # script adds any paths from the `extra_paths` option to the
         # Python path.
         self.recipe.options['wsgi'] = 'true'
-        self.recipe.make_scripts([], [])
+        self.recipe.make_wsgi_script([], [])
         # This should have created a script in the bin dir
 
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
@@ -161,7 +161,7 @@ class TestRecipeScripts(BaseTestRecipe):
 
     def test_contents_protocol_script_wsgi(self):
         self.recipe.options['wsgi'] = 'true'
-        self.recipe.make_scripts([], [])
+        self.recipe.make_wsgi_script([], [])
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
 
         # The contents should list our paths
@@ -170,7 +170,7 @@ class TestRecipeScripts(BaseTestRecipe):
         self.assertTrue('project.development' in contents)
         # and a line which set's up the WSGI app
         self.assertTrue("application = "
-                        "djangorecipe.wsgi.main('project.development', "
+                        "djangorecipe.binscripts.wsgi('project.development', "
                         "logfile='')"
                         in contents)
         self.assertTrue("class logger(object)" not in contents)
@@ -178,7 +178,7 @@ class TestRecipeScripts(BaseTestRecipe):
     def test_contents_protocol_script_wsgi_with_initialization(self):
         self.recipe.options['wsgi'] = 'true'
         self.recipe.options['initialization'] = 'import os\nassert True'
-        self.recipe.make_scripts([], [])
+        self.recipe.make_wsgi_script([], [])
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
         self.assertTrue('import os\nassert True\n\nimport djangorecipe'
                         in open(wsgi_script).read())
@@ -186,7 +186,7 @@ class TestRecipeScripts(BaseTestRecipe):
     def test_contents_log_protocol_script_wsgi(self):
         self.recipe.options['wsgi'] = 'true'
         self.recipe.options['logfile'] = '/foo'
-        self.recipe.make_scripts([], [])
+        self.recipe.make_wsgi_script([], [])
 
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
         contents = open(wsgi_script).read()
@@ -197,7 +197,7 @@ class TestRecipeScripts(BaseTestRecipe):
         # A wsgi-script name option is specified
         self.recipe.options['wsgi'] = 'true'
         self.recipe.options['wsgi-script'] = 'foo-wsgi.py'
-        self.recipe.make_scripts([], [])
+        self.recipe.make_wsgi_script([], [])
         wsgi_script = os.path.join(self.bin_dir, 'foo-wsgi.py')
         self.assertTrue(os.path.exists(wsgi_script))
 
@@ -205,7 +205,7 @@ class TestRecipeScripts(BaseTestRecipe):
         extra_val = '#--deploy-script-extra--'
         self.recipe.options['wsgi'] = 'true'
         self.recipe.options['deploy-script-extra'] = extra_val
-        self.recipe.make_scripts([], [])
+        self.recipe.make_wsgi_script([], [])
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
         contents = open(wsgi_script).read()
         self.assertTrue(extra_val in contents)
@@ -215,7 +215,7 @@ class TestRecipeScripts(BaseTestRecipe):
     def test_make_protocol_scripts_return_value(self, scripts):
         # The return value of make scripts lists the generated scripts.
         self.recipe.options['wsgi'] = 'true'
-        self.assertEqual(self.recipe.make_scripts([], []),
+        self.assertEqual(self.recipe.make_wsgi_script([], []),
                          ['some-path'])
 
     def test_create_manage_script(self):
@@ -238,10 +238,10 @@ class TestRecipeScripts(BaseTestRecipe):
         self.assertEqual(self.recipe.options['settings'], 'development')
         self.recipe.options['wsgi'] = 'true'
         self.recipe.options['dotted-settings-path'] = 'myproj.conf.production'
-        self.recipe.make_scripts([], [])
+        self.recipe.make_wsgi_script([], [])
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
         self.assertTrue("application = "
-                        "djangorecipe.wsgi.main('myproj.conf.production', "
+                        "djangorecipe.binscripts.wsgi('myproj.conf.production', "
                         "logfile='')"
                         in open(wsgi_script).read())
 
@@ -291,7 +291,7 @@ class TestTesTRunner(BaseTestRecipe):
     def test_relative_paths_default(self):
         self.recipe.options['wsgi'] = 'true'
 
-        self.recipe.make_scripts([], [])
+        self.recipe.make_wsgi_script([], [])
         self.recipe.create_manage_script([], [])
 
         manage = os.path.join(self.bin_dir, 'django')
@@ -319,7 +319,7 @@ class TestTesTRunner(BaseTestRecipe):
             'django',
             {'recipe': 'djangorecipe',
              'wsgi': 'true'})
-        recipe.make_scripts([], [])
+        recipe.make_wsgi_script([], [])
         recipe.create_manage_script([], [])
 
         manage = os.path.join(self.bin_dir, 'django')

@@ -1,5 +1,4 @@
-script_template = {
-    'wsgi': """
+WSGI_TEMPLATE = """
 
 %(relative_paths_setup)s
 import sys
@@ -10,5 +9,4 @@ sys.path[0:0] = [
 import %(module_name)s
 
 application = %(module_name)s.%(attrs)s(%(arguments)s)
-""",
-}
+"""

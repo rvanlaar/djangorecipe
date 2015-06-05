@@ -6,7 +6,7 @@ import sys
 from zc.buildout import UserError
 import zc.recipe.egg
 
-from djangorecipe.boilerplate import script_template
+from djangorecipe.boilerplate import WSGI_TEMPLATE
 
 
 class Recipe(object):
@@ -69,8 +69,8 @@ class Recipe(object):
         # Create the test runner
         script_paths.extend(self.create_test_runner(extra_paths, ws))
 
-        # Make the wsgi and fastcgi scripts if enabled
-        script_paths.extend(self.make_scripts(extra_paths, ws))
+        # Make the wsgi script if enabled
+        script_paths.extend(self.make_wsgi_script(extra_paths, ws))
 
         return script_paths
 
@@ -78,7 +78,7 @@ class Recipe(object):
         settings = self.get_settings()
         return zc.buildout.easy_install.scripts(
             [(self.options.get('control-script', self.name),
-              'djangorecipe.manage', 'main')],
+              'djangorecipe.binscripts', 'manage')],
             ws, sys.executable, self.options['bin-directory'],
             extra_paths=extra_paths,
             relative_paths=self._relative_paths,
@@ -92,7 +92,7 @@ class Recipe(object):
         if apps:
             return zc.buildout.easy_install.scripts(
                 [(self.options.get('testrunner', 'test'),
-                  'djangorecipe.test', 'main')],
+                  'djangorecipe.binscripts', 'test')],
                 working_set, sys.executable,
                 self.options['bin-directory'],
                 extra_paths=extra_paths,
@@ -103,10 +103,9 @@ class Recipe(object):
         else:
             return []
 
-    def make_scripts(self, extra_paths, ws):
+    def make_wsgi_script(self, extra_paths, ws):
         scripts = []
         _script_template = zc.buildout.easy_install.script_template
-        protocol = 'wsgi'
         settings = self.get_settings()
         if 'deploy_script_extra' in self.options:
             # Renamed between 1.9 and 1.10
@@ -115,17 +114,17 @@ class Recipe(object):
                 "This has been renamed to 'deploy-script-extra'.")
         zc.buildout.easy_install.script_template = (
             zc.buildout.easy_install.script_header +
-            script_template[protocol] +
+            WSGI_TEMPLATE +
             self.options['deploy-script-extra']
         )
-        if self.options.get(protocol, '').lower() == 'true':
+        if self.options.get('wsgi', '').lower() == 'true':
             scripts.extend(
                 zc.buildout.easy_install.scripts(
                     [(self.options.get('wsgi-script') or
                       '%s.%s' % (self.options.get('control-script',
                                                   self.name),
-                                 protocol),
-                      'djangorecipe.%s' % protocol, 'main')],
+                                 'wsgi'),
+                      'djangorecipe.binscripts', 'wsgi')],
                     ws,
                     sys.executable,
                     self.options['bin-directory'],
@@ -171,8 +170,8 @@ class Recipe(object):
         # Create the test runner
         self.create_test_runner(extra_paths, ws)
 
-        # Make the wsgi and fastcgi scripts if enabled
-        self.make_scripts(extra_paths, ws)
+        # Make the wsgi script if enabled
+        self.make_wsgi_script(extra_paths, ws)
 
     def create_file(self, file, template, options):
         if os.path.exists(file):
