@@ -59,7 +59,8 @@ class Recipe(object):
 
     def install(self):
         extra_paths = self.get_extra_paths()
-        requirements, ws = self.egg.working_set(['djangorecipe'])
+        ws = self.egg.working_set(['djangorecipe'])[1]
+        # ^^^ working_set returns (requirements, ws)
 
         script_paths = []
         # Create the Django management script
@@ -161,7 +162,9 @@ class Recipe(object):
 
     def update(self):
         extra_paths = self.get_extra_paths()
-        requirements, ws = self.egg.working_set(['djangorecipe'])
+        ws = self.egg.working_set(['djangorecipe'])[1]
+        # ^^^ working_set returns (requirements, ws)
+
         # Create the Django management script
         self.create_manage_script(extra_paths, ws)
 
