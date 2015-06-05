@@ -12,11 +12,6 @@ from djangorecipe.boilerplate import script_template
 class Recipe(object):
     def __init__(self, buildout, name, options):
         self.log = logging.getLogger(name)
-        self.egg = zc.recipe.egg.Egg(buildout, options['recipe'], options)
-        self.buildout, self.name, self.options = buildout, name, options
-        options['location'] = os.path.join(
-            buildout['buildout']['parts-directory'], name)
-        options['bin-directory'] = buildout['buildout']['bin-directory']
 
         # Deprecations
         if 'version' in options:
@@ -28,22 +23,21 @@ class Recipe(object):
                           "See the changelog for 2.0 at "
                           "http://pypi.python.org/pypi/djangorecipe/2.0")
 
+        # Generic initialization.
+        self.egg = zc.recipe.egg.Egg(buildout, options['recipe'], options)
+        self.buildout, self.name, self.options = buildout, name, options
+        options['location'] = os.path.join(
+            buildout['buildout']['parts-directory'], name)
+        options['bin-directory'] = buildout['buildout']['bin-directory']
+
         # Option defaults.
         options.setdefault('project', 'project')
         options.setdefault('settings', 'development')
-
         options.setdefault('urlconf', options['project'] + '.urls')
         options.setdefault(
             'media_root',
             "os.path.join(os.path.dirname(__file__), 'media')")
-        # Set this so the rest of the recipe can expect the values to be
-        # there. We need to make sure that both pythonpath and extra-paths are
-        # set for BBB.
-        if 'extra-paths' in options:
-            options['pythonpath'] = options['extra-paths']
-        else:
-            options.setdefault('extra-paths', options.get('pythonpath', ''))
-
+        options.setdefault('extra-paths', '')
         options.setdefault('initialization', '')
         options.setdefault('deploy-script-extra', '')
 
