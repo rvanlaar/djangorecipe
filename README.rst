@@ -8,6 +8,10 @@ Description
 .. image:: https://secure.travis-ci.org/rvanlaar/djangorecipe.png?branch=master
    :target: http://travis-ci.org/rvanlaar/djangorecipe/
 
+.. image:: https://landscape.io/github/rvanlaar/djangorecipe/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/rvanlaar/djangorecipe/master
+   :alt: Code Health
+
 This buildout recipe can be used to create a setup for Django. It will
 automatically download Django and install it in the buildout's
 sandbox.
