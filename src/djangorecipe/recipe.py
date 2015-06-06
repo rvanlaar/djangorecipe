@@ -155,13 +155,8 @@ class Recipe(object):
         ws = self.egg.working_set(['djangorecipe'])[1]
         # ^^^ working_set returns (requirements, ws)
 
-        # Create the Django management script
         self.create_manage_script(extra_paths, ws)
-
-        # Create the test runner
         self.create_test_runner(extra_paths, ws)
-
-        # Make the wsgi script if enabled
         self.make_wsgi_script(extra_paths, ws)
 
     def create_file(self, filename, template, options):
