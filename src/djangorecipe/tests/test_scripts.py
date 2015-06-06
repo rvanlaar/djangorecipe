@@ -95,6 +95,8 @@ class TestManageScript(ScriptTestCase):
 
 
 class TestWSGIScript(ScriptTestCase):
+    # Note: don't test the logger part of wsgi(), because that overwrites
+    # sys.stdout.
 
     def test_script(self):
         settings_dotted_path = 'cheeseshop.development'
