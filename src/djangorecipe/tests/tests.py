@@ -60,6 +60,13 @@ class TestRecipe(BaseTestRecipe):
         self.assertEqual(Recipe(*self.recipe_initialisation).options,
                          Recipe(*self.recipe_initialisation).options)
 
+    @mock.patch('zc.recipe.egg.egg.Scripts.working_set',
+                return_value=(None, []))
+    def test_update_smoketest(self, working_set):
+        working_set  # noqa
+        self.recipe.install()
+        self.recipe.update()
+
     def test_create_file(self):
         # The create file helper should create a file at a certain
         # location unless it already exists. We will need a
