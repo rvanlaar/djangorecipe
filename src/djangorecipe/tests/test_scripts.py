@@ -4,6 +4,8 @@ import unittest
 
 import mock
 
+from djangorecipe import binscripts
+
 
 class ScriptTestCase(unittest.TestCase):
 
@@ -30,32 +32,35 @@ class TestTestScript(ScriptTestCase):
         with mock.patch.object(sys, 'argv', ['bin/test']):
             # The test script should execute the standard Django test command
             # with any apps configured in djangorecipe given as its arguments.
-            from djangorecipe import test
-            test.main('cheeseshop.development',  'spamm', 'eggs')
+            binscripts.test('cheeseshop.development',  'spamm', 'eggs')
             self.assertTrue(execute_from_command_line.called)
             self.assertEqual(execute_from_command_line.call_args[0],
                              (['bin/test', 'test', 'spamm', 'eggs'],))
             self.assertEqual(mock_setdefault.call_args[0],
-                             ('DJANGO_SETTINGS_MODULE', 'cheeseshop.development'))
+                             ('DJANGO_SETTINGS_MODULE',
+                              'cheeseshop.development'))
 
     @mock.patch('django.core.management.execute_from_command_line')
     @mock.patch('os.environ.setdefault')
-    def test_script_with_args(self, mock_setdefault, execute_from_command_line):
+    def test_script_with_args(self, mock_setdefault,
+                              execute_from_command_line):
         with mock.patch.object(sys, 'argv', ['bin/test', '--verbose']):
             # The test script should execute the standard Django test command
             # with any apps given as its arguments. It should also pass along
             # command line arguments so that the actual test machinery can
             # pick them up (like '--verbose' or '--tests=xyz').
-            from djangorecipe import test
-            test.main('cheeseshop.development',  'spamm', 'eggs')
-            self.assertEqual(execute_from_command_line.call_args[0],
-                             (['bin/test', 'test', 'spamm', 'eggs', '--verbose'],))
-            self.assertEqual(mock_setdefault.call_args[0],
-                             ('DJANGO_SETTINGS_MODULE', 'cheeseshop.development'))
+            binscripts.test('cheeseshop.development',  'spamm', 'eggs')
+            self.assertEqual(
+                execute_from_command_line.call_args[0],
+                (['bin/test', 'test', 'spamm', 'eggs', '--verbose'],))
+            self.assertEqual(
+                mock_setdefault.call_args[0],
+                ('DJANGO_SETTINGS_MODULE', 'cheeseshop.development'))
 
     @mock.patch('django.core.management.execute_from_command_line')
     @mock.patch('os.environ.setdefault')
-    def test_deeply_nested_settings(self, mock_setdefault, execute_from_command_line):
+    def test_deeply_nested_settings(self, mock_setdefault,
+                                    execute_from_command_line):
         # Settings files can be more than two levels deep. We need to
         # make sure the test script can properly import those. To
         # demonstrate this we need to add another level to our
@@ -67,10 +72,10 @@ class TestTestScript(ScriptTestCase):
         sys.modules['cheeseshop'].nce = nce
         sys.modules['cheeseshop.nce'] = nce
         sys.modules['cheeseshop.nce.development'] = settings
-        from djangorecipe import test
-        test.main('cheeseshop.nce.development',  'tilsit', 'stilton')
-        self.assertEqual(mock_setdefault.call_args[0],
-                         ('DJANGO_SETTINGS_MODULE', 'cheeseshop.nce.development'))
+        binscripts.test('cheeseshop.nce.development',  'tilsit', 'stilton')
+        self.assertEqual(
+            mock_setdefault.call_args[0],
+            ('DJANGO_SETTINGS_MODULE', 'cheeseshop.nce.development'))
 
 
 class TestManageScript(ScriptTestCase):
@@ -81,8 +86,7 @@ class TestManageScript(ScriptTestCase):
         # The manage script is a replacement for the default manage.py
         # script. It has all the same bells and whistles since all it
         # does is call the normal Django stuff.
-        from djangorecipe import manage
-        manage.main('cheeseshop.development')
+        binscripts.manage('cheeseshop.development')
         self.assertEqual(mock_execute.call_args,
                          ((sys.argv,), {}))
         self.assertEqual(
@@ -91,6 +95,8 @@ class TestManageScript(ScriptTestCase):
 
 
 class TestWSGIScript(ScriptTestCase):
+    # Note: don't test the logger part of wsgi(), because that overwrites
+    # sys.stdout.
 
     def test_script(self):
         settings_dotted_path = 'cheeseshop.development'
@@ -101,6 +107,5 @@ class TestWSGIScript(ScriptTestCase):
                         {'DJANGO_SETTINGS_MODULE': settings_dotted_path}):
             with mock.patch('django.core.wsgi.get_wsgi_application') \
                  as patched_method:
-                from djangorecipe import wsgi
-                wsgi.main(settings_dotted_path, logfile=None)
+                binscripts.wsgi(settings_dotted_path, logfile=None)
                 self.assertTrue(patched_method.called)

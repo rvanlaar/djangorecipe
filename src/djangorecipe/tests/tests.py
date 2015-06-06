@@ -1,4 +1,3 @@
-import copy
 import os
 import shutil
 import sys
@@ -6,6 +5,7 @@ import tempfile
 import unittest
 
 import mock
+from zc.buildout import UserError
 
 from djangorecipe.recipe import Recipe
 
@@ -60,6 +60,13 @@ class TestRecipe(BaseTestRecipe):
         self.assertEqual(Recipe(*self.recipe_initialisation).options,
                          Recipe(*self.recipe_initialisation).options)
 
+    @mock.patch('zc.recipe.egg.egg.Scripts.working_set',
+                return_value=(None, []))
+    def test_update_smoketest(self, working_set):
+        working_set  # noqa
+        self.recipe.install()
+        self.recipe.update()
+
     def test_create_file(self):
         # The create file helper should create a file at a certain
         # location unless it already exists. We will need a
@@ -80,19 +87,25 @@ class TestRecipe(BaseTestRecipe):
         # Now remove our temp file
         os.remove(name)
 
-    def test_generate_secret(self):
-        # To create a basic skeleton the recipe also generates a
-        # random secret for the settings file. Since it should very
-        # unlikely that it will generate the same key a few times in a
-        # row we will test it with letting it generate a few keys.
-        self.assertEqual(
-            10, len(set(self.recipe.generate_secret() for i in range(10))))
-
-    def test_version_option_deprecation(self):
-        from zc.buildout import UserError
+    def test_version_option_deprecation1(self):
         options = {'recipe': 'djangorecipe',
                    'version': 'trunk',
                    'wsgi': 'true'}
+        self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
+
+    def test_version_option_deprecation2(self):
+        options = {'recipe': 'djangorecipe',
+                   'wsgilog': 'something'}
+        self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
+
+    def test_version_option_deprecation3(self):
+        options = {'recipe': 'djangorecipe',
+                   'projectegg': 'something'}
+        self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
+
+    def test_version_option_deprecation4(self):
+        options = {'recipe': 'djangorecipe',
+                   'deploy_script_extra': 'something'}
         self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
 
     @mock.patch('zc.recipe.egg.egg.Scripts.working_set',
@@ -109,23 +122,6 @@ class TestRecipe(BaseTestRecipe):
         self.assertEqual(manage.call_args[0][0][-2:],
                          ['somepackage', 'anotherpackage'])
 
-    @mock.patch('zc.recipe.egg.egg.Scripts.working_set',
-                return_value=(None, []))
-    @mock.patch('site.addsitedir', return_value=['extra', 'dirs'])
-    def test_pth_files(self, addsitedir, working_set):
-
-        # When a pth-files option is set the recipe will use that to add more
-        # paths to extra-paths.
-        self.recipe.options['version'] = '1.0'
-
-        # The mock values needed to demonstrate the pth-files option.
-        self.recipe.options['pth-files'] = 'somedir'
-        self.recipe.install()
-
-        self.assertEqual(addsitedir.call_args, (('somedir', set([])), {}))
-        # The extra-paths option has been extended.
-        self.assertEqual(self.recipe.options['extra-paths'], '\nextra\ndirs')
-
     def test_settings_option(self):
         # The settings option can be used to specify the settings file
         # for Django to use. By default it uses `development`.
@@ -135,7 +131,7 @@ class TestRecipe(BaseTestRecipe):
         self.recipe.options['settings'] = 'spameggs'
         self.recipe.create_manage_script([], [])
         manage = os.path.join(self.bin_dir, 'django')
-        self.assertTrue("djangorecipe.manage.main('project.spameggs')"
+        self.assertTrue("djangorecipe.binscripts.manage('project.spameggs')"
                         in open(manage).read())
 
     def test_dotted_settings_path_option(self):
@@ -143,22 +139,8 @@ class TestRecipe(BaseTestRecipe):
         self.recipe.options['dotted-settings-path'] = 'myproj.conf.production'
         self.recipe.create_manage_script([], [])
         manage = os.path.join(self.bin_dir, 'django')
-        self.assertTrue("djangorecipe.manage.main('myproj.conf.production')"
+        self.assertTrue("djangorecipe.binscripts.manage('myproj.conf.production')"
                         in open(manage).read())
-
-    def test_create_project(self):
-        # If a project does not exist already the recipe will create
-        # one.
-        project_dir = os.path.join(self.buildout_dir, 'project')
-        self.recipe.create_project(project_dir)
-
-        # This should have create a project directory
-        self.assertTrue(os.path.exists(project_dir))
-        # With this directory we should have a list of files.
-        for f in ('settings.py', 'development.py', 'production.py',
-                  '__init__.py', 'urls.py', 'media', 'templates'):
-            self.assertTrue(
-                os.path.exists(os.path.join(project_dir, f)))
 
 
 class TestRecipeScripts(BaseTestRecipe):
@@ -168,7 +150,7 @@ class TestRecipeScripts(BaseTestRecipe):
         # script adds any paths from the `extra_paths` option to the
         # Python path.
         self.recipe.options['wsgi'] = 'true'
-        self.recipe.make_scripts([], [])
+        self.recipe.make_wsgi_script([], [])
         # This should have created a script in the bin dir
 
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
@@ -176,16 +158,16 @@ class TestRecipeScripts(BaseTestRecipe):
 
     def test_contents_protocol_script_wsgi(self):
         self.recipe.options['wsgi'] = 'true'
-        self.recipe.make_scripts([], [])
+        self.recipe.make_wsgi_script([], [])
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
 
         # The contents should list our paths
         contents = open(wsgi_script).read()
-         # It should also have a reference to our settings module
+        # It should also have a reference to our settings module
         self.assertTrue('project.development' in contents)
-         # and a line which set's up the WSGI app
+        # and a line which set's up the WSGI app
         self.assertTrue("application = "
-                        "djangorecipe.wsgi.main('project.development', "
+                        "djangorecipe.binscripts.wsgi('project.development', "
                         "logfile='')"
                         in contents)
         self.assertTrue("class logger(object)" not in contents)
@@ -193,7 +175,7 @@ class TestRecipeScripts(BaseTestRecipe):
     def test_contents_protocol_script_wsgi_with_initialization(self):
         self.recipe.options['wsgi'] = 'true'
         self.recipe.options['initialization'] = 'import os\nassert True'
-        self.recipe.make_scripts([], [])
+        self.recipe.make_wsgi_script([], [])
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
         self.assertTrue('import os\nassert True\n\nimport djangorecipe'
                         in open(wsgi_script).read())
@@ -201,7 +183,7 @@ class TestRecipeScripts(BaseTestRecipe):
     def test_contents_log_protocol_script_wsgi(self):
         self.recipe.options['wsgi'] = 'true'
         self.recipe.options['logfile'] = '/foo'
-        self.recipe.make_scripts([], [])
+        self.recipe.make_wsgi_script([], [])
 
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
         contents = open(wsgi_script).read()
@@ -212,7 +194,7 @@ class TestRecipeScripts(BaseTestRecipe):
         # A wsgi-script name option is specified
         self.recipe.options['wsgi'] = 'true'
         self.recipe.options['wsgi-script'] = 'foo-wsgi.py'
-        self.recipe.make_scripts([], [])
+        self.recipe.make_wsgi_script([], [])
         wsgi_script = os.path.join(self.bin_dir, 'foo-wsgi.py')
         self.assertTrue(os.path.exists(wsgi_script))
 
@@ -220,7 +202,7 @@ class TestRecipeScripts(BaseTestRecipe):
         extra_val = '#--deploy-script-extra--'
         self.recipe.options['wsgi'] = 'true'
         self.recipe.options['deploy-script-extra'] = extra_val
-        self.recipe.make_scripts([], [])
+        self.recipe.make_wsgi_script([], [])
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
         contents = open(wsgi_script).read()
         self.assertTrue(extra_val in contents)
@@ -230,7 +212,7 @@ class TestRecipeScripts(BaseTestRecipe):
     def test_make_protocol_scripts_return_value(self, scripts):
         # The return value of make scripts lists the generated scripts.
         self.recipe.options['wsgi'] = 'true'
-        self.assertEqual(self.recipe.make_scripts([], []),
+        self.assertEqual(self.recipe.make_wsgi_script([], []),
                          ['some-path'])
 
     def test_create_manage_script(self):
@@ -242,17 +224,6 @@ class TestRecipeScripts(BaseTestRecipe):
         self.recipe.create_manage_script([], [])
         self.assertTrue(os.path.exists(manage))
 
-    def test_create_manage_script_projectegg(self):
-        # When a projectegg is specified, then the egg specified
-        # should get used as the project file.
-        manage = os.path.join(self.bin_dir, 'django')
-        self.recipe.options['projectegg'] = 'spameggs'
-        self.recipe.create_manage_script([], [])
-        self.assertTrue(os.path.exists(manage))
-        # Check that we have 'spameggs' as the project
-        self.assertTrue("djangorecipe.manage.main('spameggs.development')"
-                        in open(manage).read())
-
     def test_create_manage_script_with_initialization(self):
         manage = os.path.join(self.bin_dir, 'django')
         self.recipe.options['initialization'] = 'import os\nassert True'
@@ -260,28 +231,14 @@ class TestRecipeScripts(BaseTestRecipe):
         self.assertTrue('import os\nassert True\n\nimport djangorecipe'
                         in open(manage).read())
 
-    def test_create_wsgi_script_projectegg(self):
-        # When a projectegg is specified, then the egg specified
-        # should get used as the project in the wsgi script.
-        wsgi = os.path.join(self.bin_dir, 'django.wsgi')
-        recipe_dir = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..'))
-        self.recipe.options['projectegg'] = 'spameggs'
-        self.recipe.options['wsgi'] = 'true'
-        self.recipe.make_scripts([recipe_dir], [])
-
-        self.assertTrue(os.path.exists(wsgi))
-        # Check that we have 'spameggs' as the project
-        self.assertTrue('spameggs.development' in open(wsgi).read())
-
     def test_dotted_settings_path_option(self):
         self.assertEqual(self.recipe.options['settings'], 'development')
         self.recipe.options['wsgi'] = 'true'
         self.recipe.options['dotted-settings-path'] = 'myproj.conf.production'
-        self.recipe.make_scripts([], [])
+        self.recipe.make_wsgi_script([], [])
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
         self.assertTrue("application = "
-                        "djangorecipe.wsgi.main('myproj.conf.production', "
+                        "djangorecipe.binscripts.wsgi('myproj.conf.production', "
                         "logfile='')"
                         in open(wsgi_script).read())
 
@@ -331,84 +288,40 @@ class TestTesTRunner(BaseTestRecipe):
     def test_relative_paths_default(self):
         self.recipe.options['wsgi'] = 'true'
 
-        self.recipe.make_scripts([], [])
+        self.recipe.make_wsgi_script([], [])
         self.recipe.create_manage_script([], [])
 
         manage = os.path.join(self.bin_dir, 'django')
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
 
-        expected = base = 'base = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))'
+        expected = 'base = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))'
         self.assertFalse(expected in open(manage).read())
         self.assertFalse(expected in open(wsgi_script).read())
 
     def test_relative_paths_true(self):
-        recipe = Recipe({
-                'buildout': {
-                    'eggs-directory': self.eggs_dir,
-                    'develop-eggs-directory': self.develop_eggs_dir,
-                    'python': 'python-version',
-                    'bin-directory': self.bin_dir,
-                    'parts-directory': self.parts_dir,
-                    'directory': self.buildout_dir,
-                    'find-links': '',
-                    'allow-hosts': '',
-                    'develop': '.',
-                    'relative-paths': 'true'
-                    },
-                'python-version': {'executable': sys.executable}},
-                             'django',
-                             {'recipe': 'djangorecipe',
-                              'wsgi': 'true'})
-        recipe.make_scripts([], [])
+        recipe = Recipe(
+            {'buildout': {
+                'eggs-directory': self.eggs_dir,
+                'develop-eggs-directory': self.develop_eggs_dir,
+                'python': 'python-version',
+                'bin-directory': self.bin_dir,
+                'parts-directory': self.parts_dir,
+                'directory': self.buildout_dir,
+                'find-links': '',
+                'allow-hosts': '',
+                'develop': '.',
+                'relative-paths': 'true'},
+             'python-version': {'executable': sys.executable}
+         },
+            'django',
+            {'recipe': 'djangorecipe',
+             'wsgi': 'true'})
+        recipe.make_wsgi_script([], [])
         recipe.create_manage_script([], [])
 
         manage = os.path.join(self.bin_dir, 'django')
         wsgi_script = os.path.join(self.bin_dir, 'django.wsgi')
 
-        expected = base = 'base = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))'
+        expected = 'base = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))'
         self.assertTrue(expected in open(manage).read())
         self.assertTrue(expected in open(wsgi_script).read())
-
-
-class TestBoilerplate(BaseTestRecipe):
-
-    def test_boilerplate_newest(self):
-        """Test the default boilerplate."""
-
-        project_dir = os.path.join(self.buildout_dir, 'project')
-
-        secret = '$55upfci7a#gi@&e9o1-hb*k+f$3+(&b$j=cn67h#22*0%-bj0'
-        self.recipe.generate_secret = lambda: secret
-
-        self.recipe.create_project(project_dir)
-        settings = open(os.path.join(project_dir, 'settings.py')).read()
-        settings_dict = {'project': self.recipe.options['project'],
-                         'secret': secret,
-                         'urlconf': self.recipe.options['urlconf'],
-                         }
-        from djangorecipe.boilerplate import versions
-        self.assertEqual(versions['Newest']['settings'] % settings_dict,
-                          settings)
-
-    def test_boilerplate_1_2(self):
-        """Test the boilerplate for django 1.2."""
-
-        recipe_args = copy.deepcopy(self.recipe_initialisation)
-
-        recipe_args[0]['versions'] = {'django': '1.2.5'}
-        recipe = Recipe(*recipe_args)
-
-        secret = '$55upfci7a#gi@&e9o1-hb*k+f$3+(&b$j=cn67h#22*0%-bj0'
-        recipe.generate_secret = lambda: secret
-
-        project_dir = os.path.join(self.buildout_dir, 'project')
-        recipe.create_project(project_dir)
-        settings = open(os.path.join(project_dir, 'settings.py')).read()
-        settings_dict = {'project': self.recipe.options['project'],
-                         'secret': secret,
-                         'urlconf': self.recipe.options['urlconf'],
-                         }
-        from djangorecipe.boilerplate import versions
-
-        self.assertEqual(versions['1.2']['settings'] % settings_dict,
-                          settings)

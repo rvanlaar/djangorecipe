@@ -21,19 +21,12 @@ You can see an example of how to use the recipe below::
   versions = versions
 
   [versions]
-  Django = 1.5.5
-
-  [satchmo]
-  recipe = gocept.download
-  url = http://www.satchmoproject.com/snapshots/satchmo-0.6.tar.gz
-  md5sum = 659a4845c1c731be5cfe29bfcc5d14b1
+  Django = 1.8.2
 
   [django]
   recipe = djangorecipe
   settings = development
   eggs = ${buildout:eggs}
-  extra-paths =
-    ${satchmo:location}
   project = dummyshop
 
 
@@ -43,13 +36,7 @@ Supported options
 The recipe supports the following options.
 
 project
-  This option sets the name for your project. The recipe will create a
-  basic structure if the project is not already there.
-
-projectegg
-  Use this instead of the project option when you want to use an egg
-  as the project. This disables the generation of the project
-  structure.
+  This option sets the name for your project.
 
 settings
   You can set the name of the settings file which is to be used with
@@ -59,27 +46,25 @@ settings
 
 dotted-settings-path
   Use this option to specify a custom settings path to be used. By default,
-  the ``project`` and ``settings`` option values are used, so for instance
-  ``myproject.development``. ``dotted-settings-path =
+  the ``project`` and ``settings`` option values are concatenated, so for
+  instance ``myproject.development``. ``dotted-settings-path =
   somewhere.else.production`` allows you to customize it.
 
 extra-paths
   All paths specified here will be used to extend the default Python
-  path for the `bin/*` scripts.
-
-pth-files
-  Adds paths found from a site `.pth` file to the extra-paths.
-  Useful for things like Pinax which maintains its own external_libs dir.
+  path for the `bin/*` scripts. Use this if you have code somewhere without a
+  proper ``setup.py``.
 
 control-script
   The name of the script created in the bin folder. This script is the
   equivalent of the `manage.py` Django normally creates. By default it
-  uses the name of the section (the part between the `[ ]`).
+  uses the name of the section (the part between the `[ ]`). Traditionally,
+  the part is called ``[django]``.
 
 initialization
   Specify some Python initialization code to be inserted into the
-  `control-script`. This is very limited. In particular, be aware that
-  leading whitespace is stripped from the code given.
+  `control-script`. This functionality is very limited. In particular, be
+  aware that leading whitespace is stripped from the code given.
 
 deploy_script_extra
   In the `wsgi` deployment script, you sometimes need to wrap the application
@@ -95,11 +80,6 @@ wsgi
 wsgi-script
   The name of the wsgi-script that is generated. This can be useful for
   gunicorn.
-
-wsgilog
-  In case the WSGI server you're using does not allow printing to stdout,
-  you can set this variable to a filesystem path - all stdout/stderr data
-  is redirected to the log instead of printed
 
 test
   If you want a script in the bin folder to run all the tests for a
@@ -149,49 +129,6 @@ The next example shows you how to use some more of the options::
     someapp
     anotherapp
   dotted-settings-path = projectconfig.production.settings
-
-
-Example using .pth files
--------------------------
-
-Pinax uses a .pth file to add a bunch of libraries to its path; we can
-specify it's directory to get the libraries it specified added to our
-path::
-
-  [buildout]
-  parts	= PIL
-	  svncode
-	  myproject
-  versions=versions
-
-  [versions]
-  django	= 1.3
-
-  [PIL]
-  recipe	= zc.recipe.egg:custom
-  egg		= PIL
-  find-links	= http://dist.repoze.org/
-
-  [svncode]
-  recipe	= iw.recipe.subversion
-  urls		= http://svn.pinaxproject.com/pinax/tags/0.5.1rc1	pinax
-
-  [myproject]
-  recipe	= djangorecipe
-  eggs		=
-    PIL
-  project	= myproject
-  settings	= settings
-  extra-paths	= ${buildout:directory}/myproject/apps
-		  ${svncode:location}/pinax/apps/external_apps
-		  ${svncode:location}/pinax/apps/local_apps
-  pth-files	= ${svncode:location}/pinax/libs/external_libs
-  wsgi		= true
-
-Above, we use stock Pinax for pth-files and extra-paths paths for
-apps, and our own project for the path that will be found first in the
-list.  Note that we expect our project to be checked out (e.g., by
-svn:external) directly under this directory in to 'myproject'.
 
 
 Example with a Django version from a repository

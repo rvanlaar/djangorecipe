@@ -1,7 +1,7 @@
 # Makefile for testing on travis with multiple django versions
 # See .travis.yml, it uses the DJANGO_VERSION environment variable.
 
-DJANGO_VERSION ?= 1.5
+DJANGO_VERSION ?= 1.8
 
 all: build
 
@@ -13,11 +13,11 @@ build:
 ifeq ($(DJANGO_VERSION),1.4)
 	bin/buildout -c buildout14.cfg
 endif
-ifeq ($(DJANGO_VERSION),1.5)
-	bin/buildout
+ifeq ($(DJANGO_VERSION),1.7)
+	bin/buildout -c buildout17.cfg
 endif
-ifeq ($(DJANGO_VERSION),1.6)
-	bin/buildout -c buildout16.cfg
+ifeq ($(DJANGO_VERSION),1.8)
+	bin/buildout
 endif
 
 test:
