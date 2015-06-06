@@ -115,23 +115,6 @@ class TestRecipe(BaseTestRecipe):
         self.assertEqual(manage.call_args[0][0][-2:],
                          ['somepackage', 'anotherpackage'])
 
-    @mock.patch('zc.recipe.egg.egg.Scripts.working_set',
-                return_value=(None, []))
-    @mock.patch('site.addsitedir', return_value=['extra', 'dirs'])
-    def test_pth_files(self, addsitedir, working_set):
-
-        # When a pth-files option is set the recipe will use that to add more
-        # paths to extra-paths.
-        self.recipe.options['version'] = '1.0'
-
-        # The mock values needed to demonstrate the pth-files option.
-        self.recipe.options['pth-files'] = 'somedir'
-        self.recipe.install()
-
-        self.assertEqual(addsitedir.call_args, (('somedir', set([])), {}))
-        # The extra-paths option has been extended.
-        self.assertEqual(self.recipe.options['extra-paths'], '\nextra\ndirs')
-
     def test_settings_option(self):
         # The settings option can be used to specify the settings file
         # for Django to use. By default it uses `development`.

@@ -24,6 +24,9 @@ Changes
 - The ``wsgilog`` option has been deprecated, the old apache mod_wsgi script
   hasn't been used for a long time.
 
+- Removed old pth option, previously used for pinax. Pinax uses proper python
+  packages since a long time, so it isn't needed anymore.
+
 
 1.11 (2014-11-21)
 -----------------

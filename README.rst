@@ -55,10 +55,6 @@ extra-paths
   path for the `bin/*` scripts. Use this if you have code somewhere without a
   proper ``setup.py``.
 
-pth-files
-  Adds paths found from a site `.pth` file to the extra-paths.
-  Useful for things like Pinax which maintains its own external_libs dir.
-
 control-script
   The name of the script created in the bin folder. This script is the
   equivalent of the `manage.py` Django normally creates. By default it
@@ -133,49 +129,6 @@ The next example shows you how to use some more of the options::
     someapp
     anotherapp
   dotted-settings-path = projectconfig.production.settings
-
-
-Example using .pth files
--------------------------
-
-Pinax uses a .pth file to add a bunch of libraries to its path; we can
-specify it's directory to get the libraries it specified added to our
-path::
-
-  [buildout]
-  parts	= PIL
-	  svncode
-	  myproject
-  versions=versions
-
-  [versions]
-  django	= 1.3
-
-  [PIL]
-  recipe	= zc.recipe.egg:custom
-  egg		= PIL
-  find-links	= http://dist.repoze.org/
-
-  [svncode]
-  recipe	= iw.recipe.subversion
-  urls		= http://svn.pinaxproject.com/pinax/tags/0.5.1rc1	pinax
-
-  [myproject]
-  recipe	= djangorecipe
-  eggs		=
-    PIL
-  project	= myproject
-  settings	= settings
-  extra-paths	= ${buildout:directory}/myproject/apps
-		  ${svncode:location}/pinax/apps/external_apps
-		  ${svncode:location}/pinax/apps/local_apps
-  pth-files	= ${svncode:location}/pinax/libs/external_libs
-  wsgi		= true
-
-Above, we use stock Pinax for pth-files and extra-paths paths for
-apps, and our own project for the path that will be found first in the
-list.  Note that we expect our project to be checked out (e.g., by
-svn:external) directly under this directory in to 'myproject'.
 
 
 Example with a Django version from a repository
