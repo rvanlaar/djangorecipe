@@ -78,12 +78,12 @@ deploy_script_extra
 
 wsgi
   An extra script is generated in the bin folder when this is set to
-  `true`. This can be used with mod_wsgi to deploy the project. The
-  name of the script is `control-script.wsgi`.
+  `true`. This is mostly only useful when deploying with apache's
+  mod_wsgi. The name of the script is the same as the control script, but with
+  ``.wsgi`` appended. So often it will be ``bin/django.wsgi``.
 
 wsgi-script
-  The name of the wsgi-script that is generated. This can be useful for
-  gunicorn.
+  Use this option if you need to overwrite the name of the script above.
 
 test
   If you want a script in the bin folder to run all the tests for a
