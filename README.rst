@@ -94,17 +94,6 @@ testrunner
   This is the name of the testrunner which will be created. It
   defaults to `test`.
 
-All following options only have effect when the project specified by
-the project option has not been created already.
-
-urlconf
-  You can set this to a specific url conf. It will use project.urls by
-  default.
-
-secret
-  The secret to use for the `settings.py`, it generates a random
-  string by default.
-
 
 Another example
 -----------------
