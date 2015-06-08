@@ -243,13 +243,15 @@ class TestRecipeScripts(BaseTestRecipe):
                         in open(wsgi_script).read())
 
     def test_create_extra_environment_scripts(self):
-        # By default, only gunicorn is configured
+        # Gunicorn is a shorthand.
+        self.recipe.options['script-entrypoints'] = 'gunicorn'
         manage = os.path.join(self.bin_dir, 'django_env_gunicorn')
         self.recipe.create_extra_environment_scripts([], [])
         self.assertTrue(os.path.exists(manage))
 
     def test_create_extra_environment_scripts2(self):
-        # By default, only gunicorn is configured
+        # Gunicorn is a shorthand.
+        self.recipe.options['script-entrypoints'] = 'gunicorn'
         manage = os.path.join(self.bin_dir, 'django_env_gunicorn')
         self.recipe.create_extra_environment_scripts([], [])
         self.assertTrue(
@@ -276,6 +278,11 @@ class TestRecipeScripts(BaseTestRecipe):
             UserError,
             self.recipe.create_extra_environment_scripts,
             *([], []))
+
+    def test_create_extra_environment_scripts5(self):
+        # By default, nothing is generated.
+        result = self.recipe.create_extra_environment_scripts([], [])
+        self.assertEquals([], result)
 
 
 class TestTesTRunner(BaseTestRecipe):

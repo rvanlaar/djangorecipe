@@ -44,8 +44,7 @@ class Recipe(object):
         options.setdefault('extra-paths', '')
         options.setdefault('initialization', '')
         options.setdefault('deploy-script-extra', '')
-        options.setdefault('script-entrypoints',
-                           'gunicorn=gunicorn.app.wsgiapp:run')
+        options.setdefault('script-entrypoints', '')
 
         # mod_wsgi support script
         options.setdefault('wsgi', 'false')
@@ -158,6 +157,9 @@ class Recipe(object):
                        self.options.get('script-entrypoints').splitlines()
                        if entrypoint.strip()]
         for entrypoint in entrypoints:
+            if entrypoint == 'gunicorn':
+                # Shorthand
+                entrypoint = 'gunicorn=gunicorn.app.wsgiapp:run'
             if ':' not in entrypoint or '=' not in entrypoint:
                 raise UserError(
                     "Script entrypoint %s isn't of the form "

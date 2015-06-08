@@ -101,8 +101,10 @@ script-entrypoints
   settings environment variable set. At the moment, it is mostly useful for
   gunicorn, which cannot be run from within the django process anymore. So the
   script must already be passed the correct settings environment variable. The
-  default is thus ``gunicorn=gunicorn.app.wsgiapp:run``, resulting in a
-  ``django_env_gunicorn``.
+  correct value would be ``gunicorn=gunicorn.app.wsgiapp:run``, resulting in a
+  ``django_env_gunicorn``. To make it easier, you can provide just
+  ``gunicorn`` as a shorthand notation. (If it is necessary for more wsgi
+  runners, pull requests or bug reports are welcome).
 
 testrunner
   This is the name of the testrunner which will be created. It
