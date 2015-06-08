@@ -79,13 +79,6 @@ initialization
   `control-script`. This functionality is very limited. In particular, be
   aware that leading whitespace is stripped from the code given.
 
-deploy_script_extra
-  In the `wsgi` deployment script, you sometimes need to wrap the application
-  in a custom wrapper for some cloud providers. This setting allows extra
-  content to be appended to the end of the wsgi script. For instance
-  ``application = some_extra_wrapper(application)``. The limits described
-  above for `initialization` also apply here.
-
 wsgi
   An extra script is generated in the bin folder when this is set to
   `true`. This is mostly only useful when deploying with apache's
@@ -94,6 +87,13 @@ wsgi
 
 wsgi-script
   Use this option if you need to overwrite the name of the script above.
+
+deploy_script_extra
+  In the `wsgi` deployment script, you sometimes need to wrap the application
+  in a custom wrapper for some cloud providers. This setting allows extra
+  content to be appended to the end of the wsgi script. For instance
+  ``application = some_extra_wrapper(application)``. The limits described
+  above for `initialization` also apply here.
 
 script-entrypoints
   Entry points you add to here get their scripts created with a prefix of
