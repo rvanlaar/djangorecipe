@@ -48,6 +48,15 @@ settings
   production setup from your development setup. It defaults to
   `development`.
 
+test
+  If you want a script in the bin folder to run all the tests for a
+  specific set of apps this is the option you would use. Set this to
+  the list of app labels which you want to be tested. Normally, it is
+  recommended that you use this option and set it to your project's name.
+
+
+The options below are for older projects or special cases mostly:
+
 dotted-settings-path
   Use this option to specify a custom settings path to be used. By default,
   the ``project`` and ``settings`` option values are concatenated, so for
@@ -73,7 +82,8 @@ initialization
 deploy_script_extra
   In the `wsgi` deployment script, you sometimes need to wrap the application
   in a custom wrapper for some cloud providers. This setting allows extra
-  content to be appended to the end of the wsgi script. The limits described
+  content to be appended to the end of the wsgi script. For instance
+  ``application = some_extra_wrapper(application)``. The limits described
   above for `initialization` also apply here.
 
 wsgi
@@ -85,10 +95,14 @@ wsgi
 wsgi-script
   Use this option if you need to overwrite the name of the script above.
 
-test
-  If you want a script in the bin folder to run all the tests for a
-  specific set of apps this is the option you would use. Set this to
-  the list of app labels which you want to be tested.
+script-entrypoints
+  Entry points you add to here get their scripts created with a prefix of
+  ``django_env_`` (with the default control-script name). They also get the
+  settings environment variable set. At the moment, it is mostly useful for
+  gunicorn, which cannot be run from within the django process anymore. So the
+  script must already be passed the correct settings environment variable. The
+  default is thus ``gunicorn=gunicorn.app.wsgiapp:run``, resulting in a
+  ``django_env_gunicorn``.
 
 testrunner
   This is the name of the testrunner which will be created. It

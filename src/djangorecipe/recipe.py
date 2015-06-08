@@ -44,6 +44,8 @@ class Recipe(object):
         options.setdefault('extra-paths', '')
         options.setdefault('initialization', '')
         options.setdefault('deploy-script-extra', '')
+        options.setdefault('script-entrypoints',
+                           'gunicorn=gunicorn.app.wsgiapp:run')
 
         # mod_wsgi support script
         options.setdefault('wsgi', 'false')
@@ -74,15 +76,11 @@ class Recipe(object):
         # ^^^ working_set returns (requirements, ws)
 
         script_paths = []
-        # Create the Django management script
         script_paths.extend(self.create_manage_script(extra_paths, ws))
-
-        # Create the test runner
         script_paths.extend(self.create_test_runner(extra_paths, ws))
-
-        # Make the wsgi script if enabled
         script_paths.extend(self.make_wsgi_script(extra_paths, ws))
-
+        script_paths += self.create_extra_environment_scripts(
+            extra_paths, ws)
         return script_paths
 
     def create_manage_script(self, extra_paths, ws):
@@ -142,6 +140,44 @@ class Recipe(object):
                 ))
         zc.buildout.easy_install.script_template = _script_template
         return scripts
+
+    def create_extra_environment_scripts(self, extra_paths, ws):
+        settings = self.get_settings()
+        # What we're installing are existing setuptools entry points. We know
+        # of gunicorn, but others might be configured. We prefix the
+        # normally-created command ('gunicorn' for instance) so that it
+        # becomes 'django_env_gunicorn'.
+        prefix = "%s_env_" % self.options.get('control-script', self.name)
+        initialization = self.options['initialization']
+        initialization += (
+            "\n" +
+            "import os\n" +
+            "os.environ['DJANGO_SETTINGS_MODULE'] = '%s'" % settings)
+        created_scripts = []
+        entrypoints = [entrypoint.strip() for entrypoint in
+                       self.options.get('script-entrypoints').splitlines()
+                       if entrypoint.strip()]
+        for entrypoint in entrypoints:
+            if ':' not in entrypoint or '=' not in entrypoint:
+                raise UserError(
+                    "Script entrypoint %s isn't of the form "
+                    "name=dotted.path:functionname" % entrypoint)
+            parts = entrypoint.split('=')
+            name = parts[0]
+            parts = parts[1].split(':')
+            dotted_path = parts[0]
+            function_name = parts[1]
+            script_name = prefix + name
+            self.log.debug("Creating entrypoint %s as %s",
+                           entrypoint, script_name)
+            zc.buildout.easy_install.scripts(
+                [(script_name, dotted_path, function_name)],
+                ws, sys.executable, self.options['bin-directory'],
+                extra_paths=extra_paths,
+                relative_paths=self._relative_paths,
+                initialization=initialization)
+            created_scripts.append(script_name)
+        return created_scripts
 
     def get_extra_paths(self):
         extra_paths = [self.buildout['buildout']['directory']]
