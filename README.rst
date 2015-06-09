@@ -8,6 +8,10 @@ Description
 .. image:: https://secure.travis-ci.org/rvanlaar/djangorecipe.png?branch=master
    :target: http://travis-ci.org/rvanlaar/djangorecipe/
 
+.. image:: https://landscape.io/github/rvanlaar/djangorecipe/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/rvanlaar/djangorecipe/master
+   :alt: Code Health
+
 This buildout recipe can be used to create a setup for Django. It will
 automatically download Django and install it in the buildout's
 sandbox.
@@ -44,6 +48,15 @@ settings
   production setup from your development setup. It defaults to
   `development`.
 
+test
+  If you want a script in the bin folder to run all the tests for a
+  specific set of apps this is the option you would use. Set this to
+  the list of app labels which you want to be tested. Normally, it is
+  recommended that you use this option and set it to your project's name.
+
+
+The options below are for older projects or special cases mostly:
+
 dotted-settings-path
   Use this option to specify a custom settings path to be used. By default,
   the ``project`` and ``settings`` option values are concatenated, so for
@@ -66,40 +79,36 @@ initialization
   `control-script`. This functionality is very limited. In particular, be
   aware that leading whitespace is stripped from the code given.
 
+wsgi
+  An extra script is generated in the bin folder when this is set to
+  `true`. This is mostly only useful when deploying with apache's
+  mod_wsgi. The name of the script is the same as the control script, but with
+  ``.wsgi`` appended. So often it will be ``bin/django.wsgi``.
+
+wsgi-script
+  Use this option if you need to overwrite the name of the script above.
+
 deploy_script_extra
   In the `wsgi` deployment script, you sometimes need to wrap the application
   in a custom wrapper for some cloud providers. This setting allows extra
-  content to be appended to the end of the wsgi script. The limits described
+  content to be appended to the end of the wsgi script. For instance
+  ``application = some_extra_wrapper(application)``. The limits described
   above for `initialization` also apply here.
 
-wsgi
-  An extra script is generated in the bin folder when this is set to
-  `true`. This can be used with mod_wsgi to deploy the project. The
-  name of the script is `control-script.wsgi`.
-
-wsgi-script
-  The name of the wsgi-script that is generated. This can be useful for
-  gunicorn.
-
-test
-  If you want a script in the bin folder to run all the tests for a
-  specific set of apps this is the option you would use. Set this to
-  the list of app labels which you want to be tested.
+script-entrypoints
+  Entry points you add to here get their scripts created with a prefix of
+  ``django_env_`` (with the default control-script name). They also get the
+  settings environment variable set. At the moment, it is mostly useful for
+  gunicorn, which cannot be run from within the django process anymore. So the
+  script must already be passed the correct settings environment variable. The
+  correct value would be ``gunicorn=gunicorn.app.wsgiapp:run``, resulting in a
+  ``django_env_gunicorn``. To make it easier, you can provide just
+  ``gunicorn`` as a shorthand notation. (If it is necessary for more wsgi
+  runners, pull requests or bug reports are welcome).
 
 testrunner
   This is the name of the testrunner which will be created. It
   defaults to `test`.
-
-All following options only have effect when the project specified by
-the project option has not been created already.
-
-urlconf
-  You can set this to a specific url conf. It will use project.urls by
-  default.
-
-secret
-  The secret to use for the `settings.py`, it generates a random
-  string by default.
 
 
 Another example

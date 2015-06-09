@@ -21,11 +21,29 @@ Changes
 - We aim at django 1.7 and 1.8 now. Django 1.4 still works, (except that that
   one doesn't have a good startproject command).
 
+- Gunicorn doesn't come with the django manage.py integration, so ``bin/django
+  run_gunicorn`` doesn't work anymore. If you add ``script-entrypoints =
+  gunicorn`` to the configuration, we generate a ``bin/django_env_gunicorn``
+  script that is identical to ``bin/gunicorn``, only with the environment
+  correctly set.
+
+  This way, you can use the wsgi.py script in your project (copy it from the
+  django docs if needed) with ``bin/django_env_gunicorn yourproject/wsgi.py``
+  just like suggested everywhere. This way you can adjust your wsgi file to
+  your liking and run it with gunicorn.
+
+  For other wsgi runners (or programs you want to use with the correct
+  environment set), you can add a full entry point to ``script-entrypoints``,
+  like ``script-entrypoints = gunicorn=gunicorn.app.wsgiapp:run`` would be the
+  full line for gunicorn. Look up the correct entrypoint in the relevant
+  package's ``setup.py``.
+
 - The ``wsgilog`` option has been deprecated, the old apache mod_wsgi script
   hasn't been used for a long time.
 
 - Removed old pth option, previously used for pinax. Pinax uses proper python
   packages since a long time, so it isn't needed anymore.
+
 
 
 1.11 (2014-11-21)
