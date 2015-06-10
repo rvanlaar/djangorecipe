@@ -2,8 +2,8 @@ Changes
 =======
 
 
-2.0 (unreleased)
------------------
+2.0 (2015-06-10)
+----------------
 
 - Removed project generation. Previously, djangorecipe would generate a
   directory for you from a template, but Django's own template is more than
