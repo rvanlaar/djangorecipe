@@ -72,6 +72,10 @@ if you wanted it to. Django itself generates good project structures now. Just
 run ``bin/django startproject <projectname>``. The main directory created is
 the one where you should place your buildout and probably a ``setup.py``.
 
+Startproject creates a ``manage.py`` script for you. You can remove it, as the
+``bin/django`` script that djangorecipe creates is the (almost exact)
+replacement for it.
+
 See django's documentation for `startproject
 <https://docs.djangoproject.com/en/1.8/ref/django-admin/#django-admin-startproject>`_.
 
