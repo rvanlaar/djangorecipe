@@ -18,20 +18,35 @@ sandbox.
 
 You can see an example of how to use the recipe below::
 
-  [buildout]
-  parts = satchmo django
-  eggs =
-    ipython
-  versions = versions
+    [buildout]
+    show-picked-versions = true
+    parts =
+        django
+        scripts
+    eggs =
+        yourproject
+        gunicorn
+    develop = .
+    # ^^^ Assumption: the current directory is where you develop 'yourproject'.
+    versions = versions
 
-  [versions]
-  Django = 1.8.2
+    [versions]
+    Django = 1.8.2
+    gunicorn = 19.3.0
 
-  [django]
-  recipe = djangorecipe
-  settings = development
-  eggs = ${buildout:eggs}
-  project = dummyshop
+    [django]
+    recipe = djangorecipe
+    settings = development
+    eggs = ${buildout:eggs}
+    project = yourproject
+    test = yourproject
+    script-entrypoints = gunicorn
+
+    [scripts]
+    recipe = zc.recipe.egg
+    dependent-scripts = true
+    interpreter = python
+    eggs = ${buildout:eggs}
 
 
 Supported options
@@ -54,6 +69,22 @@ test
   the list of app labels which you want to be tested. Normally, it is
   recommended that you use this option and set it to your project's name.
 
+script-entrypoints
+  Entry points you add to here get their scripts created with a prefix of
+  ``django_env_`` (with the default control-script name). They also get the
+  settings environment variable set. At the moment, it is mostly useful for
+  gunicorn, which cannot be run from within the django process anymore. So the
+  script must already be passed the correct settings environment variable. The
+  correct value would be ``gunicorn=gunicorn.app.wsgiapp:run``, resulting in a
+  ``django_env_gunicorn``. To make it easier, you can provide just
+  ``gunicorn`` as a shorthand notation. (If it is necessary for more wsgi
+  runners, pull requests or bug reports are welcome). **Note: Added in 2.0,
+  the exact name might change in 2.1**.
+
+eggs
+  Like most buildout recipes, you can/must pass the eggs (=python packages)
+  you want to be available here. Often you'll have a list in the
+  ``[buildout]`` part and re-use it here by saying ``${buildout:eggs}``.
 
 The options below are for older projects or special cases mostly:
 
@@ -95,70 +126,10 @@ deploy_script_extra
   ``application = some_extra_wrapper(application)``. The limits described
   above for `initialization` also apply here.
 
-script-entrypoints
-  Entry points you add to here get their scripts created with a prefix of
-  ``django_env_`` (with the default control-script name). They also get the
-  settings environment variable set. At the moment, it is mostly useful for
-  gunicorn, which cannot be run from within the django process anymore. So the
-  script must already be passed the correct settings environment variable. The
-  correct value would be ``gunicorn=gunicorn.app.wsgiapp:run``, resulting in a
-  ``django_env_gunicorn``. To make it easier, you can provide just
-  ``gunicorn`` as a shorthand notation. (If it is necessary for more wsgi
-  runners, pull requests or bug reports are welcome).
-
 testrunner
   This is the name of the testrunner which will be created. It
   defaults to `test`.
 
-
-Another example
------------------
-
-The next example shows you how to use some more of the options::
-
-  [buildout]
-  parts = django extras
-  eggs =
-    hashlib
-
-  [extras]
-  recipe = iw.recipe.subversion
-  urls =
-    http://django-command-extensions.googlecode.com/svn/trunk/ django-command-extensions
-    http://django-mptt.googlecode.com/svn/trunk/ django-mptt
-
-  [django]
-  recipe = djangorecipe
-  settings = development
-  project = exampleproject
-  wsgi = true
-  eggs =
-    ${buildout:eggs}
-  test =
-    someapp
-    anotherapp
-  dotted-settings-path = projectconfig.production.settings
-
-
-Example with a Django version from a repository
----------------------------------------------------
-
-If you want to use a specific Django version from a source
-repository you could use mr.developer: http://pypi.python.org/pypi/mr.developer
-Here is an example for using the Django development version::
-
-  [buildout]
-  parts = django
-  extensions = mr.developer
-  auto-checkout = *
-
-  [sources]
-  django = git https://github.com/django/django.git
-
-  [django]
-  recipe = djangorecipe
-  settings = settings
-  project = project
 
 Example configuration for mod_wsgi
 ---------------------------------------------------
@@ -166,16 +137,32 @@ Example configuration for mod_wsgi
 If you want to deploy a project using mod_wsgi you could use this
 example as a starting point::
 
-  <Directory /path/to/buildout>
+    <Directory /path/to/buildout>
          Order deny,allow
          Allow from all
-  </Directory>
-  <VirtualHost 1.2.3.4:80>
+    </Directory>
+    <VirtualHost 1.2.3.4:80>
          ServerName      my.rocking.server
          CustomLog       /var/log/apache2/my.rocking.server/access.log combined
          ErrorLog        /var/log/apache2/my.rocking.server/error.log
          WSGIScriptAlias / /path/to/buildout/bin/django.wsgi
-  </VirtualHost>
+    </VirtualHost>
+
+Corner case: there is a problem when several wsgi scripts are combined in a
+single virtual host instance of Apache. This is due to the fact that Django
+uses the environment variable DJANGO_SETTINGS_MODULE. This variable gets set
+once when the first wsgi script loads. The rest of the wsgi scripts will fail,
+because they need a different settings modules. However the environment
+variable DJANGO_SETTINGS_MODULE is only set once. The new `initialization`
+option that has been added to djangorecipe can be used to remedy this problem
+as shown below::
+
+    [django]
+    settings = acceptance
+    initialization =
+        import os
+        os.environ['DJANGO_SETTINGS_MODULE'] = '${django:project}.${django:settings}'
+
 
 Generating a control script for PyDev
 ---------------------------------------------------
@@ -186,44 +173,28 @@ of code::
   import pydevd
   pydevd.patch_django_autoreload(patch_remote_debugger=False, patch_show_console=True)
 
-just before the `if __name__ == "__main__":` in the `manage.py` module
-(or in this case the control script that is generated). This example
-buildout generates two control scripts: one for command-line usage and
-one for PyDev, with the required snippet, using the recipe's
+just before the `if __name__ == "__main__":` in the `manage.py` module (or in
+this case the control script, normally ``bin/django``, that is generated). The
+following example buildout generates two control scripts: one for command-line
+usage and one for PyDev, with the required snippet, using the recipe's
 `initialization` option::
 
-  [buildout]
-  parts = django pydev
-  eggs =
-    mock
-
-  [django]
-  recipe = djangorecipe
-  eggs = ${buildout:eggs}
-  project = dummyshop
-
-  [pydev]
-  <= django
-  initialization =
-    import pydevd
-    pydevd.patch_django_autoreload(patch_remote_debugger=False, patch_show_console=True)
-
-Several wsgi scripts for one Apache virtual host instance
-----------------------------------------------------------
-
-There is a problem when several wsgi scripts are combined in a single virtual
-host instance of Apache. This is due to the fact that Django uses the
-environment variable DJANGO_SETTINGS_MODULE. This variable  gets set once when
-the first wsgi script loads. The rest of the wsgi scripts will fail, because
-they need a different settings modules. However the environment variable
-DJANGO_SETTINGS_MODULE is only set once. The new `initialization` option that has
-been added to djangorecipe can be used to remedy this problem as shown below::
+    [buildout]
+    parts = django pydev
+    eggs =
+        mock
 
     [django]
-    settings = acceptance
+    recipe = djangorecipe
+    eggs = ${buildout:eggs}
+    project = dummyshop
+
+    [pydev]
+    <= django
     initialization =
-        import os
-        os.environ['DJANGO_SETTINGS_MODULE'] = '${django:project}.${django:settings}'
+        import pydevd
+        pydevd.patch_django_autoreload(patch_remote_debugger=False, patch_show_console=True)
+
 
 Example usage of django-configurations
 --------------------------------------
