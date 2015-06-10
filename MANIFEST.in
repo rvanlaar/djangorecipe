@@ -1,2 +1,8 @@
 # Include docs in the root.
 include *.rst
+
+# Some files in the root that we don't need.
+exclude *.cfg
+exclude Makefile
+exclude *.yml
+exclude bootstrap.py
