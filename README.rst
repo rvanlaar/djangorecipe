@@ -1,9 +1,22 @@
 Djangorecipe: easy install of Django with buildout
 ==================================================
 
+With djangorecipe you can manage your django site in a way that is familiar to
+buildout users. For example:
 
-Description
------------
+- ``bin/django`` to run django instead of ``bin/python manage.py``.
+
+- ``bin/test`` to run tests instead of ``bin/python manage.py test yourproject``.
+
+- ``bin/django`` automatically uses the right django settings. So you can have
+  a ``development.cfg`` buildout config and a ``production.cfg``, each telling
+  djangorecipe to use a different django settings module. ``bin/django`` will
+  use the right setting automatically, no need to set an environment variable.
+
+Djangorecipe is developed on github at
+https://github.com/rvanlaar/djangorecipe, you can submit bug reports there. It
+is tested with travis-ci and the code quality is checked via landscape.io:
+
 
 .. image:: https://secure.travis-ci.org/rvanlaar/djangorecipe.png?branch=master
    :target: http://travis-ci.org/rvanlaar/djangorecipe/
@@ -12,11 +25,13 @@ Description
    :target: https://landscape.io/github/rvanlaar/djangorecipe/master
    :alt: Code Health
 
-This buildout recipe can be used to create a setup for Django. It will
-automatically download Django and install it in the buildout's
-sandbox.
 
-You can see an example of how to use the recipe below::
+
+Setup
+-----------
+
+You can see an example of how to use the recipe below with some of the most
+common settings::
 
     [buildout]
     show-picked-versions = true
@@ -43,10 +58,25 @@ You can see an example of how to use the recipe below::
     script-entrypoints = gunicorn
 
     [scripts]
+    # Installs scripts in /bin.
     recipe = zc.recipe.egg
     dependent-scripts = true
     interpreter = python
-    eggs = ${buildout:eggs}
+    eggs =
+        ${buildout:eggs}
+        pyflakes
+        pep8
+
+Earlier versions of djangorecipe used to create a project structure for you,
+if you wanted it to. Django itself generates good project structures now. Just
+run ``bin/django startproject <projectname>``. The main directory created is
+the one where you should place your buildout and probably a ``setup.py``.
+
+See django's documentation for `startproject
+<https://docs.djangoproject.com/en/1.8/ref/django-admin/#django-admin-startproject>`_.
+
+You can also look at `cookiecutter <https://cookiecutter.readthedocs.org/>`_.
+
 
 
 Supported options

@@ -38,6 +38,17 @@ Changes
   full line for gunicorn. Look up the correct entrypoint in the relevant
   package's ``setup.py``.
 
+  Django's 1.8 ``wsgi.py`` file looks like this, see https://docs.djangoproject.com/en/1.8/howto/deployment/wsgi/::
+
+      import os
+
+      from django.core.wsgi import get_wsgi_application
+
+      os.environ.setdefault("DJANGO_SETTINGS_MODULE", "yourproject.settings")
+
+      application = get_wsgi_application()
+
+
 - The ``wsgilog`` option has been deprecated, the old apache mod_wsgi script
   hasn't been used for a long time.
 
