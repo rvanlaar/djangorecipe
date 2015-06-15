@@ -5,6 +5,7 @@ import tempfile
 import unittest
 
 import mock
+import pkg_resources
 from zc.buildout import UserError
 
 from djangorecipe.recipe import Recipe
@@ -106,6 +107,11 @@ class TestRecipe(BaseTestRecipe):
     def test_version_option_deprecation4(self):
         options = {'recipe': 'djangorecipe',
                    'deploy_script_extra': 'something'}
+        self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
+
+    def test_version_option_deprecation5(self):
+        options = {'recipe': 'djangorecipe',
+                   'script-entrypoints': 'something'}
         self.assertRaises(UserError, Recipe, *('buildout', 'test', options))
 
     @mock.patch('zc.recipe.egg.egg.Scripts.working_set',
@@ -245,31 +251,39 @@ class TestRecipeScripts(BaseTestRecipe):
     def test_create_scripts_with_settings(self):
         # easy_install is available. It isn't useful, but it is a good
         # example.
+        ws = pkg_resources.WorkingSet()
+        ws.require(['setuptools'])
         self.recipe.options['scripts-with-settings'] = 'easy_install'
         created = os.path.join(self.bin_dir, 'easy_install-with-settings')
-        self.recipe.create_scripts_with_settings([], [])
+        self.recipe.create_scripts_with_settings([], ws)
         self.assertTrue(os.path.exists(created))
 
     def test_create_scripts_with_settings2(self):
         # easy_install is available. It isn't useful, but it is a good
         # example.
+        ws = pkg_resources.WorkingSet()
+        ws.require(['setuptools'])
         self.recipe.options['scripts-with-settings'] = 'easy_install'
         created = os.path.join(self.bin_dir, 'easy_install-with-settings')
-        self.recipe.create_scripts_with_settings([], [])
+        self.recipe.create_scripts_with_settings([], ws)
         self.assertTrue(
             "os.environ['DJANGO_SETTINGS_MODULE'] = 'project.development"
             in open(created, 'r').read())
 
     def test_create_scripts_with_settings3(self):
+        ws = pkg_resources.WorkingSet()
+        ws.require(['setuptools'])
         self.recipe.options['scripts-with-settings'] = 'unavailable'
         self.assertRaises(
             UserError,  # "Script name not found"
             self.recipe.create_scripts_with_settings,
-            *([], []))
+            *([], ws))
 
     def test_create_scripts_with_settings4(self):
+        ws = pkg_resources.WorkingSet()
+        ws.require(['setuptools'])
         # By default, nothing is generated.
-        result = self.recipe.create_scripts_with_settings([], [])
+        result = self.recipe.create_scripts_with_settings([], ws)
         self.assertEquals([], result)
 
 

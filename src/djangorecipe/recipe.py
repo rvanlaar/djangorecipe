@@ -148,11 +148,20 @@ class Recipe(object):
         return scripts
 
     def create_scripts_with_settings(self, extra_paths, ws):
+        """Create duplicates of existing scripts - *with* a settings env.
+
+        What we're installing here are existing setuptools entry points. We
+        look up the script names in the list of available entry points and
+        install a duplicate. We postfix the duplicate with '-with-settings',
+        so that 'gunicorn' for instance becomes 'gunicorn-with-settings'.
+
+        """
+        script_names = [entrypoint.strip() for entrypoint in
+                        self.options.get('scripts-with-settings').splitlines()
+                        if entrypoint.strip()]
+        if not script_names:
+            return []
         settings = self.get_settings()
-        # What we're installing here are existing setuptools entry points. We
-        # look up the script names in the list of available entry points and
-        # install a duplicate. We postfix the duplicate with '-with-settings',
-        # so that 'gunicorn' for instance becomes 'gunicorn-with-settings'.
         postfix = '-with-settings'
         initialization = self.options['initialization']
         initialization += (
@@ -160,11 +169,7 @@ class Recipe(object):
             "import os\n" +
             "os.environ['DJANGO_SETTINGS_MODULE'] = '%s'" % settings)
         created_scripts = []
-        script_names = [entrypoint.strip() for entrypoint in
-                        self.options.get('scripts-with-settings').splitlines()
-                        if entrypoint.strip()]
-        known_entrypoints = list(pkg_resources.iter_entry_points(
-            'console_scripts'))
+        known_entrypoints = list(ws.iter_entry_points('console_scripts'))
         to_create = [entrypoint for entrypoint in known_entrypoints
                      if entrypoint.name in script_names]
         for entrypoint in to_create:
