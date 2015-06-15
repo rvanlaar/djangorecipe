@@ -5,7 +5,12 @@ Changes
 2.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Renamed ``script-entrypoints`` option to ``scripts-with-settings``. It
+  accepts script names that would otherwise get generated (like ``gunicorn``)
+  and generates a duplicate script named like ``bin/gunicorn-with-settings``.
+
+  Technical note: this depends on the scripts being setuptools "console_script
+  entrypoint" scripts.
 
 
 2.0 (2015-06-10)
@@ -31,7 +36,7 @@ Changes
   run_gunicorn`` doesn't work anymore. If you add ``script-entrypoints =
   gunicorn`` to the configuration, we generate a ``bin/django_env_gunicorn``
   script that is identical to ``bin/gunicorn``, only with the environment
-  correctly set.
+  correctly set.  **Note: renamed in 2.1 to ``scripts-with-settings``**.
 
   This way, you can use the wsgi.py script in your project (copy it from the
   django docs if needed) with ``bin/django_env_gunicorn yourproject/wsgi.py``
