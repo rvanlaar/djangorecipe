@@ -242,34 +242,34 @@ class TestRecipeScripts(BaseTestRecipe):
                         "logfile='')"
                         in open(wsgi_script).read())
 
-    def test_create_extra_environment_scripts(self):
+    def test_create_scripts_with_settings(self):
         # easy_install is available. It isn't useful, but it is a good
         # example.
-        self.recipe.options['script-entrypoints'] = 'easy_install'
+        self.recipe.options['scripts-with-settings'] = 'easy_install'
         created = os.path.join(self.bin_dir, 'easy_install-with-settings')
-        self.recipe.create_extra_environment_scripts([], [])
+        self.recipe.create_scripts_with_settings([], [])
         self.assertTrue(os.path.exists(created))
 
-    def test_create_extra_environment_scripts2(self):
+    def test_create_scripts_with_settings2(self):
         # easy_install is available. It isn't useful, but it is a good
         # example.
-        self.recipe.options['script-entrypoints'] = 'easy_install'
+        self.recipe.options['scripts-with-settings'] = 'easy_install'
         created = os.path.join(self.bin_dir, 'easy_install-with-settings')
-        self.recipe.create_extra_environment_scripts([], [])
+        self.recipe.create_scripts_with_settings([], [])
         self.assertTrue(
             "os.environ['DJANGO_SETTINGS_MODULE'] = 'project.development"
             in open(created, 'r').read())
 
-    def test_create_extra_environment_scripts3(self):
-        self.recipe.options['script-entrypoints'] = 'unavailable'
+    def test_create_scripts_with_settings3(self):
+        self.recipe.options['scripts-with-settings'] = 'unavailable'
         self.assertRaises(
             UserError,  # "Script name not found"
-            self.recipe.create_extra_environment_scripts,
+            self.recipe.create_scripts_with_settings,
             *([], []))
 
-    def test_create_extra_environment_scripts4(self):
+    def test_create_scripts_with_settings4(self):
         # By default, nothing is generated.
-        result = self.recipe.create_extra_environment_scripts([], [])
+        result = self.recipe.create_scripts_with_settings([], [])
         self.assertEquals([], result)
 
 

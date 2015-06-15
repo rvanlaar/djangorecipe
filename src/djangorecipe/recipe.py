@@ -31,6 +31,12 @@ class Recipe(object):
             raise UserError(
                 "'deploy_script_extra' option found (with underscores). "
                 "This has been renamed to 'deploy-script-extra'.")
+        if 'script-entrypoints' in options:
+            # Renamed between 2.0 and 2.1
+            raise UserError("The 'script-entrypoints' option is deprecated by "
+                            "'scripts-with-settings'. See the changelog "
+                            "for 2.1 at "
+                            "http://pypi.python.org/pypi/djangorecipe/2.1")
 
         # Generic initialization.
         self.egg = zc.recipe.egg.Egg(buildout, options['recipe'], options)
@@ -45,7 +51,7 @@ class Recipe(object):
         options.setdefault('extra-paths', '')
         options.setdefault('initialization', '')
         options.setdefault('deploy-script-extra', '')
-        options.setdefault('script-entrypoints', '')
+        options.setdefault('scripts-with-settings', '')
 
         # mod_wsgi support script
         options.setdefault('wsgi', 'false')
@@ -79,7 +85,7 @@ class Recipe(object):
         script_paths.extend(self.create_manage_script(extra_paths, ws))
         script_paths.extend(self.create_test_runner(extra_paths, ws))
         script_paths.extend(self.make_wsgi_script(extra_paths, ws))
-        script_paths += self.create_extra_environment_scripts(
+        script_paths += self.create_scripts_with_settings(
             extra_paths, ws)
         return script_paths
 
@@ -141,12 +147,12 @@ class Recipe(object):
         zc.buildout.easy_install.script_template = _script_template
         return scripts
 
-    def create_extra_environment_scripts(self, extra_paths, ws):
+    def create_scripts_with_settings(self, extra_paths, ws):
         settings = self.get_settings()
-        # What we're installing are existing setuptools entry points. We know
-        # of gunicorn, but others might be configured. We postfix the
-        # normally-created command ('gunicorn' for instance) so that it
-        # becomes 'gunicorn-with-settings'.
+        # What we're installing here are existing setuptools entry points. We
+        # look up the script names in the list of available entry points and
+        # install a duplicate. We postfix the duplicate with '-with-settings',
+        # so that 'gunicorn' for instance becomes 'gunicorn-with-settings'.
         postfix = '-with-settings'
         initialization = self.options['initialization']
         initialization += (
@@ -155,7 +161,7 @@ class Recipe(object):
             "os.environ['DJANGO_SETTINGS_MODULE'] = '%s'" % settings)
         created_scripts = []
         script_names = [entrypoint.strip() for entrypoint in
-                        self.options.get('script-entrypoints').splitlines()
+                        self.options.get('scripts-with-settings').splitlines()
                         if entrypoint.strip()]
         known_entrypoints = list(pkg_resources.iter_entry_points(
             'console_scripts'))
