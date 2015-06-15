@@ -2,7 +2,7 @@ Changes
 =======
 
 
-2.1 (unreleased)
+2.1 (2015-06-15)
 ----------------
 
 - Renamed ``script-entrypoints`` option to ``scripts-with-settings``. It
