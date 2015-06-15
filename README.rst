@@ -37,7 +37,6 @@ common settings::
     show-picked-versions = true
     parts =
         django
-        scripts
     eggs =
         yourproject
         gunicorn
@@ -55,17 +54,10 @@ common settings::
     eggs = ${buildout:eggs}
     project = yourproject
     test = yourproject
-    script-entrypoints = gunicorn
+    script-with-settings = gunicorn
+    # ^^^ This line generates a bin/gunicorn-with-settings script with
+    # the correct django environment settings variable already set.
 
-    [scripts]
-    # Installs scripts in /bin.
-    recipe = zc.recipe.egg
-    dependent-scripts = true
-    interpreter = python
-    eggs =
-        ${buildout:eggs}
-        pyflakes
-        pep8
 
 Earlier versions of djangorecipe used to create a project structure for you,
 if you wanted it to. Django itself generates good project structures now. Just
@@ -103,17 +95,13 @@ test
   the list of app labels which you want to be tested. Normally, it is
   recommended that you use this option and set it to your project's name.
 
-script-entrypoints
-  Entry points you add to here get their scripts created with a prefix of
-  ``django_env_`` (with the default control-script name). They also get the
-  settings environment variable set. At the moment, it is mostly useful for
-  gunicorn, which cannot be run from within the django process anymore. So the
-  script must already be passed the correct settings environment variable. The
-  correct value would be ``gunicorn=gunicorn.app.wsgiapp:run``, resulting in a
-  ``django_env_gunicorn``. To make it easier, you can provide just
-  ``gunicorn`` as a shorthand notation. (If it is necessary for more wsgi
-  runners, pull requests or bug reports are welcome). **Note: Added in 2.0,
-  the exact name might change in 2.1**.
+scripts-with-settings
+  Script names you add to here (like 'gunicorn') get a duplicate script
+  created with '-with-settings' after it (so:
+  ``bin/gunicorn-with-settings``). They get the settings environment variable
+  set. At the moment, it is mostly useful for gunicorn, which cannot be run
+  from within the django process anymore. So the script must already be passed
+  the correct settings environment variable.
 
 eggs
   Like most buildout recipes, you can/must pass the eggs (=python packages)
