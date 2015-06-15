@@ -103,6 +103,10 @@ scripts-with-settings
   from within the django process anymore. So the script must already be passed
   the correct settings environment variable.
 
+  **Note**: the package the script is in must be in the "eggs" option of your
+  part. So if you use gunicorn, add it there (or add it as a dependency of
+  your project).
+
 eggs
   Like most buildout recipes, you can/must pass the eggs (=python packages)
   you want to be available here. Often you'll have a list in the
