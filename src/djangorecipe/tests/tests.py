@@ -243,43 +243,31 @@ class TestRecipeScripts(BaseTestRecipe):
                         in open(wsgi_script).read())
 
     def test_create_extra_environment_scripts(self):
-        # Gunicorn is a shorthand.
-        self.recipe.options['script-entrypoints'] = 'gunicorn'
-        manage = os.path.join(self.bin_dir, 'django_env_gunicorn')
+        # easy_install is available. It isn't useful, but it is a good
+        # example.
+        self.recipe.options['script-entrypoints'] = 'easy_install'
+        created = os.path.join(self.bin_dir, 'easy_install-with-settings')
         self.recipe.create_extra_environment_scripts([], [])
-        self.assertTrue(os.path.exists(manage))
+        self.assertTrue(os.path.exists(created))
 
     def test_create_extra_environment_scripts2(self):
-        # Gunicorn is a shorthand.
-        self.recipe.options['script-entrypoints'] = 'gunicorn'
-        manage = os.path.join(self.bin_dir, 'django_env_gunicorn')
+        # easy_install is available. It isn't useful, but it is a good
+        # example.
+        self.recipe.options['script-entrypoints'] = 'easy_install'
+        created = os.path.join(self.bin_dir, 'easy_install-with-settings')
         self.recipe.create_extra_environment_scripts([], [])
         self.assertTrue(
             "os.environ['DJANGO_SETTINGS_MODULE'] = 'project.development"
-            in open(manage, 'r').read())
+            in open(created, 'r').read())
 
     def test_create_extra_environment_scripts3(self):
-        entrypoints = ['',
-                       'command=some.package:main',
-                       '']
-        self.recipe.options['script-entrypoints'] = '\n    '.join(
-            entrypoints)
-        manage = os.path.join(self.bin_dir, 'django_env_command')
-        self.recipe.create_extra_environment_scripts([], [])
-        self.assertTrue(os.path.exists(manage))
-
-    def test_create_extra_environment_scripts4(self):
-        entrypoints = ['',
-                       'totally bad line',
-                       '']
-        self.recipe.options['script-entrypoints'] = '\n    '.join(
-            entrypoints)
+        self.recipe.options['script-entrypoints'] = 'unavailable'
         self.assertRaises(
-            UserError,
+            UserError,  # "Script name not found"
             self.recipe.create_extra_environment_scripts,
             *([], []))
 
-    def test_create_extra_environment_scripts5(self):
+    def test_create_extra_environment_scripts4(self):
         # By default, nothing is generated.
         result = self.recipe.create_extra_environment_scripts([], [])
         self.assertEquals([], result)
