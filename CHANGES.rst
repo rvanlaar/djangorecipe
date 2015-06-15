@@ -5,7 +5,7 @@ Changes
 2.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Bugfix: ``script-entrypoints`` entry point finding now actually works.
 
 
 2.1 (2015-06-15)
