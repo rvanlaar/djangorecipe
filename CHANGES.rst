@@ -2,8 +2,8 @@ Changes
 =======
 
 
-2.2 (unreleased)
-----------------
+2.1.1 (2015-06-15)
+------------------
 
 - Bugfix: ``script-entrypoints`` entry point finding now actually works.
 
