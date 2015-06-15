@@ -162,8 +162,8 @@ class Recipe(object):
                 entrypoint = 'gunicorn=gunicorn.app.wsgiapp:run'
             if ':' not in entrypoint or '=' not in entrypoint:
                 raise UserError(
-                    "Script entrypoint %s isn't of the form "
-                    "name=dotted.path:functionname" % entrypoint)
+                    ("Script entrypoint %s isn't of the form " +
+                     "name=dotted.path:functionname") % entrypoint)
             parts = entrypoint.split('=')
             name = parts[0]
             parts = parts[1].split(':')
