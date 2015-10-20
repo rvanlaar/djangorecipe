@@ -2,8 +2,8 @@ Changes
 =======
 
 
-2.2 (unreleased)
-----------------
+2.1.2 (2015-10-21)
+------------------
 
 - Fixed documentation bug: the readme mentioned ``script-with-settings``
   instead of ``scripts-with-settings`` (note the missing ``s`` after
