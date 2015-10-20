@@ -54,7 +54,7 @@ common settings::
     eggs = ${buildout:eggs}
     project = yourproject
     test = yourproject
-    script-with-settings = gunicorn
+    scripts-with-settings = gunicorn
     # ^^^ This line generates a bin/gunicorn-with-settings script with
     # the correct django environment settings variable already set.
 
