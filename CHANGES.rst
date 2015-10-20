@@ -5,7 +5,10 @@ Changes
 2.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Fixed documentation bug: the readme mentioned ``script-with-settings``
+  instead of ``scripts-with-settings`` (note the missing ``s`` after
+  ``script``). The correct one is ``script-with-settings``.
+  [tzicatl]
 
 
 2.1.1 (2015-06-15)
