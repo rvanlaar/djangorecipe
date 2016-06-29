@@ -5,7 +5,7 @@ Changes
 2.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Bugfix for 2.2: ``bin/test`` was missing quotes around an option. [reinout]
 
 
 2.2 (2016-06-29)
@@ -15,7 +15,7 @@ Changes
   coverage around your django tests. Needed if you used to have a test runner
   like django-nose run your coverage automatically. Since django 1.7, this
   doesn't work anymore. With the new "coverage" option, ``bin/test`` does it
-  for you.
+  for you. [reinout]
 
 - Automated tests (travis-ci.org) test with django 1.4, 1.8 and 1.9 now. And
   pypi, python 2.7 and python 3.4. [reinout]
