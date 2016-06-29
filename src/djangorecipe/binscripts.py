@@ -9,7 +9,7 @@ def manage(settings_file):
     management.execute_from_command_line(sys.argv)
 
 
-def test(settings_file, *apps):
+def test(settings_file, coverage_functions, *apps):
     optional_arguments = sys.argv[1:]
     sys.argv[1:] = ['test'] + list(apps) + optional_arguments
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings_file)

@@ -32,7 +32,7 @@ class TestTestScript(ScriptTestCase):
         with mock.patch.object(sys, 'argv', ['bin/test']):
             # The test script should execute the standard Django test command
             # with any apps configured in djangorecipe given as its arguments.
-            binscripts.test('cheeseshop.development',  'spamm', 'eggs')
+            binscripts.test('cheeseshop.development', '', 'spamm', 'eggs')
             self.assertTrue(execute_from_command_line.called)
             self.assertEqual(execute_from_command_line.call_args[0],
                              (['bin/test', 'test', 'spamm', 'eggs'],))
@@ -49,7 +49,7 @@ class TestTestScript(ScriptTestCase):
             # with any apps given as its arguments. It should also pass along
             # command line arguments so that the actual test machinery can
             # pick them up (like '--verbose' or '--tests=xyz').
-            binscripts.test('cheeseshop.development',  'spamm', 'eggs')
+            binscripts.test('cheeseshop.development', '', 'spamm', 'eggs')
             self.assertEqual(
                 execute_from_command_line.call_args[0],
                 (['bin/test', 'test', 'spamm', 'eggs', '--verbose'],))
@@ -72,7 +72,7 @@ class TestTestScript(ScriptTestCase):
         sys.modules['cheeseshop'].nce = nce
         sys.modules['cheeseshop.nce'] = nce
         sys.modules['cheeseshop.nce.development'] = settings
-        binscripts.test('cheeseshop.nce.development',  'tilsit', 'stilton')
+        binscripts.test('cheeseshop.nce.development', '', 'tilsit', 'stilton')
         self.assertEqual(
             mock_setdefault.call_args[0],
             ('DJANGO_SETTINGS_MODULE', 'cheeseshop.nce.development'))

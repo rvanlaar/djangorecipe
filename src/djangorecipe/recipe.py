@@ -102,6 +102,9 @@ class Recipe(object):
 
     def create_test_runner(self, extra_paths, working_set):
         settings = self.get_settings()
+        coverage_functions = self.options.get('coverage', '')
+        if coverage_functions.lower() == 'true':
+            coverage_functions = 'report html_report xml_report'
         apps = self.options.get('test', '').split()
         # Only create the testrunner if the user requests it
         if apps:
@@ -112,8 +115,10 @@ class Recipe(object):
                 self.options['bin-directory'],
                 extra_paths=extra_paths,
                 relative_paths=self._relative_paths,
-                arguments="'%s', %s" % (
-                    settings, ', '.join(["'%s'" % app for app in apps])),
+                arguments="'%s', %s, %s" % (
+                    settings,
+                    coverage_functions,
+                    ', '.join(["'%s'" % app for app in apps])),
                 initialization=self.options['initialization'])
         else:
             return []
