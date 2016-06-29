@@ -342,7 +342,7 @@ class TestTesTRunner(BaseTestRecipe):
         self.assertFalse(expected in open(manage).read())
         self.assertFalse(expected in open(wsgi_script).read())
 
-    def test_coverage_default(self):
+    def test_coverage_emty(self):
         recipe_dir = os.path.abspath(
             os.path.join(os.path.dirname(__file__), '..'))
         testrunner = os.path.join(self.bin_dir, 'test')
@@ -352,6 +352,19 @@ class TestTesTRunner(BaseTestRecipe):
         self.recipe.options['test'] = 'knight'
         self.recipe.create_test_runner([recipe_dir], [])
         self.assertTrue("', '', '" in open(testrunner).read())
+
+    def test_coverage_default(self):
+        self.recipe.options['coverage'] = 'true'
+        recipe_dir = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), '..'))
+        testrunner = os.path.join(self.bin_dir, 'test')
+
+        # When we specify an app to test it should create the the
+        # testrunner
+        self.recipe.options['test'] = 'knight'
+        self.recipe.create_test_runner([recipe_dir], [])
+        self.assertTrue("', 'report html_report xml_report', '"
+                        in open(testrunner).read())
 
     def test_relative_paths_true(self):
         recipe = Recipe(
