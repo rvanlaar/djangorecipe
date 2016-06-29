@@ -2,8 +2,8 @@ Changes
 =======
 
 
-2.3 (unreleased)
-----------------
+2.2.1 (2016-06-29)
+------------------
 
 - Bugfix for 2.2: ``bin/test`` was missing quotes around an option. [reinout]
 
