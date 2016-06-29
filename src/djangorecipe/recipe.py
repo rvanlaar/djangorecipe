@@ -116,7 +116,7 @@ class Recipe(object):
                 self.options['bin-directory'],
                 extra_paths=extra_paths,
                 relative_paths=self._relative_paths,
-                arguments="'%s', %s, %s" % (
+                arguments="'%s', '%s', %s" % (
                     settings,
                     coverage_functions,
                     ', '.join(["'%s'" % app for app in apps])),
