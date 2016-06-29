@@ -77,6 +77,24 @@ class TestTestScript(ScriptTestCase):
             mock_setdefault.call_args[0],
             ('DJANGO_SETTINGS_MODULE', 'cheeseshop.nce.development'))
 
+    @mock.patch('django.core.management.execute_from_command_line')
+    @mock.patch('os.environ.setdefault')
+    @mock.patch('coverage.coverage.xml_report')
+    def test_script_with_coverage(
+            self, mock_xml_report, mock_setdefault, execute_from_command_line):
+        with mock.patch.object(sys, 'argv', ['bin/test']):
+            # The test script should execute the standard Django test command
+            # with any apps configured in djangorecipe given as its arguments.
+            binscripts.test('cheeseshop.development',
+                            'report xml_report', 'spamm', 'eggs')
+            self.assertTrue(execute_from_command_line.called)
+            self.assertTrue(mock_xml_report.called)
+            self.assertEqual(execute_from_command_line.call_args[0],
+                             (['bin/test', 'test', 'spamm', 'eggs'],))
+            self.assertEqual(mock_setdefault.call_args[0],
+                             ('DJANGO_SETTINGS_MODULE',
+                              'cheeseshop.development'))
+
 
 class TestManageScript(ScriptTestCase):
 

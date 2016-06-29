@@ -13,7 +13,22 @@ def test(settings_file, coverage_functions, *apps):
     optional_arguments = sys.argv[1:]
     sys.argv[1:] = ['test'] + list(apps) + optional_arguments
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings_file)
+    if coverage_functions:
+        import coverage
+        cov = coverage.coverage()
+        cov.erase()
+        cov.start()
+
     management.execute_from_command_line(sys.argv)
+
+    if coverage_functions:
+        cov.stop()
+        cov.save()
+        # coverage_functions will be something like "report xml_report", which
+        # means we have to call ``cov.report()`` and ``cov.xml_report()``.
+        function_names = coverage_functions.split()
+        for function_name in function_names:
+            getattr(cov, function_name)()
 
 
 def wsgi(settings_file, logfile=None):
