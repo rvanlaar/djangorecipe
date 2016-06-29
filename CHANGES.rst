@@ -5,7 +5,8 @@ Changes
 2.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Automated tests (travis-ci.org) test with django 1.4, 1.8 and 1.9 now. And
+  pypi, python 2.7 and python 3.4. [reinout]
 
 
 2.1.2 (2015-10-21)
