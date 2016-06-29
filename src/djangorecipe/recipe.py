@@ -52,7 +52,7 @@ class Recipe(object):
         options.setdefault('initialization', '')
         options.setdefault('deploy-script-extra', '')
         options.setdefault('scripts-with-settings', '')
-        options.set_default('coverage', '')
+        options.setdefault('coverage', '')
 
         # mod_wsgi support script
         options.setdefault('wsgi', 'false')
