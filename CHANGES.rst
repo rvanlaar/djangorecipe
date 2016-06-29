@@ -5,8 +5,14 @@ Changes
 2.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Added optional ``coverage`` option. Set it to ``true`` to automatically run
+  coverage around your django tests. Needed if you used to have a test runner
+  like django-nose run your coverage automatically. Since django 1.7, this
+  doesn't work anymore. With the new "coverage" option, ``bin/test`` does it
+  for you.
 
+- Automated tests (travis-ci.org) test with django 1.4, 1.8 and 1.9 now. And
+  pypi, python 2.7 and python 3.4. [reinout]
 
 2.1.2 (2015-10-21)
 ------------------

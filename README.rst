@@ -7,6 +7,7 @@ buildout users. For example:
 - ``bin/django`` to run django instead of ``bin/python manage.py``.
 
 - ``bin/test`` to run tests instead of ``bin/python manage.py test yourproject``.
+  (Including running coverage "around" your test).
 
 - ``bin/django`` automatically uses the right django settings. So you can have
   a ``development.cfg`` buildout config and a ``production.cfg``, each telling
@@ -112,6 +113,11 @@ eggs
   you want to be available here. Often you'll have a list in the
   ``[buildout]`` part and re-use it here by saying ``${buildout:eggs}``.
 
+coverage
+  If you set ``coverage = true``, ``bin/test`` will start coverage recording
+  before django starts. The ``coverage`` library must be importable. See the
+  extra coverage notes further below.
+
 The options below are for older projects or special cases mostly:
 
 dotted-settings-path
@@ -155,6 +161,49 @@ deploy_script_extra
 testrunner
   This is the name of the testrunner which will be created. It
   defaults to `test`.
+
+
+
+Coverage notes
+--------------
+
+Starting in django 1.7, you cannot use a custom test runner (like django-nose)
+anymore to automatically run your tests with coverage enabled. The new app
+initialization mechanism already loads your ``models.py``, for instance,
+before the test runner gets called. So your ``models.py`` shows up as largely
+untested.
+
+With ``coverage = true``, ``bin/test`` starts coverage recording before django
+gets called. It also prints out a report and export xml results (for recording
+test results in Jenkins, for instance) and html results.
+
+Behind the scenes, ``true`` is translated to a default of ``report xml_report
+html_report``. These space-separated function names are called in turn on the
+coverage instance. See the `coverage API docs
+<http://coverage.readthedocs.io/en/latest/api.html>`_ for the available
+functions. If you only want a quick report and xml output, you can set
+``coverage = report xml_report`` instead.
+
+Note that you cannot pass options to these functions, like html output
+location. For that, add a ``.coveragerc`` next to your ``buildout.cfg``. See
+the `coverage configuration file docs
+<http://coverage.readthedocs.io/en/latest/config.html>`_. Here is an example::
+
+    [run]
+    omit =
+        */migrations/*
+        *settings.py
+    source = your_app
+
+    [report]
+    show_missing = true
+
+    [html]
+    directory = htmlcov
+
+    [xml]
+    output = coverage.xml
+
 
 
 Example configuration for mod_wsgi
