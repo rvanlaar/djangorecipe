@@ -2,7 +2,7 @@ Changes
 =======
 
 
-2.2 (unreleased)
+2.2 (2016-06-29)
 ----------------
 
 - Added optional ``coverage`` option. Set it to ``true`` to automatically run
